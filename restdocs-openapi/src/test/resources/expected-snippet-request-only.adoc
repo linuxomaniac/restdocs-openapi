@@ -1,0 +1,16 @@
+/some/{id}:
+  post:
+    description: some resource
+    parameters:
+      - in: path
+        name: id
+        schema: integer
+    responses:
+      200:
+        content:
+          application/json:
+            examples:
+              example0:
+                $ref: 'test-request.json'
+            schema:
+              $ref: 'test-schema-request.json'

@@ -1,0 +1,4 @@
+include 'restdocs-openapi'
+include 'restdocs-openapi-gradle-plugin'
+
+rootProject.name = 'restdocs-openapi-parent'

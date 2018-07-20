@@ -1,0 +1,23 @@
+/some/{id}:
+  post:
+    description: some resource
+    parameters:
+      - test-param:
+        description: test param
+        schema:
+          type: string
+        in: query
+      - id:
+        description: an id
+        schema:
+            type: string
+        in: path
+    responses:
+      201:
+        content:
+          application/json:
+            examples:
+                example0:
+                  $ref: 'test-response.json'
+            schema:
+              $ref: 'test-schema-response.json'
