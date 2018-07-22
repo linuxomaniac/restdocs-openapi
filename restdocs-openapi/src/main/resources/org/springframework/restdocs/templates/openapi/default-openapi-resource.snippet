@@ -1,59 +1,55 @@
 {{resource}}:
-  {{#pathParametersPresent}}
-  uriParameters:
-  {{#pathParameters}}
-    {{name}}:
-      description: {{description}}
-      type: {{type}}
-  {{/pathParameters}}
-  {{/pathParametersPresent}}
   {{method}}:
     description: {{description}}
-    {{#requestParametersPresent}}
-    queryParameters:
-    {{#requestParameters}}
-      {{name}}:
+    {{#parametersPresent}}
+    parameters:
+      {{#parameters}}
+      - name: {{name}}
+        in: {{in}}
         description: {{description}}
-        type: {{type}}
-    {{/requestParameters}}
-    {{/requestParametersPresent}}
-    {{#scopes}}
-    securedBy: {{scopes}}
-    {{/scopes}}
-    {{#traits}}
-    is: {{traits}}
-    {{/traits}}
-    {{#requestHeadersPresent}}
-    headers:
-    {{#requestHeaders}}
-      {{name}}:
-        description: {{description}}
+        required: {{required}}
+        schema:
+          type: {{type}}
+        {{#parameterExample}}
         example: {{example}}
-    {{/requestHeaders}}
-    {{/requestHeadersPresent}}
-  {{#requestBodyPresent}}
-    body:
-      {{contentTypeRequest}}:
-      {{#requestFieldsPresent}}
-        schema: !include {{requestSchemaFileName}}
-      {{/requestFieldsPresent}}
-        example: !include {{requestBodyFileName}}
-  {{/requestBodyPresent}}
+        {{/parameterExample}}
+      {{/parameters}}
+    {{/parametersPresent}}
     responses:
       {{status}}:
-      {{#responseHeadersPresent}}
+        description: {{description}}
+        {{#responseHeadersPresent}}
         headers:
           {{#responseHeaders}}
           {{name}}:
             description: {{description}}
+            schema:
+              type: {{tytpe}}
             example: {{example}}
           {{/responseHeaders}}
-      {{/responseHeadersPresent}}
-  {{#responseBodyPresent}}
-        body:
-          {{contentTypeResponse}}:
-          {{#responseFieldsPresent}}
-            schema: !include {{responseSchemaFileName}}
-          {{/responseFieldsPresent}}
-            example: !include {{responseBodyFileName}}
-  {{/responseBodyPresent}}
+        {{/responseHeadersPresent}}
+        {{#requestBodyPresent}}
+        requestBody:
+          description: {{description}}
+          required: {{required}}
+          content:
+            {{contentTypeResponse}}:
+              {{#requestFieldsPresent}}
+              schema:
+                $ref: {{requestSchemaFileName}}
+              {{/requestFieldsPresent}}
+              examples:
+                example0:
+                  $ref: {{requestBodyFileName}}
+            {{/requestBodyPresent}}
+        {{#requestBodyPresent}}
+        content:
+          {{contentTypeRequest}}:
+            {{#responseFieldsPresent}}
+            schema:
+              $ref: {{responseSchemaFileName}}
+            {{/responseFieldsPresent}}
+            examples:
+              - example0:
+                $ref: {{responseBodyFileName}}
+        {{/reponseBodyPresent}}
