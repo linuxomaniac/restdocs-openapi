@@ -23,15 +23,13 @@
           {{#responseHeaders}}
           {{name}}:
             description: {{description}}
-            schema:
-              type: {{tytpe}}
             example: {{example}}
           {{/responseHeaders}}
         {{/responseHeadersPresent}}
         {{#requestBodyPresent}}
         requestBody:
-          description: {{description}}
-          required: {{required}}
+          description: {{requestBodyDescription}}
+          required: {{requestBodyRequired}}
           content:
             {{contentTypeResponse}}:
               {{#requestFieldsPresent}}

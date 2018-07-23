@@ -17,35 +17,16 @@ import org.springframework.restdocs.operation.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class HeaderHandler implements OperationHandler {
-
-    private final String modelNamePrefix;
-    private final Function<List<HeaderDescriptor>, HeadersValidator> validatorSupplier;
-    private final Function<OpenAPIResourceSnippetParameters, List<HeaderDescriptor>> descriptorSupplier;
-    private final Function<Operation, HttpHeaders> headersSupplier;
-
-    static HeaderHandler requestHeaderHandler() {
-        return new HeaderHandler("request",
-                RequestHeaderSnippetValidator::new,
-                OpenAPIResourceSnippetParameters::getRequestHeaders,
-                o -> o.getRequest().getHeaders());
-    }
-
-    static HeaderHandler responseHeaderHandler() {
-        return new HeaderHandler("response",
-                ResponseHeaderSnippetValidator::new,
-                OpenAPIResourceSnippetParameters::getResponseHeaders,
-                o -> o.getResponse().getHeaders());
-    }
+class ResponseHeaderHandler implements OperationHandler {
 
     @Override
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters parameters) {
-        List<HeaderDescriptor> headers = descriptorSupplier.apply(parameters);
+        List<HeaderDescriptor> headers = parameters.getResponseHeaders();
         if (!headers.isEmpty()) {
-            validatorSupplier.apply(headers).validateHeaders(operation);
+            new ResponseHeaderHandler.ResponseHeaderSnippetValidator(headers).validateHeaders(operation);
             Map<String, Object> model = new HashMap<>();
-            model.put(modelNamePrefix + "HeadersPresent", true);
-            model.put(modelNamePrefix + "Headers", mapDescriptorsToModel(headers, headersSupplier.apply(operation)));
+            model.put("responseHeadersPresent", true);
+            model.put("responseHeaders", mapDescriptorsToModel(headers, operation.getRequest().getHeaders()));
             return model;
         }
         return emptyMap();
@@ -63,17 +44,6 @@ class HeaderHandler implements OperationHandler {
 
     private interface HeadersValidator {
         void validateHeaders(Operation operation);
-    }
-
-    private static class RequestHeaderSnippetValidator extends RequestHeadersSnippet implements HeadersValidator {
-        private RequestHeaderSnippetValidator(List<HeaderDescriptor> descriptors) {
-            super(descriptors);
-        }
-
-        @Override
-        public void validateHeaders(Operation operation) {
-            super.createModel(operation);
-        }
     }
 
     private static class ResponseHeaderSnippetValidator extends ResponseHeadersSnippet implements HeadersValidator {

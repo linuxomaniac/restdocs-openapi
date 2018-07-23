@@ -4,9 +4,11 @@
     parameters:
       - in: path
         name: id
-        schema: integer
+        schema:
+          type: integer
     responses:
       200:
+        description: some response
         content:
           application/json:
             examples:

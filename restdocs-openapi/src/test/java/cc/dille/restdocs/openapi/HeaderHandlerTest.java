@@ -1,7 +1,7 @@
 package cc.dille.restdocs.openapi;
 
-import static cc.dille.restdocs.openapi.HeaderHandler.requestHeaderHandler;
-import static cc.dille.restdocs.openapi.HeaderHandler.responseHeaderHandler;
+import static cc.dille.restdocs.openapi.ResponseHeaderHandler.requestHeaderHandler;
+import static cc.dille.restdocs.openapi.ResponseHeaderHandler.responseHeaderHandler;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
