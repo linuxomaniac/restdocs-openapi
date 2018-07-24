@@ -15,7 +15,7 @@ import org.springframework.restdocs.snippet.SnippetException;
 
 public class RequestParameterHandlerTest {
 
-    private RequestParameterHandler requestParameterHandler = new RequestParameterHandler();
+    private ParameterHandler requestParameterHandler = ParameterHandler.requestParameterHandler();
 
     private Operation operation;
 

@@ -1,11 +1,14 @@
 package cc.dille.restdocs.openapi;
 
+import com.sun.net.httpserver.HttpsParameters;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
 import org.springframework.restdocs.headers.ResponseHeadersSnippet;
 import org.springframework.restdocs.operation.Operation;
+import org.springframework.restdocs.operation.Parameters;
 import org.springframework.restdocs.request.PathParametersSnippet;
 import org.springframework.restdocs.request.RequestParametersSnippet;
 
@@ -22,43 +25,60 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 @RequiredArgsConstructor
 class ParameterHandler implements OperationHandler {
 
-    private final String modelNamePrefix;
-    private final Function<List<HeaderDescriptor>, HeadersValidator> validatorSupplier;
-    private final Function<OpenAPIResourceSnippetParameters, List<HeaderDescriptor>> descriptorSupplier;
-    private final Function<Operation, HttpHeaders> headersSupplier;
+    private final parameterType type;
 
     static ParameterHandler requestHeaderHandler() {
-        return new ParameterHandler("requestHeader",
-                RequestHeaderSnippetValidator::new,
-                OpenAPIResourceSnippetParameters::getRequestHeaders,
-                o -> o.getRequest().getHeaders());
+        return new ParameterHandler(parameterType.HEADER);
     }
 
-    static ParameterHandler queryParameterHandler() {
-        return new ParameterHandler("requestParameter",
-                RequestParameterSnippetWrapper::new,
-                OpenAPIResourceSnippetParameters::getRequestParameters,
-                o -> o.getRequest().getParameters());
+    static ParameterHandler requestParameterHandler() {
+        return new ParameterHandler(parameterType.REQUEST);
     }
 
     static ParameterHandler pathParameterHandler() {
-        return new ParameterHandler("pathParameter",
-                PathParameterSnippetWrapper::new,
-                OpenAPIResourceSnippetParameters::getPathParameters,
-                o -> o.);
+        return new ParameterHandler(parameterType.PATH);
     }
 
     @Override
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters parameters) {
-        List<HeaderDescriptor> headers = descriptorSupplier.apply(parameters);
-        if (!headers.isEmpty()) {
-            validatorSupplier.apply(headers).validateHeaders(operation);
-            Map<String, Object> model = new HashMap<>();
-            model.put("parametersPresent", true);
-            model.put("parameters", mapDescriptorsToModel(headers, headersSupplier.apply(operation)));
-            return model;
+        Map<String, Object> model = new HashMap<>();
+
+        switch (type) {
+            case HEADER:
+                List<HeaderDescriptor> headers = parameters.getRequestHeaders();
+
+                if (!headers.isEmpty()) {
+                    new RequestHeaderSnippetValidator(headers).validateHeaders(operation);
+
+                    model.put("parametersPresent", true);
+                    model.put("parameters", mapDescriptorsToModel(headers, operation.getRequest().getHeaders()));
+                }
+                break;
+
+            case PATH:
+                List<ParameterDescriptorWithOpenAPIType> pathParameters = parameters.getPathParameters();
+
+                if (!pathParameters.isEmpty()) {
+                    new PathParameterSnippetWrapper(pathParameters).validateParameters(operation);
+
+                    model.put("parametersPresent", true);
+                    model.put("parameters", mapDescriptorsToModel(pathParameters, operation.getRequest().getParameters()));
+                }
+                break;
+
+            case REQUEST:
+                List<ParameterDescriptorWithOpenAPIType> requestParameters = parameters.getRequestParameters();
+
+                if (!requestParameters.isEmpty()) {
+                    new RequestParameterSnippetWrapper(requestParameters).validateParameters(operation);
+
+                    model.put("parametersPresent", true);
+                    model.put("parameters", mapDescriptorsToModel(requestParameters, operation.getRequest().getParameters()));
+                }
+                break;
         }
-        return emptyMap();
+
+        return model;
     }
 
     private List<Map<String, String>> mapDescriptorsToModel(List<HeaderDescriptor> headerDescriptors, HttpHeaders presentHeaders) {
@@ -67,6 +87,20 @@ class ParameterHandler implements OperationHandler {
             headerMap.put("name", headerDescriptor.getName());
             headerMap.put("description", (String) headerDescriptor.getDescription());
             headerMap.put("example", presentHeaders.getFirst(headerDescriptor.getName()));
+            headerMap.put("in", type.getString());
+            headerMap.put("type", "string");
+            return headerMap;
+        }).collect(toList());
+    }
+
+    private List<Map<String, String>> mapDescriptorsToModel(List<ParameterDescriptorWithOpenAPIType> parametersDescriptors, Parameters presentParameters) {
+        return parametersDescriptors.stream().map(parameterDescriptor -> {
+            Map<String, String> headerMap = new HashMap<>();
+            headerMap.put("name", parameterDescriptor.getName());
+            headerMap.put("description", (String) parameterDescriptor.getDescription());
+            headerMap.put("example", presentParameters.getFirst(parameterDescriptor.getName()));
+            headerMap.put("in", type.getString());
+            headerMap.put("type", parameterDescriptor.getType().getTypeName());
             return headerMap;
         }).collect(toList());
     }
@@ -115,6 +149,20 @@ class ParameterHandler implements OperationHandler {
         @Override
         public void validateParameters(Operation operation) {
             super.createModel(operation);
+        }
+    }
+
+    private enum parameterType {
+        REQUEST("query"), PATH("path"), HEADER("header");
+
+        private String string;
+
+        public String getString() {
+            return string;
+        }
+
+        private parameterType(String string) {
+            this.string = string;
         }
     }
 }

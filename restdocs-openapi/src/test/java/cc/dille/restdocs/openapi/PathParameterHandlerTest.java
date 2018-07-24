@@ -15,7 +15,7 @@ import org.springframework.restdocs.snippet.SnippetException;
 
 public class PathParameterHandlerTest {
 
-    private PathParameterHandler pathParameterHandler = new PathParameterHandler();
+    private ParameterHandler pathParameterHandler = ParameterHandler.pathParameterHandler();
 
     private Operation operation;
 

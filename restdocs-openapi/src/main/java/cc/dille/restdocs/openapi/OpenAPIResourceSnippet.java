@@ -1,7 +1,8 @@
 package cc.dille.restdocs.openapi;
-//
-//import static cc.dille.restdocs.openapi.ResponseHeaderHandler.requestHeaderHandler;
-//import static cc.dille.restdocs.openapi.ResponseHeaderHandler.responseHeaderHandler;
+
+import static cc.dille.restdocs.openapi.ParameterHandler.requestHeaderHandler;
+import static cc.dille.restdocs.openapi.ParameterHandler.pathParameterHandler;
+import static cc.dille.restdocs.openapi.ParameterHandler.requestParameterHandler;
 import static java.util.Collections.singletonList;
 import static org.springframework.restdocs.config.SnippetConfigurer.DEFAULT_SNIPPET_ENCODING;
 import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
@@ -52,8 +53,8 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
                 new RequestHandler(),
                 new ResponseHandler(),
                 new LinkHandler(),
-                new PathParameterHandler(),
-                new RequestParameterHandler(),
+                pathParameterHandler(),
+                requestParameterHandler(),
                 requestHeaderHandler(),
                 new ResponseHeaderHandler(),
                 new TraitExtractorChain(singletonList(new PrivateResourceTraitExtractor()))));

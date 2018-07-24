@@ -1,23 +1,19 @@
 package cc.dille.restdocs.openapi;
 
-import static cc.dille.restdocs.openapi.ResponseHeaderHandler.requestHeaderHandler;
-import static cc.dille.restdocs.openapi.ResponseHeaderHandler.responseHeaderHandler;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.assertj.core.api.BDDAssertions.thenThrownBy;
-import static org.assertj.core.groups.Tuple.tuple;
-import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-
-import java.util.List;
-import java.util.Map;
-
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.springframework.restdocs.operation.Operation;
 import org.springframework.restdocs.snippet.SnippetException;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
+import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 
 public class HeaderHandlerTest {
 
@@ -84,11 +80,11 @@ public class HeaderHandlerTest {
     }
 
     private void whenRequestModelGenerated() {
-        model = requestHeaderHandler().generateModel(operation, snippetParameters);
+        model = ParameterHandler.requestHeaderHandler().generateModel(operation, snippetParameters);
     }
 
     private void whenResponseModelGenerated() {
-        model = responseHeaderHandler().generateModel(operation, snippetParameters);
+        model = new ResponseHeaderHandler().generateModel(operation, snippetParameters);
     }
 
     private void givenDocumentedRequestHeaders() {
