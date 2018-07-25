@@ -1,7 +1,6 @@
 package cc.dille.restdocs.openapi
 
-import cc.dille.restdocs.openapi.RamlVersion.V_0_8
-import cc.dille.restdocs.openapi.RamlVersion.V_1_0
+import cc.dille.restdocs.openapi.OpenAPIVersion.V_3_0_1
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -10,10 +9,10 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 
-open class RestdocsRamlTask: DefaultTask() {
+open class RestdocsOpenAPITask: DefaultTask() {
 
     @Input
-    lateinit var ramlVersion: String
+    lateinit var openAPIVersion: String
 
     @Input
     @Optional
@@ -43,35 +42,32 @@ open class RestdocsRamlTask: DefaultTask() {
 
 
     @TaskAction
-    fun aggregateRamlFragments() {
+    fun aggregateOpenAPIFragments() {
         outputDirectoryFile.mkdirs()
 
         copyBodyJsonFilesToOutput()
 
-        val ramlFragments = snippetsDirectoryFile.walkTopDown()
+        val openAPIFragments = snippetsDirectoryFile.walkTopDown()
                 .filter { it.name is String && it.name.startsWith("openapi-resource") }
-                .map { RamlFragment.fromFile(it) }
+                .map { OpenAPIFragment.fromFile(it) }
                 .toList()
 
-        writeFiles(ramlFragments, ".openapi")
-
-        if (separatePublicApi)
-            writeFiles(ramlFragments.filterNot { it.privateResource }, "-public.openapi")
+        writeFiles(openAPIFragments, ".yaml")
     }
 
 
-    private fun writeFiles(ramlFragments: List<RamlFragment>, fileNameSuffix: String) {
+    private fun writeFiles(openAPIFragments: List<OpenAPIFragment>, fileNameSuffix: String) {
 
-        val ramlApi = ramlFragments.groupBy { it.path }
-                .map { (_, fragmentsWithSamePath) -> RamlResource.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
-                .let { ramlResources -> ramlResources
+        val openAPIApi = openAPIFragments.groupBy { it.path }
+                .map { (_, fragmentsWithSamePath) -> OpenAPI.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
+                .let { openAPIResources -> openAPIResources
                         .groupBy { it.firstPathPart }
                         .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) } }
-                .let { RamlApi(apiTitle, apiBaseUri, ramlVersion(), it) }
+                .let { OpenAPIApi(apiTitle, apiBaseUri, openAPIVersion(), it) }
 
-        RamlWriter.writeApi(
+        OpenAPIWriter.writeApi(
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },
-                api = ramlApi,
+                api = openAPIApi,
                 apiFileName = "$outputFileNamePrefix$fileNameSuffix",
                 groupFileNameProvider = { path -> groupFileName(path, fileNameSuffix) }
         )
@@ -88,7 +84,7 @@ open class RestdocsRamlTask: DefaultTask() {
         else "$fileNamePrefix$fileNameSuffix"
     }
 
-    private fun ramlVersion() = if (ramlVersion == "1.0") V_1_0 else V_0_8
+    private fun openAPIVersion() = V_3_0_1
 
     private fun copyBodyJsonFilesToOutput() {
         snippetsDirectoryFile.walkTopDown().forEach {

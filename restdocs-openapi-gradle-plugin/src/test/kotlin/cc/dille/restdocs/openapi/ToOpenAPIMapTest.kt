@@ -9,22 +9,22 @@ import org.amshove.kluent.`should not be empty`
 import org.junit.Test
 
 
-class ToRamlMapTest: FragmentFixtures {
+class ToOpenAPIMapTest: FragmentFixtures {
 
     val objectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
     @Test
     fun `should convert minimal resource to raml map`() {
         val fragments = listOf(
-                RamlFragment("cart-line-item-update", "/carts/{id}",
+                OpenAPIFragment("cart-line-item-update", "/carts/{id}",
                         Method(method = "put", description = "description")
                 ),
-                RamlFragment("cart-get", "/carts/{id}",
+                OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(method = "get", description = "description")
                 )
         )
 
-        val ramlMap = RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger).toRamlMap(RamlVersion.V_1_0)
+        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
 
         with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
             read<String>("/carts/{id}.get.description").`should not be empty`()
@@ -34,9 +34,9 @@ class ToRamlMapTest: FragmentFixtures {
 
     @Test
     fun `should convert full resource to raml map`() {
-        val fragments = listOf(RamlFragment.fromYamlMap("some", parsedFragmentMap { rawFullFragment() }))
+        val fragments = listOf(OpenAPIFragment.fromYamlMap("some", parsedFragmentMap { rawFullFragment() }))
 
-        val ramlMap = RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger).toRamlMap(RamlVersion.V_1_0)
+        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
 
         with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
             read<String>("/tags/{id}.uriParameters.id.type").`should not be empty`()
@@ -62,9 +62,9 @@ class ToRamlMapTest: FragmentFixtures {
 
     @Test
     fun `should convert resource with empty response`() {
-        val fragments = listOf(RamlFragment.fromYamlMap("some", parsedFragmentMap { rawFragmentWithEmptyResponse() }))
+        val fragments = listOf(OpenAPIFragment.fromYamlMap("some", parsedFragmentMap { rawFragmentWithEmptyResponse() }))
 
-        val ramlMap = RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger).toRamlMap(RamlVersion.V_1_0)
+        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
 
         with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
             read<String>("/payment-integrations/{paymentIntegrationId}.get.description").`should not be empty`()

@@ -6,14 +6,14 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 
-class RamlWriterTest {
+class OpenAPIWriterTest {
 
     @Rule @JvmField val tempFolder = TemporaryFolder()
 
     @Test
     fun `should_write_map`() {
         tempFolder.newFile().let { file ->
-            RamlWriter.writeFile(file, mapOf("title" to "title", "baseUri" to "http://localhost"), "#%RAML 0.8")
+            OpenAPIWriter.writeFile(file, mapOf("title" to "title", "baseUri" to "http://localhost"), "#%RAML 0.8")
             file.readLines().let {
                 it.shouldContain("#%RAML 0.8")
                 it.shouldContain("title: title")

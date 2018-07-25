@@ -1,6 +1,6 @@
 package cc.dille.restdocs.openapi
 
-import com.epages.restdocs.raml.RamlParser.includeTag
+import cc.dille.restdocs.openapi.OpenAPIParser.includeTag
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.DumperOptions.ScalarStyle.PLAIN
 import org.yaml.snakeyaml.Yaml
@@ -15,9 +15,9 @@ import java.io.File
 import java.io.InputStream
 
 
-object RamlParser {
+object OpenAPIParser {
 
-    val includeTag = Tag("!include")
+    val includeTag = Tag("\$ref")
 
     fun parseFragment(fragmentFile: File): Map<*, *> = parseFragment(fragmentFile.inputStream())
 
@@ -28,23 +28,23 @@ object RamlParser {
             .load<Map<Any, Any>>(s)
 }
 
-object RamlWriter {
+object OpenAPIWriter {
 
-    fun writeApi(fileFactory: (String) -> File, api: RamlApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
+    fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
         writeFile(targetFile = fileFactory(apiFileName),
                 contentMap = api.toMainFileMap(groupFileNameProvider),
-                headerLine = api.ramlVersion.versionString)
+                headerLine = api.openAPIVersion.versionString)
 
         api.resourceGroups.map {
             writeFile(
                     targetFile = fileFactory(groupFileNameProvider(it.firstPathPart)),
-                    contentMap = it.toRamlMap(api.ramlVersion))
+                    contentMap = it.toOpenAPIMap(api.openAPIVersion))
         }
     }
 
     fun writeFile(targetFile: File, contentMap: Map<*, *>, headerLine: String? = null) {
         targetFile.writer().let { writer ->
-            headerLine?.let { writer.write("$it\n" ) }
+            headerLine?.let { writer.write("openapi: $it\n" ) }
             yaml().dump(contentMap, writer)
         }
     }

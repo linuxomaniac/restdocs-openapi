@@ -14,13 +14,13 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
-class RamlFragmentTest: FragmentFixtures {
+class OpenAPIFragmentTest: FragmentFixtures {
 
     @Rule
     @JvmField val testProjectDir = TemporaryFolder()
 
     lateinit var file: File
-    lateinit var fragment: RamlFragment
+    lateinit var fragment: OpenAPIFragment
     var expectedId = "some-get"
 
 
@@ -140,11 +140,11 @@ class RamlFragmentTest: FragmentFixtures {
     }
 
     private fun whenFragmentReadFromMap(provider: () -> String) {
-        fragment = RamlFragment.fromYamlMap(expectedId, parsedFragmentMap(provider))
+        fragment = OpenAPIFragment.fromYamlMap(expectedId, parsedFragmentMap(provider))
     }
 
     private fun whenFragmentReadFromFile() {
-        fragment = RamlFragment.fromFile(file)
+        fragment = OpenAPIFragment.fromFile(file)
     }
 
     private fun givenFile() {

@@ -79,7 +79,7 @@ interface FragmentFixtures {
 
         """.trimIndent()
 
-    fun parsedFragmentMap(stringProvider: () -> String) = RamlParser.parseFragment(stringProvider())
+    fun parsedFragmentMap(stringProvider: () -> String) = OpenAPIParser.parseFragment(stringProvider())
 
 
 }

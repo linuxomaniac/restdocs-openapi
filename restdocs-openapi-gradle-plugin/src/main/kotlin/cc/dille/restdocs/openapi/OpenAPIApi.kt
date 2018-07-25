@@ -1,9 +1,9 @@
 package cc.dille.restdocs.openapi
 
-import com.epages.restdocs.raml.RamlVersion.V_1_0
+import cc.dille.restdocs.openapi.OpenAPIVersion.V_3_0_1
 import java.io.File
 
-data class RamlApi(val title: String, val baseUri: String?, val ramlVersion: RamlVersion, private val _resourceGroups: List<ResourceGroup> ) {
+data class OpenAPIApi(val title: String, val baseUri: String?, val openAPIVersion: OpenAPIVersion, private val _resourceGroups: List<ResourceGroup> ) {
     val resourceGroups by lazy {
         _resourceGroups.sortedBy { it.firstPathPart }
     }
@@ -14,55 +14,55 @@ data class RamlApi(val title: String, val baseUri: String?, val ramlVersion: Ram
                     .plus(resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) } )
                     .toMap()
 
-    fun toResourceGroupRamlMaps(ramlVersion: RamlVersion) = resourceGroups.map { it.toRamlMap(ramlVersion) }
+//    fun toResourceGroupRamlMaps(openAPIVersion: OpenAPIVersion) = resourceGroups.map { it.toOpenAPIMap(openAPIVersion) }
 }
 
-enum class RamlVersion(val versionString: String) {
-    V_1_0("#%RAML 1.0"),
-    V_0_8("#%RAML 0.8")
+enum class OpenAPIVersion(val versionString: String) {
+    V_3_0_1("3.0.1")
 }
 
-interface ToRamlMap { fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> }
+interface ToOpenAPIMap { fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> }
 
-data class ResourceGroup(val firstPathPart: String, private val _ramlResources: List<RamlResource>): ToRamlMap {
-    val ramlResources by lazy {
-        _ramlResources.map { it.copy(path = it.path.removePrefix(firstPathPart)) }.sortedBy { it.path.length }
+data class ResourceGroup(val firstPathPart: String, private val _openAPIS: List<OpenAPI>): ToOpenAPIMap {
+    val openAPIResources by lazy {
+        _openAPIS.map { it.copy(path = it.path.removePrefix(firstPathPart)) }.sortedBy { it.path.length }
     }
 
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
-        ramlResources.flatMap { it.toRamlMap(ramlVersion).toList() }.toMap()
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
+        openAPIResources.flatMap { it.toOpenAPIMap(openAPIVersion).toList() }.toMap()
 }
 
-data class Parameter(val name: String, val description: String, val type: String): ToRamlMap {
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
+data class Parameter(val name: String, val description: String, val type: String, val required: String, val in_: String): ToOpenAPIMap {
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
         mapOf(name to mapOf(
+                "in" to in_,
                 "description" to description,
+                "required" to required,
                 "type" to type
         ))
 }
 
-fun List<ToRamlMap>.toRamlMap(key: String, ramlVersion: RamlVersion): Map<*, *> =
-        toRamlMap(ramlVersion)
+fun List<ToOpenAPIMap>.toOpenAPIMap(key: String, openAPIVersion: OpenAPIVersion): Map<*, *> =
+        toOpenAPIMap(openAPIVersion)
                 .let { if (it.isEmpty()) it else mapOf(key to it) }
 
-fun List<ToRamlMap>.toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
-        this.flatMap { it.toRamlMap(ramlVersion).toList() }.toMap()
+fun List<ToOpenAPIMap>.toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
+        this.flatMap { it.toOpenAPIMap(openAPIVersion).toList() }.toMap()
 
 data class Body(val contentType: String,
                 val example: Include? = null,
                 val schema: Include? = null,
-                val examples: List<Include> = emptyList()): ToRamlMap {
+                val examples: List<Include> = emptyList()): ToOpenAPIMap {
 
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> {
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> {
 
         return mapOf(contentType to
-                when (ramlVersion) {
-                    V_1_0 -> mapOf("examples" to examples.map { it.location
+                when (openAPIVersion) {
+                    V_3_0_1 -> mapOf("examples" to examples.map { it.location
                             .replace("-request.json", "")
                             .replace("-response.json", "") to it }.toMap())
-                    else -> mapOf("example" to examples.firstOrNull())
                 }.let {
-                    if (schema != null) it.plus((if (ramlVersion == V_1_0) "type" else "schema") to schema)
+                    if (schema != null) it.plus("type" to schema)
                     else it
                 }
         )
@@ -71,58 +71,52 @@ data class Body(val contentType: String,
 
 data class Response(val status: Int,
                     val bodies: List<Body>,
-                    val headers: List<Header> = emptyList()): ToRamlMap {
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
+                    val headers: List<Header> = emptyList()): ToOpenAPIMap {
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
             if (bodies.isEmpty() && headers.isEmpty())
                 mapOf(status to null)
             else
-                mapOf(status to (if (bodies.isEmpty()) emptyMap<String, Any>() else bodies.toRamlMap("body", ramlVersion))
-                        .plus(headers.toRamlMap("headers", ramlVersion))
+                mapOf(status to (if (bodies.isEmpty()) emptyMap<String, Any>() else bodies.toOpenAPIMap("body", openAPIVersion))
+                        .plus(headers.toOpenAPIMap("headers", openAPIVersion))
                 )
 }
 
 data class Method(val method: String,
                   val description: String? = null,
-                  val queryParameters: List<Parameter> = emptyList(),
-                  val traits: List<String> = emptyList(),
-                  val securedBy: List<String> = emptyList(),
-                  val headers: List<Header> = emptyList(),
+                  val parameters: List<Parameter> = emptyList(),
                   val requestBodies: List<Body> = emptyList(),
-                  val responses: List<Response> = emptyList()): ToRamlMap {
+                  val responses: List<Response> = emptyList()): ToOpenAPIMap {
 
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
             mapOf(method to (if (description != null) mapOf("description" to description) else emptyMap())
-                    .plus(queryParameters.toRamlMap("queryParameters", ramlVersion))
-                    .let { if (traits.isNotEmpty()) it.plus("is" to traits) else it }
-                    .let { if (securedBy.isNotEmpty()) it.plus("securedBy" to securedBy) else it }
-                    .plus(headers.toRamlMap("headers", ramlVersion))
-                    .plus(requestBodies.toRamlMap("body", ramlVersion))
-                    .plus(responses.toRamlMap("responses", ramlVersion))
+                    .plus(parameters.toOpenAPIMap("parameters", openAPIVersion))
+                    .plus(requestBodies.toOpenAPIMap("body", openAPIVersion))
+                    .plus(responses.toOpenAPIMap("responses", openAPIVersion))
             )
 }
 
-data class Header(val name: String, val description: String, val example: String): ToRamlMap {
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
+data class Header(val name: String, val description: String, val example: String): ToOpenAPIMap {
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
             mapOf(name to mapOf(
                     "description" to description,
                     "example" to example
             ))
 }
 
-data class RamlResource(val path: String,
-                        val methods: List<Method> = emptyList(),
-                        val uriParameters: List<Parameter> = emptyList()): ToRamlMap {
+data class OpenAPI(val path: String,
+                   val methods: List<Method> = emptyList(),
+                   val uriParameters: List<Parameter> = emptyList()): ToOpenAPIMap {
     val firstPathPart by lazy {
         path.split("/").find { !it.isEmpty() }?.let{ "/$it" }?:"/"
     }
 
-    override fun toRamlMap(ramlVersion: RamlVersion): Map<*, *> =
-            uriParameters.toRamlMap("uriParameters", ramlVersion)
-                    .plus(methods.flatMap { it.toRamlMap(ramlVersion).toList() }.toMap() )
+    override fun toOpenAPIMap(openAPIVersion: OpenAPIVersion): Map<*, *> =
+            uriParameters.toOpenAPIMap("parameters", openAPIVersion)
+                    .plus(methods.flatMap { it.toOpenAPIMap(openAPIVersion).toList() }.toMap() )
                     .let { if (path.isEmpty()) it else mapOf(path to it)}
 
     companion object {
-        fun fromFragments(allFragments: List<RamlFragment>, jsonSchemaMerger: JsonSchemaMerger): RamlResource {
+        fun fromFragments(allFragments: List<OpenAPIFragment>, jsonSchemaMerger: JsonSchemaMerger): OpenAPI {
             if (allFragments.groupBy { it.path }.size > 1)
                 throw IllegalArgumentException("Fragments for a resource must have a common path")
 
@@ -142,7 +136,7 @@ data class RamlResource(val path: String,
                         )
                     }
 
-            return RamlResource(allFragments.first().path, methods, allFragments.first().uriParameters)
+            return OpenAPI(allFragments.first().path, methods, allFragments.first().parameters)
         }
 
         private fun mergeBodiesWithSameContentType(
@@ -174,37 +168,34 @@ data class RamlResource(val path: String,
     }
 }
 
-data class RamlFragment(val id: String,
-                        val path: String,
-                        val method: Method,
-                        val uriParameters: List<Parameter> = emptyList()) {
-
-    @Suppress("UNCHECKED_CAST")
-    val privateResource = method.traits.contains("private")
+data class OpenAPIFragment(val id: String,
+                           val path: String,
+                           val method: Method,
+                           val parameters: List<Parameter> = emptyList()) {
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun fromYamlMap(id: String, yamlMap: Map<*, *>): RamlFragment {
+        fun fromYamlMap(id: String, yamlMap: Map<*, *>): OpenAPIFragment {
 
             val path = yamlMap.keys.first()
             val values = yamlMap[path] as Map<*, *>
-            val uriParameters = (values["uriParameters"] as? Map<*,*>).orEmpty()
-            val methodMap = values.filterKeys { it != "uriParameters" }
-            return RamlFragment(
+            val parameters = (values["parameters"] as? Map<*,*>).orEmpty()
+            val methodMap = values.filterKeys { it != "parameters" }
+            return OpenAPIFragment(
                     id = id,
                     path = path as String,
-                    uriParameters = parameters(uriParameters),
+                    parameters = parameters(parameters),
                     method = method(methodMap)
             )
         }
 
-        fun fromFile(file: File): RamlFragment {
+        fun fromFile(file: File): OpenAPIFragment {
             val id = file.path
                     .removeSuffix(file.name)
                     .removeSuffix(File.separator)
                     .split(File.separator)
                     .let { it[it.size - 1] }
-            return fromYamlMap(id, RamlParser.parseFragment(file))
+            return fromYamlMap(id, OpenAPIParser.parseFragment(file))
         }
 
         private fun body(map: Map<*,*>): Body {
@@ -223,7 +214,7 @@ data class RamlFragment(val id: String,
             return Response(
                     status = status,
                     headers = headers((values["headers"] as? Map<*, *>).orEmpty()),
-                    bodies = if (values["body"] == null) emptyList() else listOf(body(values["body"] as Map<*, *>))
+                    bodies = if (values["content"] == null) emptyList() else listOf(body(values["body"] as Map<*, *>))
             )
         }
 
@@ -233,18 +224,15 @@ data class RamlFragment(val id: String,
             return Method(
                     method = map.keys.first() as String,
                     description = methodContent["description"] as? String,
-                    requestBodies = (methodContent["body"] as? Map<*, *>)?.let { listOf(body(it)) }.orEmpty(),
-                    queryParameters = parameters((methodContent["queryParameters"] as? Map<*, *>).orEmpty()),
-                    traits = (methodContent["is"] as? List<String>).orEmpty(),
-                    securedBy = (methodContent["securedBy"] as? List<String>).orEmpty(),
-                    headers = headers((methodContent["headers"] as? Map<*, *>).orEmpty()),
+                    requestBodies = (methodContent["content"] as? Map<*, *>)?.let { listOf(body(it)) }.orEmpty(),
+                    parameters = parameters((methodContent["parameters"] as? Map<*, *>).orEmpty()),
                     responses = response?.let { listOf(response(it)) }.orEmpty()
             )
         }
 
         private fun parameters(map: Map<*,*>): List<Parameter> {
             return map.map { (key, value) -> with(value as Map<*, *>) {
-                Parameter(key as String, value["description"] as String, value["type"] as String)
+                Parameter(key as String, value["description"] as String, value["type"] as String, value["required"] as String, value["type"] as String)
             } }
         }
 

@@ -7,12 +7,12 @@ import org.amshove.kluent.`should throw`
 import org.junit.Test
 
 
-class RamlResourceTest {
+class OpenAPITest {
 
     @Test
     fun `should merge fragments with the same method`() {
         val fragments = listOf(
-                RamlFragment("cart-get", "/carts/{id}",
+                OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(
                                 method = "get",
                                 description = "description",
@@ -22,7 +22,7 @@ class RamlResourceTest {
                                         listOf(Body("application/json", Include("cart-get-response.json"), Include("cart-get-response-schema.json")))))
                         )
                 ),
-                RamlFragment("cart-get-additional", "/carts/{id}",
+                OpenAPIFragment("cart-get-additional", "/carts/{id}",
                         Method(
                                 method = "get",
                                 description = "description",
@@ -33,7 +33,7 @@ class RamlResourceTest {
                         )
                 )
         )
-        val resource = RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger)
+        val resource = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger)
 
         with(resource) {
             path `should equal` "/carts/{id}"
@@ -60,7 +60,7 @@ class RamlResourceTest {
     @Test
     fun `should add requests with different content types`() {
         val fragments = listOf(
-                RamlFragment("cart-line-item-update", "/carts/{id}/line-items",
+                OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
                                 description = "description",
@@ -70,7 +70,7 @@ class RamlResourceTest {
                                         listOf(Body("application/json", Include("cart-line-item-update-response.json"), Include("cart-line-item-update-response-schema.json")))))
                         )
                 ),
-                RamlFragment("cart-line-item-assign", "/carts/{id}/line-items",
+                OpenAPIFragment("cart-line-item-assign", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
                                 description = "description",
@@ -82,7 +82,7 @@ class RamlResourceTest {
                 )
         )
 
-        val resource = RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger)
+        val resource = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger)
 
         with(resource) {
             path `should equal` "/carts/{id}/line-items"
@@ -100,15 +100,15 @@ class RamlResourceTest {
     @Test
     fun `should fail on fragments with different path`() {
         val fragments = listOf(
-                RamlFragment("cart-line-item-update", "/carts/{id}/line-items",
+                OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
                         Method(method = "put", description = "description")
                 ),
-                RamlFragment("cart-get", "/carts/{id}",
+                OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(method = "get", description = "description")
                 )
         )
 
-        val fromFragmentsFunctions = { RamlResource.fromFragments(fragments, NoOpJsonSchemaMerger) }
+        val fromFragmentsFunctions = { OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger) }
         fromFragmentsFunctions `should throw` IllegalArgumentException::class
     }
 }
