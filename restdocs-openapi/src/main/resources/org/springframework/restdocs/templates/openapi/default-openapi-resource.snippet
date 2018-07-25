@@ -1,6 +1,5 @@
 {{resource}}:
   {{method}}:
-    description: {{description}}
     {{#parametersPresent}}
     parameters:
       {{#parameters}}
@@ -28,26 +27,25 @@
         {{/responseHeadersPresent}}
         {{#requestBodyPresent}}
         requestBody:
-          description: {{requestBodyDescription}}
-          required: {{requestBodyRequired}}
+          required: true
           content:
-            {{contentTypeResponse}}:
+            {{contentTypeRequest}}:
               {{#requestFieldsPresent}}
               schema:
-                $ref: {{requestSchemaFileName}}
+                $ref: '{{requestSchemaFileName}}'
               {{/requestFieldsPresent}}
               examples:
                 example0:
-                  $ref: {{requestBodyFileName}}
-            {{/requestBodyPresent}}
-        {{#requestBodyPresent}}
+                  $ref: '{{requestBodyFileName}}'
+        {{/requestBodyPresent}}
+        {{#responseBodyPresent}}
         content:
-          {{contentTypeRequest}}:
+          {{contentTypeResponse}}:
             {{#responseFieldsPresent}}
             schema:
-              $ref: {{responseSchemaFileName}}
+              $ref: '{{responseSchemaFileName}}'
             {{/responseFieldsPresent}}
             examples:
-              - example0:
-                $ref: {{responseBodyFileName}}
-        {{/reponseBodyPresent}}
+              example0:
+                $ref: '{{responseBodyFileName}}'
+        {{/responseBodyPresent}}

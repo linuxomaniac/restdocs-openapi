@@ -23,6 +23,8 @@ public class RequestHandler implements OperationHandler, FileNameTrait {
             model.put("requestBodyFileName", getRequestFileName(operation.getName()));
             model.put("requestBodyPresent", true);
             model.put("contentTypeRequest", getContentTypeOrDefault(request));
+            // Fill requestBodyRequired here ?
+            // Fill requestBodyDescription ?
             if (!parameters.getRequestFields().isEmpty()) {
                 validateRequestFieldsAndInferTypeInformation(operation, parameters);
                 model.put("requestFieldsPresent", true);
@@ -49,7 +51,7 @@ public class RequestHandler implements OperationHandler, FileNameTrait {
 
     /**
      * We need the wrapper to take advantage of the validation of fields and the inference of type information.
-     *
+     * <p>
      * This is baked into {@link org.springframework.restdocs.payload.AbstractFieldsSnippet#createModel(Operation)} and is not accessible separately.
      */
     static class RequestFieldsSnippetWrapper extends RequestFieldsSnippet {

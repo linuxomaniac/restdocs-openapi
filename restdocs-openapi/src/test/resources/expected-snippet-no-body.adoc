@@ -1,6 +1,5 @@
 /some/{id}:
   post:
-    description: some resource
     responses:
       201:
-        description: some response
+        description: some resource

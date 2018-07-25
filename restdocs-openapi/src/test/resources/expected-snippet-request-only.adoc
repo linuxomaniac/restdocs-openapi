@@ -1,18 +1,21 @@
 /some/{id}:
   post:
-    description: some resource
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        description: an id
+        required: true
         schema:
           type: integer
     responses:
       200:
-        description: some response
-        content:
-          application/json:
-            examples:
-              example0:
-                $ref: 'test-request.json'
-            schema:
-              $ref: 'test-schema-request.json'
+        description: some resource
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: 'test-schema-request.json'
+              examples:
+                example0:
+                  $ref: 'test-request.json'

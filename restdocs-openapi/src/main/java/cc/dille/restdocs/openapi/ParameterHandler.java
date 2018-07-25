@@ -1,81 +1,51 @@
 package cc.dille.restdocs.openapi;
 
-import com.sun.net.httpserver.HttpsParameters;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
-import org.springframework.restdocs.headers.ResponseHeadersSnippet;
 import org.springframework.restdocs.operation.Operation;
 import org.springframework.restdocs.operation.Parameters;
 import org.springframework.restdocs.request.PathParametersSnippet;
 import org.springframework.restdocs.request.RequestParametersSnippet;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 
 @RequiredArgsConstructor
 class ParameterHandler implements OperationHandler {
 
-    private final parameterType type;
-
-    static ParameterHandler requestHeaderHandler() {
-        return new ParameterHandler(parameterType.HEADER);
-    }
-
-    static ParameterHandler requestParameterHandler() {
-        return new ParameterHandler(parameterType.REQUEST);
-    }
-
-    static ParameterHandler pathParameterHandler() {
-        return new ParameterHandler(parameterType.PATH);
-    }
-
-    @Override
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters parameters) {
+        List<Map<String, String>> res = new ArrayList<>();
+
+        List<HeaderDescriptor> headers = parameters.getRequestHeaders();
+        if (!headers.isEmpty()) {
+            new RequestHeaderSnippetValidator(headers).validate(operation);
+            res.addAll(mapDescriptorsToModel(headers, operation.getRequest().getHeaders()) );
+        }
+
+        List<ParameterDescriptorWithOpenAPIType> pathParameters = parameters.getPathParameters();
+        if (!pathParameters.isEmpty()) {
+            new PathParameterSnippetWrapper(pathParameters).validate(operation);
+            res.addAll(mapDescriptorsToModel(pathParameters, operation.getRequest().getParameters(), "path"));
+        }
+
+        List<ParameterDescriptorWithOpenAPIType> requestParameters = parameters.getRequestParameters();
+        if (!requestParameters.isEmpty()) {
+            new RequestParameterSnippetWrapper(requestParameters).validate(operation);
+            res.addAll(mapDescriptorsToModel(requestParameters, operation.getRequest().getParameters(), "query"));
+        }
+
         Map<String, Object> model = new HashMap<>();
-
-        switch (type) {
-            case HEADER:
-                List<HeaderDescriptor> headers = parameters.getRequestHeaders();
-
-                if (!headers.isEmpty()) {
-                    new RequestHeaderSnippetValidator(headers).validateHeaders(operation);
-
-                    model.put("parametersPresent", true);
-                    model.put("parameters", mapDescriptorsToModel(headers, operation.getRequest().getHeaders()));
-                }
-                break;
-
-            case PATH:
-                List<ParameterDescriptorWithOpenAPIType> pathParameters = parameters.getPathParameters();
-
-                if (!pathParameters.isEmpty()) {
-                    new PathParameterSnippetWrapper(pathParameters).validateParameters(operation);
-
-                    model.put("parametersPresent", true);
-                    model.put("parameters", mapDescriptorsToModel(pathParameters, operation.getRequest().getParameters()));
-                }
-                break;
-
-            case REQUEST:
-                List<ParameterDescriptorWithOpenAPIType> requestParameters = parameters.getRequestParameters();
-
-                if (!requestParameters.isEmpty()) {
-                    new RequestParameterSnippetWrapper(requestParameters).validateParameters(operation);
-
-                    model.put("parametersPresent", true);
-                    model.put("parameters", mapDescriptorsToModel(requestParameters, operation.getRequest().getParameters()));
-                }
-                break;
+        if (!res.isEmpty()) {
+            model.put("parametersPresent", true);
+            model.put("parameters", res);
         }
 
         return model;
@@ -87,44 +57,42 @@ class ParameterHandler implements OperationHandler {
             headerMap.put("name", headerDescriptor.getName());
             headerMap.put("description", (String) headerDescriptor.getDescription());
             headerMap.put("example", presentHeaders.getFirst(headerDescriptor.getName()));
-            headerMap.put("in", type.getString());
+            headerMap.put("in", "header");
             headerMap.put("type", "string");
+            headerMap.put("required", Boolean.toString(!headerDescriptor.isOptional()));
             return headerMap;
         }).collect(toList());
     }
 
-    private List<Map<String, String>> mapDescriptorsToModel(List<ParameterDescriptorWithOpenAPIType> parametersDescriptors, Parameters presentParameters) {
+    private List<Map<String, String>> mapDescriptorsToModel(List<ParameterDescriptorWithOpenAPIType> parametersDescriptors, Parameters presentParameters, String in) {
         return parametersDescriptors.stream().map(parameterDescriptor -> {
-            Map<String, String> headerMap = new HashMap<>();
-            headerMap.put("name", parameterDescriptor.getName());
-            headerMap.put("description", (String) parameterDescriptor.getDescription());
-            headerMap.put("example", presentParameters.getFirst(parameterDescriptor.getName()));
-            headerMap.put("in", type.getString());
-            headerMap.put("type", parameterDescriptor.getType().getTypeName());
-            return headerMap;
+            Map<String, String> parameterMap = new HashMap<>();
+            parameterMap.put("name", parameterDescriptor.getName());
+            parameterMap.put("description", (String) parameterDescriptor.getDescription());
+            parameterMap.put("example", presentParameters.getFirst(parameterDescriptor.getName()));
+            parameterMap.put("in", in);
+            parameterMap.put("type", parameterDescriptor.getType().getTypeName());
+            parameterMap.put("required", Boolean.toString(!parameterDescriptor.isOptional()));
+            return parameterMap;
         }).collect(toList());
     }
 
-    private interface HeadersValidator {
-        void validateHeaders(Operation operation);
+    private interface ElementsValidator {
+        void validate(Operation operation);
     }
 
-    private interface ParametersValidator {
-        void validateParameters(Operation operation);
-    }
-
-    private static class RequestHeaderSnippetValidator extends RequestHeadersSnippet implements HeadersValidator {
+    private static class RequestHeaderSnippetValidator extends RequestHeadersSnippet implements ElementsValidator {
         private RequestHeaderSnippetValidator(List<HeaderDescriptor> descriptors) {
             super(descriptors);
         }
 
         @Override
-        public void validateHeaders(Operation operation) {
+        public void validate(Operation operation) {
             super.createModel(operation);
         }
     }
 
-    static class RequestParameterSnippetWrapper extends RequestParametersSnippet implements ParametersValidator {
+    static class RequestParameterSnippetWrapper extends RequestParametersSnippet implements ElementsValidator {
 
         RequestParameterSnippetWrapper(List<ParameterDescriptorWithOpenAPIType> descriptors) {
             super(descriptors.stream().map(d -> parameterWithName(d.getName())
@@ -133,12 +101,12 @@ class ParameterHandler implements OperationHandler {
         }
 
         @Override
-        public void validateParameters(Operation operation) {
+        public void validate(Operation operation) {
             super.createModel(operation);
         }
     }
 
-    static class PathParameterSnippetWrapper extends PathParametersSnippet implements ParametersValidator {
+    static class PathParameterSnippetWrapper extends PathParametersSnippet implements ElementsValidator {
 
         PathParameterSnippetWrapper(List<ParameterDescriptorWithOpenAPIType> descriptors) {
             super(descriptors.stream().map(d -> parameterWithName(d.getName())
@@ -147,22 +115,8 @@ class ParameterHandler implements OperationHandler {
         }
 
         @Override
-        public void validateParameters(Operation operation) {
+        public void validate(Operation operation) {
             super.createModel(operation);
-        }
-    }
-
-    private enum parameterType {
-        REQUEST("query"), PATH("path"), HEADER("header");
-
-        private String string;
-
-        public String getString() {
-            return string;
-        }
-
-        private parameterType(String string) {
-            this.string = string;
         }
     }
 }

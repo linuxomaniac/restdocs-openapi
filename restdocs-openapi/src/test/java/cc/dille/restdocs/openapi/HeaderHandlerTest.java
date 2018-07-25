@@ -28,11 +28,11 @@ public class HeaderHandlerTest {
 
         whenRequestModelGenerated();
 
-        then(model).containsEntry("requestHeadersPresent", true);
-        then(model).containsKey("requestHeaders");
-        thenHeadersModelContainsTuples("requestHeaders",
-                tuple(AUTHORIZATION, "Authorization", "Basic some"),
-                tuple(ACCEPT, "Accept", HAL_JSON_VALUE)
+        then(model).containsEntry("parametersPresent", true);
+        then(model).containsKey("parameters");
+        thenHeadersModelContainsTuples("parameters",
+                tuple(AUTHORIZATION, "Authorization", "Basic some", "string", "header", "true"),
+                tuple(ACCEPT, "Accept", HAL_JSON_VALUE, "string", "header", "false")
         );
     }
 
@@ -46,7 +46,7 @@ public class HeaderHandlerTest {
         then(model).containsEntry("responseHeadersPresent", true);
         then(model).containsKey("responseHeaders");
         thenHeadersModelContainsTuples("responseHeaders",
-                tuple(CONTENT_TYPE, "ContentType", HAL_JSON_VALUE)
+                tuple(CONTENT_TYPE, "ContentType", HAL_JSON_VALUE, null, null, null)
         );
     }
 
@@ -74,13 +74,16 @@ public class HeaderHandlerTest {
                 .extracting(
                         m -> m.get("name"),
                         m -> m.get("description"),
-                        m -> m.get("example")
+                        m -> m.get("example"),
+                        m -> m.get("type"),
+                        m -> m.get("in"),
+                        m -> m.get("required")
                 )
                 .containsOnly(expectedTuples);
     }
 
     private void whenRequestModelGenerated() {
-        model = ParameterHandler.requestHeaderHandler().generateModel(operation, snippetParameters);
+        model = new ParameterHandler().generateModel(operation, snippetParameters);
     }
 
     private void whenResponseModelGenerated() {
@@ -91,7 +94,7 @@ public class HeaderHandlerTest {
         snippetParameters = OpenAPIResourceSnippetParameters.builder()
                 .requestHeaders(
                         headerWithName(AUTHORIZATION).description("Authorization"),
-                        headerWithName(ACCEPT).description("Accept")
+                        headerWithName(ACCEPT).description("Accept").optional()
                 )
                 .build();
     }

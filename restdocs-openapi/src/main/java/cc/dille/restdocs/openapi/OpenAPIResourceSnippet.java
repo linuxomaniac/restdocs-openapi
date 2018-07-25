@@ -1,8 +1,5 @@
 package cc.dille.restdocs.openapi;
 
-import static cc.dille.restdocs.openapi.ParameterHandler.requestHeaderHandler;
-import static cc.dille.restdocs.openapi.ParameterHandler.pathParameterHandler;
-import static cc.dille.restdocs.openapi.ParameterHandler.requestParameterHandler;
 import static java.util.Collections.singletonList;
 import static org.springframework.restdocs.config.SnippetConfigurer.DEFAULT_SNIPPET_ENCODING;
 import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
@@ -53,9 +50,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
                 new RequestHandler(),
                 new ResponseHandler(),
                 new LinkHandler(),
-                pathParameterHandler(),
-                requestParameterHandler(),
-                requestHeaderHandler(),
+                new ParameterHandler(),
                 new ResponseHeaderHandler(),
                 new TraitExtractorChain(singletonList(new PrivateResourceTraitExtractor()))));
     }
@@ -88,11 +83,11 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
 
     private void documentSnippet(Operation operation) throws IOException {
 
-        WriterResolver writerResolver = new StandardWriterResolver(new RestDocumentationContextPlaceholderResolverFactory(), DEFAULT_SNIPPET_ENCODING, new RamlTemplateFormat());
+        WriterResolver writerResolver = new StandardWriterResolver(new RestDocumentationContextPlaceholderResolverFactory(), DEFAULT_SNIPPET_ENCODING, new OpenAPITemplateFormat());
         try (Writer writer = writerResolver.resolve(operation.getName(), SNIPPET_NAME,
                 (RestDocumentationContext) operation.getAttributes().get(RestDocumentationContext.class.getName()))) {
             Map<String, Object> model = createModel(operation);
-            TemplateEngine templateEngine = new MustacheTemplateEngine(new StandardTemplateResourceResolver(new RamlTemplateFormat()));
+            TemplateEngine templateEngine = new MustacheTemplateEngine(new StandardTemplateResourceResolver(new OpenAPITemplateFormat()));
             writer.append(templateEngine.compileTemplate(SNIPPET_NAME).render(model));
         }
     }
@@ -125,6 +120,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
 
     private void storeFile(Operation operation, String filename, String content) {
         File output = getOutputFile(operation, filename);
+        assert output != null;
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(output.toPath()))) {
             writer.append(content);
         } catch (IOException e) {
@@ -157,7 +153,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
         return UriComponentsBuilder.fromUriString(urlTemplate).build().getPath();
     }
 
-    static class RamlTemplateFormat implements TemplateFormat {
+    static class OpenAPITemplateFormat implements TemplateFormat {
 
         @Override
         public String getId() {
@@ -166,12 +162,12 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
 
         @Override
         public String getFileExtension() {
-            return "openapi";
+            return "yaml";
         }
     }
 
     static class MissingUrlTemplateException extends RuntimeException {
-        public MissingUrlTemplateException() {
+        MissingUrlTemplateException() {
             super("Missing URL template - please use RestDocumentationRequestBuilders with urlTemplate to construct the request");
         }
     }

@@ -15,7 +15,7 @@ import org.springframework.restdocs.snippet.SnippetException;
 
 public class RequestParameterHandlerTest {
 
-    private ParameterHandler requestParameterHandler = ParameterHandler.requestParameterHandler();
+    private ParameterHandler requestParameterHandler = new ParameterHandler();
 
     private Operation operation;
 
@@ -28,18 +28,22 @@ public class RequestParameterHandlerTest {
 
         whenGenerateInvokedWithParameters();
 
-        then(model).containsEntry("requestParametersPresent", true);
-        then(model).containsKey("requestParameters");
-        then(model.get("requestParameters")).isInstanceOf(List.class);
-        List<Map<String, Object>> pathParameters = (List<Map<String, Object>>) model.get("requestParameters");
+        then(model).containsEntry("parametersPresent", true);
+        then(model).containsKey("parameters");
+        then(model.get("parameters")).isInstanceOf(List.class);
+        List<Map<String, Object>> pathParameters = (List<Map<String, Object>>) model.get("parameters");
         then(pathParameters).hasSize(2);
         then(pathParameters.get(0)).containsEntry("name", "test-param-string");
         then(pathParameters.get(0)).containsEntry("type", "string");
+        then(pathParameters.get(0)).containsEntry("in", "query");
         then(pathParameters.get(0)).containsEntry("description", "some");
+        then(pathParameters.get(0)).containsEntry("required", "true");
 
         then(pathParameters.get(1)).containsEntry("name", "test-param-int");
         then(pathParameters.get(1)).containsEntry("type", "integer");
+        then(pathParameters.get(1)).containsEntry("in", "query");
         then(pathParameters.get(1)).containsEntry("description", "other");
+        then(pathParameters.get(1)).containsEntry("required", "false");
     }
 
     @Test
@@ -62,7 +66,7 @@ public class RequestParameterHandlerTest {
         model = requestParameterHandler.generateModel(operation, OpenAPIResourceSnippetParameters.builder()
                 .requestParameters(
                         parameterWithName("test-param-string").description("some"),
-                        parameterWithName("test-param-int").type(INTEGER).description("other")
+                        parameterWithName("test-param-int").type(INTEGER).description("other").optional()
                 ).build());
     }
 
@@ -70,7 +74,7 @@ public class RequestParameterHandlerTest {
         model = requestParameterHandler.generateModel(operation, OpenAPIResourceSnippetParameters.builder()
                 .requestParameters(
                         parameterWithName("test-param-string").description("an id"),
-                        parameterWithName("other-x").type(INTEGER).description("other")
+                        parameterWithName("other-x").type(INTEGER).description("other").optional()
                 ).build());
     }
 

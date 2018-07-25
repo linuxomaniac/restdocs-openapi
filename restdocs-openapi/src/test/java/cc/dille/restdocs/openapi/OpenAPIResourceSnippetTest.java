@@ -1,6 +1,7 @@
 package cc.dille.restdocs.openapi;
 
 import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.STRING;
+import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.INTEGER;
 import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.parameterWithName;
 import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.openAPIResource;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -10,7 +11,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -44,9 +47,17 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
     @SneakyThrows
     public void should_generate_openAPI_fragment_for_operation_with_request_body() {
         givenOperationWithRequestBody();
+        givenPathParameterDescriptors();
         givenRequestFieldDescriptors();
 
         whenOpenAPISnippetInvoked();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(generatedOpenAPIFragmentFile()))) {
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
 
         thenFragmentFileExists();
         then(generatedOpenAPIFragmentFile()).hasSameContentAs(new File("src/test/resources/expected-snippet-request-only.adoc"));
@@ -103,7 +114,7 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
     }
 
     private void givenPathParameterDescriptors() {
-        parametersBuilder.pathParameters(parameterWithName("id").type(STRING).description("an id"));
+        parametersBuilder.pathParameters(parameterWithName("id").type(INTEGER).description("an id"));
     }
 
     private void givenRequestParameterDescriptors() {

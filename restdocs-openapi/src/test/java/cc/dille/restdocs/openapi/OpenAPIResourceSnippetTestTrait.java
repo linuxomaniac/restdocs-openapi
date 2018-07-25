@@ -4,7 +4,7 @@ import java.io.File;
 
 public interface OpenAPIResourceSnippetTestTrait {
 
-    String RAML_FRAGMENT_FILE = "openapi-resource.openapi";
+    String OPENAPI_FRAGMENT_FILE = "openapi-resource.yaml";
     String REQUEST_FILE_SUFFIX = "-request.json";
     String RESPONSE_FILE_SUFFIX = "-response.json";
     String SCHEMA_PART = "-schema";
@@ -14,7 +14,7 @@ public interface OpenAPIResourceSnippetTestTrait {
     File getRootOutputDirectory();
 
     default File generatedOpenAPIFragmentFile() {
-        return new File(getRootOutputDirectory(), getOperationName() + "/" + RAML_FRAGMENT_FILE);
+        return new File(getRootOutputDirectory(), getOperationName() + "/" + OPENAPI_FRAGMENT_FILE);
     }
 
     default File generatedRequestJsonFile() {

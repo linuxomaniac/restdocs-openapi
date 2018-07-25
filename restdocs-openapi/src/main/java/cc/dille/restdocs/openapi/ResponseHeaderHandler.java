@@ -26,7 +26,7 @@ class ResponseHeaderHandler implements OperationHandler {
             new ResponseHeaderHandler.ResponseHeaderSnippetValidator(headers).validateHeaders(operation);
             Map<String, Object> model = new HashMap<>();
             model.put("responseHeadersPresent", true);
-            model.put("responseHeaders", mapDescriptorsToModel(headers, operation.getRequest().getHeaders()));
+            model.put("responseHeaders", mapDescriptorsToModel(headers, operation.getResponse().getHeaders()));
             return model;
         }
         return emptyMap();

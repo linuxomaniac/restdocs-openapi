@@ -15,7 +15,7 @@ import org.springframework.restdocs.snippet.SnippetException;
 
 public class PathParameterHandlerTest {
 
-    private ParameterHandler pathParameterHandler = ParameterHandler.pathParameterHandler();
+    private ParameterHandler pathParameterHandler = new ParameterHandler();
 
     private Operation operation;
 
@@ -28,18 +28,22 @@ public class PathParameterHandlerTest {
 
         whenGenerateInvokedWithPathParameters();
 
-        then(model).containsEntry("pathParametersPresent", true);
-        then(model).containsKey("pathParameters");
-        then(model.get("pathParameters")).isInstanceOf(List.class);
-        List<Map<String, Object>> pathParameters = (List<Map<String, Object>>) model.get("pathParameters");
+        then(model).containsEntry("parametersPresent", true);
+        then(model).containsKey("parameters");
+        then(model.get("parameters")).isInstanceOf(List.class);
+        List<Map<String, Object>> pathParameters = (List<Map<String, Object>>) model.get("parameters");
         then(pathParameters).hasSize(2);
         then(pathParameters.get(0)).containsEntry("name", "id");
+        then(pathParameters.get(0)).containsEntry("in", "path");
         then(pathParameters.get(0)).containsEntry("type", "string");
         then(pathParameters.get(0)).containsEntry("description", "an id");
+        then(pathParameters.get(0)).containsEntry("required", "true");
 
         then(pathParameters.get(1)).containsEntry("name", "other");
+        then(pathParameters.get(1)).containsEntry("in", "path");
         then(pathParameters.get(1)).containsEntry("type", "integer");
         then(pathParameters.get(1)).containsEntry("description", "other");
+        then(pathParameters.get(1)).containsEntry("required", "true");
     }
 
     @Test
