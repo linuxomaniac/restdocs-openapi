@@ -3,83 +3,121 @@ package cc.dille.restdocs.openapi
 
 interface FragmentFixtures {
 
-    fun rawPrivateFragment() = """
+    fun rawFragment() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
-            description:
-            is: [ "private" ]
+            parameters:
+              - name: paymentIntegrationId
+                in: path
+                description: The id
+                required: true
+                schema:
+                  type: integer
+                example: 12
             responses:
               200:
-                body:
+                description: some
+                content:
                   application/hal+json:
-                    schema: !include payment-integration-get-schema-response.json
-                    example: !include payment-integration-get-response.json
+                    schema:
+                      ${'$'}ref: 'payment-integration-get-schema-response.json'
+                    examples:
+                      example0:
+                        ${'$'}ref: 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithoutSchema() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
-            description:
+            parameters:
+              - name: paymentIntegrationId
+                in: path
+                description: The id
+                required: true
+                schema:
+                  type: integer
+                example: 12
             responses:
               200:
-                body:
+                description: some description
+                content:
                   application/hal+json:
-                    example: !include payment-integration-get-response.json
-        """.trimIndent()
-
-    fun rawMinimalFragment() = """
-        /payment-integrations/{paymentIntegrationId}:
-          get:
-            description: "some"
+                    examples:
+                      example0:
+                        ${'$'}ref: 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithEmptyResponse() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
-            description: "some"
+            parameters:
+              - name: paymentIntegrationId
+                in: path
+                description: The id
+                required: true
+                schema:
+                  type: integer
+                example: 12
             responses:
               200:
+                description: some
         """.trimIndent()
 
     fun rawFullFragment() = """
         /tags/{id}:
-          uriParameters:
-            id:
-              type: string
-              description: The id
           put:
-            description: Update a tag
-            headers:
-              X-Custom-Header:
+            parameters:
+              - name: id
+                in: path
+                description: The id
+                required: true
+                schema:
+                  type: integer
+                example: 12
+              - name: X-Custom-Header
+                in: header
                 description: A custom header
+                required: true
+                schema:
+                  type: string
                 example: test
-            securedBy: ["scope-one", "scope-two"]
-            is: ["private"]
-            queryParameters:
-              some:
+              - name: some
+                in: query
                 description: some
-                type: integer
-              other:
+                required: false
+                schema:
+                  type: integer
+                example: 42
+              - name: other
+                in: query
                 description: other
-                type: string
-            body:
-              application/hal+json:
-                schema: !include tags-create-schema-request.json
-                example: !include tags-create-request.json
+                required: true
+                schema:
+                  type: string
+                example: test
+            requestBody:
+              required: true
+              content:
+                application/hal+json:
+                  schema:
+                    ${'$'}ref: 'tags-create-schema-request.json'
+                  examples:
+                    ${'$'}ref: 'tags-create-request.json'
             responses:
               200:
+                description: Update a tag
                 headers:
                   X-Custom-Header:
                     description: A custom header
                     example: test
-                body:
+                content:
                   application/hal+json:
-                    schema: !include tags-list-schema-response.json
-                    example: !include tags-list-response.json
-
+                    schema:
+                      ${'$'}ref: 'tags-list-schema-response.json'
+                    examples:
+                      example0:
+                        ${'$'}ref: 'tags-list-response.json'
         """.trimIndent()
 
     fun parsedFragmentMap(stringProvider: () -> String) = OpenAPIParser.parseFragment(stringProvider())
-
-
 }

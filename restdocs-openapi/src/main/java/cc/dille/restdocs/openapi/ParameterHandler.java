@@ -55,11 +55,11 @@ class ParameterHandler implements OperationHandler {
         return headerDescriptors.stream().map(headerDescriptor -> {
             Map<String, String> headerMap = new HashMap<>();
             headerMap.put("name", headerDescriptor.getName());
-            headerMap.put("description", (String) headerDescriptor.getDescription());
-            headerMap.put("example", presentHeaders.getFirst(headerDescriptor.getName()));
             headerMap.put("in", "header");
-            headerMap.put("type", "string");
+            headerMap.put("description", (String) headerDescriptor.getDescription());
             headerMap.put("required", Boolean.toString(!headerDescriptor.isOptional()));
+            headerMap.put("type", "string");
+            headerMap.put("example", presentHeaders.getFirst(headerDescriptor.getName()));
             return headerMap;
         }).collect(toList());
     }
@@ -68,11 +68,11 @@ class ParameterHandler implements OperationHandler {
         return parametersDescriptors.stream().map(parameterDescriptor -> {
             Map<String, String> parameterMap = new HashMap<>();
             parameterMap.put("name", parameterDescriptor.getName());
-            parameterMap.put("description", (String) parameterDescriptor.getDescription());
-            parameterMap.put("example", presentParameters.getFirst(parameterDescriptor.getName()));
             parameterMap.put("in", in);
-            parameterMap.put("type", parameterDescriptor.getType().getTypeName());
+            parameterMap.put("description", (String) parameterDescriptor.getDescription());
             parameterMap.put("required", Boolean.toString(!parameterDescriptor.isOptional()));
+            parameterMap.put("type", parameterDescriptor.getType().getTypeName());
+            parameterMap.put("example", presentParameters.getFirst(parameterDescriptor.getName()));
             return parameterMap;
         }).collect(toList());
     }

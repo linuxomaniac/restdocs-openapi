@@ -14,49 +14,47 @@ class ToOpenAPIMapTest: FragmentFixtures {
     val objectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
     @Test
-    fun `should convert minimal resource to raml map`() {
+    fun `should convert minimal resource to openAPI map`() {
         val fragments = listOf(
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}",
-                        Method(method = "put", description = "description")
+                        Method(method = "put")
                 ),
                 OpenAPIFragment("cart-get", "/carts/{id}",
-                        Method(method = "get", description = "description")
+                        Method(method = "get")
                 )
         )
 
-        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
+        val openAPIMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_3_0_1)
 
-        with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
+        with (JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
             read<String>("/carts/{id}.get.description").`should not be empty`()
             read<String>("/carts/{id}.put.description").`should not be empty`()
         }
     }
 
     @Test
-    fun `should convert full resource to raml map`() {
+    fun `should convert full resource to openAPI map`() {
         val fragments = listOf(OpenAPIFragment.fromYamlMap("some", parsedFragmentMap { rawFullFragment() }))
 
-        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
+        val openAPIMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_3_0_1)
 
-        with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
-            read<String>("/tags/{id}.uriParameters.id.type").`should not be empty`()
-            read<String>("/tags/{id}.uriParameters.id.description").`should not be empty`()
-            read<String>("/tags/{id}.put.description").`should not be empty`()
-            read<List<String>>("/tags/{id}.put.securedBy").size `should be equal to` 2
-            read<List<String>>("/tags/{id}.put.is").size `should be equal to` 1
-            read<String>("/tags/{id}.put.headers.X-Custom-Header.description").`should not be empty`()
-            read<String>("/tags/{id}.put.headers.X-Custom-Header.example").`should not be empty`()
-            read<String>("/tags/{id}.put.queryParameters.some.description").`should not be empty`()
-            read<String>("/tags/{id}.put.queryParameters.some.type") `should be equal to` "integer"
-            read<String>("/tags/{id}.put.queryParameters.other.description").`should not be empty`()
-            read<String>("/tags/{id}.put.queryParameters.other.type") `should be equal to` "string"
-            read<String>("/tags/{id}.put.body.application/hal+json.type.location").`should not be empty`()
-            read<String>("/tags/{id}.put.body.application/hal+json.examples.tags-create.location").`should not be empty`()
-            read<String>("/tags/{id}.put.headers.X-Custom-Header.description").`should not be empty`()
+        with (JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
+            read<List<Parameter>>("/tags/{id}.parameters").size `should be equal to` 4
+            read<List<Parameter>>("/tags/{id}.parameters").forEach {
+                with(it) {
+                    name.`should not be empty`()
+                    in_.`should not be empty`()
+                    description.`should not be empty`()
+                    type.`should not be empty`()
+                    example.`should not be empty`()
+                }
+            }
+            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.schema.\$ref").`should not be empty`()
+            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.examples.example0.\$ref").`should not be empty`()
             read<String>("/tags/{id}.put.responses.200.headers.X-Custom-Header.description").`should not be empty`()
             read<String>("/tags/{id}.put.responses.200.headers.X-Custom-Header.example").`should not be empty`()
-            read<String>("/tags/{id}.put.responses.200.body.application/hal+json.type.location").`should not be empty`()
-            read<String>("/tags/{id}.put.responses.200.body.application/hal+json.examples.tags-list.location").`should not be empty`()
+            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.schema.\$ref").`should not be empty`()
+            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.examples.example0.\$ref").`should not be empty`()
         }
     }
 
@@ -64,11 +62,11 @@ class ToOpenAPIMapTest: FragmentFixtures {
     fun `should convert resource with empty response`() {
         val fragments = listOf(OpenAPIFragment.fromYamlMap("some", parsedFragmentMap { rawFragmentWithEmptyResponse() }))
 
-        val ramlMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_1_0)
+        val openAPIMap = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap(OpenAPIVersion.V_3_0_1)
 
-        with (JsonPath.parse(objectMapper.writeValueAsString(ramlMap))) {
-            read<String>("/payment-integrations/{paymentIntegrationId}.get.description").`should not be empty`()
-            read<Map<String, *>>("/payment-integrations/{paymentIntegrationId}.get.responses.200").`should be null`()
+        with (JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
+            read<Map<String, *>>("/payment-integrations/{paymentIntegrationId}.get.responses.200").`should not be empty`()
+            read<String>("/payment-integrations/{paymentIntegrationId}.get.responses.200.description").`should not be empty`()
         }
     }
 }

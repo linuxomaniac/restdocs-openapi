@@ -9,11 +9,22 @@
         required: {{required}}
         schema:
           type: {{type}}
-        {{#parameterExample}}
         example: {{example}}
-        {{/parameterExample}}
       {{/parameters}}
     {{/parametersPresent}}
+    {{#requestBodyPresent}}
+    requestBody:
+    required: true
+    content:
+      {{contentTypeRequest}}:
+      {{#requestFieldsPresent}}
+      schema:
+        $ref: '{{requestSchemaFileName}}'
+      {{/requestFieldsPresent}}
+      examples:
+        example0:
+          $ref: '{{requestBodyFileName}}'
+    {{/requestBodyPresent}}
     responses:
       {{status}}:
         description: {{description}}
@@ -25,19 +36,6 @@
             example: {{example}}
           {{/responseHeaders}}
         {{/responseHeadersPresent}}
-        {{#requestBodyPresent}}
-        requestBody:
-          required: true
-          content:
-            {{contentTypeRequest}}:
-              {{#requestFieldsPresent}}
-              schema:
-                $ref: '{{requestSchemaFileName}}'
-              {{/requestFieldsPresent}}
-              examples:
-                example0:
-                  $ref: '{{requestBodyFileName}}'
-        {{/requestBodyPresent}}
         {{#responseBodyPresent}}
         content:
           {{contentTypeResponse}}:

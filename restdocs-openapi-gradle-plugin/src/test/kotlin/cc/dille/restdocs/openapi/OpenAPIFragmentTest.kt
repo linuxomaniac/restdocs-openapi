@@ -1,23 +1,17 @@
 package cc.dille.restdocs.openapi
 
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should contain`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should not be null`
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldNotBeNullOrEmpty
+import org.amshove.kluent.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
-class OpenAPIFragmentTest: FragmentFixtures {
+class OpenAPIFragmentTest : FragmentFixtures {
 
     @Rule
-    @JvmField val testProjectDir = TemporaryFolder()
+    @JvmField
+    val testProjectDir = TemporaryFolder()
 
     lateinit var file: File
     lateinit var fragment: OpenAPIFragment
@@ -34,25 +28,61 @@ class OpenAPIFragmentTest: FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/carts/{cartId}"
             method.method `should be equal to` "get"
-            method.requestBodies.shouldBeEmpty()
-            method.responses.shouldBeEmpty()
-            method.securedBy `should equal` listOf("pymt:u")
-            method.description.shouldNotBeNullOrEmpty()
+            method.requestsContents.shouldBeEmpty()
+            method.responses `should contain` Response(status = 200, description = "TODO - figure out how to set")
+            method.parameters `should contain` Parameter("cartId", "path", "some integer", "true", "integer", "10")
         }
     }
 
     @Test
-    fun `should parse minimal fragment`() {
-        whenFragmentReadFromMap(::rawMinimalFragment)
+    fun `should parse fragment`() {
+        whenFragmentReadFromMap(::rawFragment)
 
         with(fragment) {
             id `should be equal to` expectedId
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
-            method.headers.shouldBeEmpty()
-            method.description.shouldNotBeNullOrEmpty()
-            method.requestBodies.shouldBeEmpty()
-            method.responses.shouldBeEmpty()
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.requestsContents.shouldBeEmpty()
+            method.responses `should contain` Response(
+                    status = 200,
+                    description = "some",
+                    contents = listOf(Content(
+                            contentType = "application/hal+json",
+                            schema = Include("payment-integration-get-response.json"),
+                            examples = listOf(Include("payment-integration-get-schema-response.json"))
+                    ))
+            )
+        }
+    }
+
+    @Test
+    fun `should parse fragment with example without schema`() {
+        whenFragmentReadFromMap(this::rawFragmentWithoutSchema)
+
+//        with(fragment) {
+//            method.requestsContents.shouldBeEmpty()
+//            method.responses.size `should equal` 1
+//            with(method.responses.first()) {
+//                contents.first().example `should not be null`()
+//                contents.first().schema.`should be null`()
+//            }
+//        }
+
+        with(fragment) {
+            id `should be equal to` expectedId
+            path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
+            method.method `should be equal to` "get"
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.requestsContents.shouldBeEmpty ()
+            method.responses `should contain` Response(
+                    status = 200,
+                    description = "some description",
+                    contents = listOf(Content(
+                            contentType = "application/hal+json",
+                            examples = listOf(Include("payment-integration-get-schema-response.json"))
+                    ))
+            )
         }
     }
 
@@ -64,24 +94,9 @@ class OpenAPIFragmentTest: FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
-            method.description.shouldNotBeNullOrEmpty()
-            method.requestBodies.shouldBeEmpty()
-            method.headers.shouldBeEmpty()
-            method.responses `should contain` Response(200, emptyList())
-        }
-    }
-
-    @Test
-    fun `should parse fragment with example without schema`() {
-        whenFragmentReadFromMap(this::rawFragmentWithoutSchema)
-
-        with(fragment) {
-            method.requestBodies.shouldBeEmpty()
-            method.responses.size `should equal` 1
-            with(method.responses.first()) {
-                bodies.first().example.`should not be null`()
-                bodies.first().schema.`should be null`()
-            }
+            method.requestsContents.shouldBeEmpty()
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.responses `should contain` Response(200, "some", emptyList())
         }
     }
 
@@ -92,32 +107,42 @@ class OpenAPIFragmentTest: FragmentFixtures {
         with(fragment) {
             id `should equal` expectedId
             path `should equal` "/tags/{id}"
-            uriParameters.size `should equal` 1
-            uriParameters.first().name `should equal` "id"
-            uriParameters.first().description `should equal` "The id"
-            uriParameters.first().type `should equal` "string"
-            with (method) {
+
+            with(method) {
                 method `should equal` "put"
-                description.shouldNotBeNullOrEmpty()
 
-                queryParameters.size `should be` 2
-                queryParameters.map { it.name } `should equal` listOf("some", "other")
-                queryParameters.map { it.description } `should equal` listOf("some", "other")
-                queryParameters.map { it.type } `should equal` listOf("integer", "string")
+                parameters.size `should equal` 4
 
-                headers.size `should be` 1
-                headers.first().name `should equal` "X-Custom-Header"
-                headers.first().description `should equal` "A custom header"
-                headers.first().example `should equal` "test"
+                parameters[0].name `should equal` "id"
+                parameters[0].in_ `should equal` "path"
+                parameters[0].description `should equal` "The id"
+                parameters[0].required `should equal` "true"
+                parameters[0].type `should equal` "integer"
+                parameters[0].example `should equal` "12"
 
-                traits.size `should equal` 1
-                traits.first() `should equal` "private"
+                parameters[1].name `should equal` "X-Custom-Header"
+                parameters[1].in_ `should equal` "header"
+                parameters[1].description `should equal` "A custom header"
+                parameters[1].required `should equal` "true"
+                parameters[1].type `should equal` "string"
+                parameters[1].example `should equal` "test"
 
-                securedBy.size `should equal` 2
-                securedBy `should equal` listOf("scope-one", "scope-two")
+                parameters[2].name `should equal` "some"
+                parameters[2].in_ `should equal` "query"
+                parameters[2].description `should equal` "some"
+                parameters[2].required `should equal` "false"
+                parameters[2].type `should equal` "integer"
+                parameters[2].example `should equal` "42"
 
-                requestBodies.size `should equal` 1
-                with(requestBodies.first()) {
+                parameters[3].name `should equal` "other"
+                parameters[3].in_ `should equal` "query"
+                parameters[3].description `should equal` "other"
+                parameters[3].required `should equal` "true"
+                parameters[3].type `should equal` "string"
+                parameters[3].example `should equal` "test"
+
+                requestsContents.size `should equal` 1
+                with(requestsContents.first()) {
                     contentType `should equal` "application/hal+json"
                     example.`should not be null`()
                     schema.`should not be null`()
@@ -132,8 +157,8 @@ class OpenAPIFragmentTest: FragmentFixtures {
                     headers.first().description `should equal` "A custom header"
                     headers.first().example `should equal` "test"
 
-                    bodies.first().example.`should not be null`()
-                    bodies.first().schema.`should not be null`()
+                    contents.first().example.`should not be null`()
+                    contents.first().schema.`should not be null`()
                 }
             }
         }
@@ -149,12 +174,21 @@ class OpenAPIFragmentTest: FragmentFixtures {
 
     private fun givenFile() {
         file = testProjectDir.newFolder("build", "generated-snippets", expectedId)
-                .let { File(it, "openapi-resource.openapi") }
+                .let { File(it, "openapi-resource.yaml") }
                 .also {
                     it.writeText("""/carts/{cartId}:
                         |  get:
-                        |    description: "TODO - figure out how to set"
-                        |    securedBy: ["pymt:u"]
+                        |    parameters:
+                        |      - name: cartId
+                        |        in: path
+                        |        description: some integer
+                        |        required: true
+                        |        schema:
+                        |          type: integer
+                        |        example: 10
+                        |    responses:
+                        |      200:
+                        |        description: TODO - figure out how to set
     """.trimMargin())
                 }
     }
