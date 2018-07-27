@@ -32,19 +32,19 @@ object OpenAPIWriter {
 
     fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
         writeFile(targetFile = fileFactory(apiFileName),
-                contentMap = api.toMainFileMap(groupFileNameProvider),
-                headerLine = api.openAPIVersion.versionString)
+                contentMap = api.toMainFileMap(groupFileNameProvider)
+                )
 
         api.resourceGroups.map {
             writeFile(
                     targetFile = fileFactory(groupFileNameProvider(it.firstPathPart)),
-                    contentMap = it.toOpenAPIMap(api.openAPIVersion))
+                    contentMap = it.toOpenAPIMap())
         }
     }
 
-    fun writeFile(targetFile: File, contentMap: Map<*, *>, headerLine: String? = null) {
+    fun writeFile(targetFile: File, contentMap: Map<*, *>) {
         targetFile.writer().let { writer ->
-            headerLine?.let { writer.write("openapi: $it\n" ) }
+            writer.write("openapi: 3.0.1\n")// TODO: read this un gradle plugin configuration
             yaml().dump(contentMap, writer)
         }
     }
@@ -64,14 +64,14 @@ internal class IncludeRepresenter : Representer() {
         this.representers[Include::class.java] = RepresentInclude()
     }
 
-    private inner class RepresentInclude: Represent {
+    private inner class RepresentInclude : Represent {
         override fun representData(data: Any): Node {
             return representScalar(includeTag, (data as Include).location)
         }
     }
 }
 
-internal class IncludeConstructor: SafeConstructor() {
+internal class IncludeConstructor : SafeConstructor() {
     init {
         this.yamlConstructors[includeTag] = ConstructInclude()
     }

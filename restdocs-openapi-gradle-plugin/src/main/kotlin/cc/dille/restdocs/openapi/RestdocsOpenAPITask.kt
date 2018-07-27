@@ -1,6 +1,5 @@
 package cc.dille.restdocs.openapi
 
-import cc.dille.restdocs.openapi.OpenAPIVersion.V_3_0_1
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -63,7 +62,7 @@ open class RestdocsOpenAPITask: DefaultTask() {
                 .let { openAPIResources -> openAPIResources
                         .groupBy { it.firstPathPart }
                         .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) } }
-                .let { OpenAPIApi(apiTitle, apiBaseUri, openAPIVersion(), it) }
+                .let { OpenAPIApi(apiTitle, apiBaseUri, it) }
 
         OpenAPIWriter.writeApi(
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },
@@ -84,7 +83,6 @@ open class RestdocsOpenAPITask: DefaultTask() {
         else "$fileNamePrefix$fileNameSuffix"
     }
 
-    private fun openAPIVersion() = V_3_0_1
 
     private fun copyBodyJsonFilesToOutput() {
         snippetsDirectoryFile.walkTopDown().forEach {

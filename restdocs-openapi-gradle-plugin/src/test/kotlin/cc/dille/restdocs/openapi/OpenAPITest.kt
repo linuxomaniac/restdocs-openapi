@@ -1,5 +1,6 @@
 package cc.dille.restdocs.openapi
 
+import org.amshove.kluent.`should be null`
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
@@ -14,21 +15,25 @@ class OpenAPITest {
                 OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(
                                 method = "get",
-                                description = "description",
                                 requestsContents = listOf(
                                         Content("application/json", Include("cart-get-request.json"), Include("cart-get-request-schema.json"))),
-                                responses = listOf(Response(200,
-                                        listOf(Content("application/json", Include("cart-get-response.json"), Include("cart-get-response-schema.json")))))
+                                responses = listOf(Response(
+                                        status = 200,
+                                        description = "description",
+                                        contents = listOf(Content("application/json", Include("cart-get-response.json"), Include("cart-get-response-schema.json")))
+                                ))
                         )
                 ),
                 OpenAPIFragment("cart-get-additional", "/carts/{id}",
                         Method(
                                 method = "get",
-                                description = "description",
                                 requestsContents = listOf(
                                         Content("application/json", Include("cart-get-additional-request.json"), Include("cart-get-additional-schema.json"))),
-                                responses = listOf(Response(200,
-                                        listOf(Content("application/json", Include("cart-get-additional-response.json"), Include("cart-get-additional-response-schema.json")))))
+                                responses = listOf(Response(
+                                        status = 200,
+                                        description = "description",
+                                        contents = listOf(Content("application/json", Include("cart-get-additional-response.json"), Include("cart-get-additional-response-schema.json")))
+                                ))
                         )
                 )
         )
@@ -62,21 +67,25 @@ class OpenAPITest {
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
-                                description = "description",
                                 requestsContents = listOf(
                                         Content("application/json", Include("cart-line-item-update-request.json"), Include("cart-line-item-update-schema.json"))),
-                                responses = listOf(Response(200,
-                                        listOf(Content("application/json", Include("cart-line-item-update-response.json"), Include("cart-line-item-update-response-schema.json")))))
+                                responses = listOf(Response(
+                                        status = 200,
+                                        description = "description",
+                                        contents = listOf(Content("application/json", Include("cart-line-item-update-response.json"), Include("cart-line-item-update-response-schema.json")))
+                                ))
                         )
                 ),
                 OpenAPIFragment("cart-line-item-assign", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
-                                description = "description",
                                 requestsContents = listOf(
                                         Content("text/uri-list", Include("cart-line-item-assign-request.json"), Include("cart-line-item-assign-schema.json"))),
-                                responses = listOf(Response(200,
-                                        listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), Include("cart-line-item-assign-response-schema.json")))))
+                                responses = listOf(Response(
+                                        status = 200,
+                                        description = "description",
+                                        contents = listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), Include("cart-line-item-assign-response-schema.json")))
+                                ))
                         )
                 )
         )
@@ -100,10 +109,10 @@ class OpenAPITest {
     fun `should fail on fragments with different path`() {
         val fragments = listOf(
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
-                        Method(method = "put", description = "description")
+                        Method(method = "put")
                 ),
                 OpenAPIFragment("cart-get", "/carts/{id}",
-                        Method(method = "get", description = "description")
+                        Method(method = "get")
                 )
         )
 
