@@ -102,7 +102,8 @@ interface FragmentFixtures {
                   schema:
                     ${'$'}ref: 'tags-create-schema-request.json'
                   examples:
-                    ${'$'}ref: 'tags-create-request.json'
+                    example0:
+                      ${'$'}ref: 'tags-create-request.json'
             responses:
               200:
                 description: Update a tag

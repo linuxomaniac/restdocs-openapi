@@ -12,17 +12,15 @@ data class OpenAPIApi(val title: String, val baseUri: String?, private val _reso
                     .let { if (baseUri != null) it.plus("baseUri" to baseUri) else it }
                     .plus(resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) })
                     .toMap()
-
-//    fun toResourceGroupRamlMaps(openAPIVersion: OpenAPIVersion) = resourceGroups.map { it.toOpenAPIMap(openAPIVersion) }
 }
 
 interface ToOpenAPIMap {
     fun toOpenAPIMap(): Map<*, *>
 }
 
-data class ResourceGroup(val firstPathPart: String, private val _openAPIS: List<OpenAPI>) : ToOpenAPIMap {
-    val openAPIResources by lazy {
-        _openAPIS.map { it.copy(path = it.path.removePrefix(firstPathPart)) }.sortedBy { it.path.length }
+data class ResourceGroup(val firstPathPart: String, private val _openAPIResources: List<OpenAPIResource>) : ToOpenAPIMap {
+    private val openAPIResources by lazy {
+        _openAPIResources.map { it.copy(path = it.path.removePrefix(firstPathPart)) }.sortedBy { it.path.length }
     }
 
     override fun toOpenAPIMap(): Map<*, *> =
@@ -31,13 +29,13 @@ data class ResourceGroup(val firstPathPart: String, private val _openAPIS: List<
 
 data class Parameter(val name: String, val in_: String, val description: String, val required: String, val type: String, val example: String) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(name to mapOf(
+            mapOf("name" to name,
                     "in" to in_,
                     "description" to description,
                     "required" to required,
                     "type" to type,
                     "example" to example
-            ))
+            )
 }
 
 fun List<ToOpenAPIMap>.toOpenAPIMap(key: String): Map<*, *> =
@@ -68,8 +66,9 @@ data class Response(val status: Int,
                     val contents: List<Content> = emptyList(),
                     val headers: List<Header> = emptyList()) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(status to (if (contents.isEmpty()) emptyMap<String, Any>() else contents.toOpenAPIMap("content"))
+            mapOf(status to mapOf("description" to description)
                     .plus(headers.toOpenAPIMap("headers"))
+                    .plus(contents.toOpenAPIMap("content"))
             )
 }
 
@@ -78,10 +77,13 @@ data class Method(val method: String,
                   val requestsContents: List<Content> = emptyList(),
                   val responses: List<Response> = emptyList()) : ToOpenAPIMap {
 
-    override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(method to parameters.toOpenAPIMap("parameters"))
-                    .plus(requestsContents.toOpenAPIMap("content"))
-                    .plus(responses.toOpenAPIMap("responses"))
+    override fun toOpenAPIMap(): Map<*, *> {
+        // TODO
+        System.out.println(requestsContents)
+        return mapOf(method to mapOf("parameters" to parameters.map { it.toOpenAPIMap() }))
+                .plus(requestsContents.toOpenAPIMap("requestBody"))
+                .plus(responses.toOpenAPIMap("responses"))
+    }
 }
 
 data class Header(val name: String, val description: String, val example: String) : ToOpenAPIMap {
@@ -92,20 +94,17 @@ data class Header(val name: String, val description: String, val example: String
             ))
 }
 
-data class OpenAPI(val path: String,
-                   val methods: List<Method> = emptyList(),
-                   val uriParameters: List<Parameter> = emptyList()) : ToOpenAPIMap {
+data class OpenAPIResource(val path: String,
+                           val methods: List<Method> = emptyList()) : ToOpenAPIMap {
     val firstPathPart by lazy {
         path.split("/").find { !it.isEmpty() }?.let { "/$it" } ?: "/"
     }
 
     override fun toOpenAPIMap(): Map<*, *> =
-            uriParameters.toOpenAPIMap("parameters")
-                    .plus(methods.flatMap { it.toOpenAPIMap().toList() }.toMap())
-                    .let { if (path.isEmpty()) it else mapOf(path to it) }
+            mapOf(path to methods.flatMap { it.toOpenAPIMap().toList() }.toMap())
 
     companion object {
-        fun fromFragments(allFragments: List<OpenAPIFragment>, jsonSchemaMerger: JsonSchemaMerger): OpenAPI {
+        fun fromFragments(allFragments: List<OpenAPIFragment>, jsonSchemaMerger: JsonSchemaMerger): OpenAPIResource {
             if (allFragments.groupBy { it.path }.size > 1)
                 throw IllegalArgumentException("Fragments for a resource must have a common path")
 
@@ -125,7 +124,7 @@ data class OpenAPI(val path: String,
                         )
                     }
 
-            return OpenAPI(allFragments.first().path, methods)
+            return OpenAPIResource(allFragments.first().path, methods)
         }
 
         private fun mergeBodiesWithSameContentType(
@@ -147,6 +146,7 @@ data class OpenAPI(val path: String,
             return responsesByStatus.map { (status, responses) ->
                 Response(
                         status = status,
+                        description = responses.first().description,
                         headers = responses.flatMap { it.headers },
                         contents = mergeBodiesWithSameContentType(responses
                                 .flatMap { it.contents }
@@ -189,16 +189,11 @@ data class OpenAPIFragment(val id: String,
 
             val schema = (values["schema"] as? Map<*, *>).orEmpty()
 
-            System.out.println(schema)
-
-            var examples = (values["examples"] as? Map<*, *>).orEmpty()
-            if (!examples.isEmpty()) {
-                examples = examples[examples.keys.first()] as Map<*, *>
-            }
+            val examples = (values["examples"] as? Map<*, *>).orEmpty()
 
             return Content(
                     contentType = contentType,
-                    example = if (!examples.isEmpty()) Include(examples["\$ref"] as String) else null,
+                    examples = if (!examples.isEmpty()) examples.map { (k, v) -> with(v as Map<*, *>) { Include(v["\$ref"] as String) } } else emptyList(),
                     schema = if (!schema.isEmpty()) Include(schema["\$ref"] as String) else null
             )
         }
@@ -219,7 +214,7 @@ data class OpenAPIFragment(val id: String,
             val response = methodContent["responses"] as? Map<*, *>
             return Method(
                     method = map.keys.first() as String,
-                    requestsContents = (methodContent["content"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty(),
+                    requestsContents = (methodContent["requestBody"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty(),
                     parameters = parameters((methodContent["parameters"] as? List<*>).orEmpty()),
                     responses = response?.let { listOf(response(it)) }.orEmpty()
             )

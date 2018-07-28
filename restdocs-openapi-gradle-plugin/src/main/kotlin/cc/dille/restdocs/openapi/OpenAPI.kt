@@ -42,9 +42,9 @@ object OpenAPIWriter {
         }
     }
 
-    fun writeFile(targetFile: File, contentMap: Map<*, *>) {
+    fun writeFile(targetFile: File, contentMap: Map<*, *>, version: String? = "3.0.1") {
         targetFile.writer().let { writer ->
-            writer.write("openapi: 3.0.1\n")// TODO: read this un gradle plugin configuration
+            writer.write("openapi: $version\n")
             yaml().dump(contentMap, writer)
         }
     }

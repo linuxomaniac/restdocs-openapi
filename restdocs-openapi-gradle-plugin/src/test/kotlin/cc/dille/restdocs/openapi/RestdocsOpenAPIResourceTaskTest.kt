@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-class RestdocsOpenAPITaskTest {
+class RestdocsOpenAPIResourceTaskTest {
 
     @Rule @JvmField val testProjectDir = TemporaryFolder()
 

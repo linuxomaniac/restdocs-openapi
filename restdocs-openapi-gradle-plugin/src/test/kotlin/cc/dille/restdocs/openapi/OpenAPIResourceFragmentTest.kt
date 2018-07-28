@@ -7,15 +7,15 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
-class OpenAPIFragmentTest : FragmentFixtures {
+class OpenAPIResourceFragmentTest : FragmentFixtures {
 
     @Rule
     @JvmField
     val testProjectDir = TemporaryFolder()
 
-    lateinit var file: File
-    lateinit var fragment: OpenAPIFragment
-    var expectedId = "some-get"
+    private lateinit var file: File
+    private lateinit var fragment: OpenAPIFragment
+    private var expectedId = "some-get"
 
 
     @Test
@@ -144,7 +144,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 requestsContents.size `should equal` 1
                 with(requestsContents.first()) {
                     contentType `should equal` "application/hal+json"
-                    example.`should not be null`()
+                    examples.size `should equal` 1
                     schema.`should not be null`()
                 }
 
@@ -157,7 +157,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                     headers.first().description `should equal` "A custom header"
                     headers.first().example `should equal` "test"
 
-                    contents.first().example.`should not be null`()
+                    contents.first().examples.size `should equal` 1
                     contents.first().schema.`should not be null`()
                 }
             }

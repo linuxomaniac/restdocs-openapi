@@ -1,13 +1,13 @@
 package cc.dille.restdocs.openapi
 
-import org.amshove.kluent.`should be null`
+import org.amshove.kluent.`should be empty`
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.junit.Test
 
 
-class OpenAPITest {
+class OpenAPIResourceTest {
 
     @Test
     fun `should merge fragments with the same method`() {
@@ -16,11 +16,11 @@ class OpenAPITest {
                         Method(
                                 method = "get",
                                 requestsContents = listOf(
-                                        Content("application/json", Include("cart-get-request.json"), Include("cart-get-request-schema.json"))),
+                                        Content("application/json", Include("cart-get-request.json"), listOf(Include("cart-get-request-schema.json")))),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-get-response.json"), Include("cart-get-response-schema.json")))
+                                        contents = listOf(Content("application/json", Include("cart-get-response.json"), listOf(Include("cart-get-response-schema.json"))))
                                 ))
                         )
                 ),
@@ -28,16 +28,16 @@ class OpenAPITest {
                         Method(
                                 method = "get",
                                 requestsContents = listOf(
-                                        Content("application/json", Include("cart-get-additional-request.json"), Include("cart-get-additional-schema.json"))),
+                                        Content("application/json", Include("cart-get-additional-request.json"), listOf(Include("cart-get-additional-schema.json")))),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-get-additional-response.json"), Include("cart-get-additional-response-schema.json")))
+                                        contents = listOf(Content("application/json", Include("cart-get-additional-response.json"), listOf(Include("cart-get-additional-response-schema.json"))))
                                 ))
                         )
                 )
         )
-        val resource = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger)
+        val resource = OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger)
 
         with(resource) {
             path `should equal` "/carts/{id}"
@@ -45,7 +45,7 @@ class OpenAPITest {
             methods.first().requestsContents.size `should equal` 1
             with(methods.first().requestsContents.first()) {
                 contentType `should equal` "application/json"
-                example.`should be null`()
+                examples.`should be empty`()
                 examples `should equal` listOf(Include("cart-get-request.json"), Include("cart-get-additional-request.json"))
                 schema `should equal` Include("cart-get-request-schema.json")
             }
@@ -54,7 +54,7 @@ class OpenAPITest {
             with(methods.first().responses.first()) {
                 contents.size `should be` 1
                 contents.first().contentType `should equal` "application/json"
-                contents.first().example.`should be null`()
+                contents.first().examples.`should be empty`()
                 contents.first().examples `should equal` listOf(Include("cart-get-response.json"), Include("cart-get-additional-response.json"))
                 contents.first().schema `should equal` Include("cart-get-response-schema.json")
             }
@@ -68,11 +68,11 @@ class OpenAPITest {
                         Method(
                                 method = "put",
                                 requestsContents = listOf(
-                                        Content("application/json", Include("cart-line-item-update-request.json"), Include("cart-line-item-update-schema.json"))),
+                                        Content("application/json", Include("cart-line-item-update-request.json"), listOf(Include("cart-line-item-update-schema.json")))),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-line-item-update-response.json"), Include("cart-line-item-update-response-schema.json")))
+                                        contents = listOf(Content("application/json", Include("cart-line-item-update-response.json"), listOf(Include("cart-line-item-update-response-schema.json"))))
                                 ))
                         )
                 ),
@@ -80,17 +80,17 @@ class OpenAPITest {
                         Method(
                                 method = "put",
                                 requestsContents = listOf(
-                                        Content("text/uri-list", Include("cart-line-item-assign-request.json"), Include("cart-line-item-assign-schema.json"))),
+                                        Content("text/uri-list", Include("cart-line-item-assign-request.json"), listOf(Include("cart-line-item-assign-schema.json")))),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), Include("cart-line-item-assign-response-schema.json")))
+                                        contents = listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), listOf(Include("cart-line-item-assign-response-schema.json"))))
                                 ))
                         )
                 )
         )
 
-        val resource = OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger)
+        val resource = OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger)
 
         with(resource) {
             path `should equal` "/carts/{id}/line-items"
@@ -116,7 +116,7 @@ class OpenAPITest {
                 )
         )
 
-        val fromFragmentsFunctions = { OpenAPI.fromFragments(fragments, NoOpJsonSchemaMerger) }
+        val fromFragmentsFunctions = { OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger) }
         fromFragmentsFunctions `should throw` IllegalArgumentException::class
     }
 }

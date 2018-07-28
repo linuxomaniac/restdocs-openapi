@@ -58,7 +58,7 @@ open class RestdocsOpenAPITask: DefaultTask() {
     private fun writeFiles(openAPIFragments: List<OpenAPIFragment>, fileNameSuffix: String) {
 
         val openAPIApi = openAPIFragments.groupBy { it.path }
-                .map { (_, fragmentsWithSamePath) -> OpenAPI.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
+                .map { (_, fragmentsWithSamePath) -> OpenAPIResource.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
                 .let { openAPIResources -> openAPIResources
                         .groupBy { it.firstPathPart }
                         .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) } }

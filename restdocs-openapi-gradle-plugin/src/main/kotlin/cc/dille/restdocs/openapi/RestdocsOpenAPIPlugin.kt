@@ -13,7 +13,7 @@ class RestdocsOpenAPIPlugin: Plugin<Project> {
                 val openAPIdoc = extensions.findByName("apidoc") as RestdocsOpenAPIPluginExtension
                 tasks.create("apidoc", RestdocsOpenAPITask::class.java).apply {
                     dependsOn("check")
-                    description = "Aggregate fragments into an OpenAPI file"
+                    description = "Aggregate fragments into an OpenAPIResource file"
 
                     openAPIVersion = openAPIdoc.openAPIVersion
                     apiBaseUri = openAPIdoc.apiBaseUri
