@@ -49,8 +49,8 @@ class OpenAPIResourceFragmentTest : FragmentFixtures {
                     description = "some",
                     contents = listOf(Content(
                             contentType = "application/hal+json",
-                            schema = Include("payment-integration-get-response.json"),
-                            examples = listOf(Include("payment-integration-get-schema-response.json"))
+                            schema = Include("payment-integration-get-schema-response.json"),
+                            examples = listOf(Include("payment-integration-get-response.json"))
                     ))
             )
         }
@@ -59,15 +59,6 @@ class OpenAPIResourceFragmentTest : FragmentFixtures {
     @Test
     fun `should parse fragment with example without schema`() {
         whenFragmentReadFromMap(this::rawFragmentWithoutSchema)
-
-//        with(fragment) {
-//            method.requestsContents.shouldBeEmpty()
-//            method.responses.size `should equal` 1
-//            with(method.responses.first()) {
-//                contents.first().example `should not be null`()
-//                contents.first().schema.`should be null`()
-//            }
-//        }
 
         with(fragment) {
             id `should be equal to` expectedId
@@ -80,7 +71,7 @@ class OpenAPIResourceFragmentTest : FragmentFixtures {
                     description = "some description",
                     contents = listOf(Content(
                             contentType = "application/hal+json",
-                            examples = listOf(Include("payment-integration-get-schema-response.json"))
+                            examples = listOf(Include("payment-integration-get-response.json"))
                     ))
             )
         }

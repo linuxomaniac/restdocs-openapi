@@ -33,7 +33,7 @@ data class Parameter(val name: String, val in_: String, val description: String,
                     "in" to in_,
                     "description" to description,
                     "required" to required,
-                    "type" to type,
+                    "schema" to mapOf("type" to type),
                     "example" to example
             )
 }
@@ -54,8 +54,8 @@ data class Content(val contentType: String,
 
         return mapOf(contentType to
                 listOfNotNull(
-                        if (schema != null) "schema" to mapOf("\$ref" to schema) else null,
-                        if (!examples.isEmpty()) "examples" to examples.map { ex -> mapOf("example" + nex++.toString() to mapOf("\$ref" to ex)) } else null
+                        if (schema != null) "schema" to schema.toMap() else null,
+                        if (!examples.isEmpty()) "examples" to examples.flatMap { mapOf("example" + nex++.toString() to it.toMap()).toList() }.toMap() else null
                 ).toMap()
         )
     }
@@ -78,11 +78,9 @@ data class Method(val method: String,
                   val responses: List<Response> = emptyList()) : ToOpenAPIMap {
 
     override fun toOpenAPIMap(): Map<*, *> {
-        // TODO
-        System.out.println(requestsContents)
-        return mapOf(method to mapOf("parameters" to parameters.map { it.toOpenAPIMap() }))
-                .plus(requestsContents.toOpenAPIMap("requestBody"))
-                .plus(responses.toOpenAPIMap("responses"))
+        return mapOf(method to mapOf("parameters" to parameters.map { it.toOpenAPIMap() })
+                .plus(if (!requestsContents.isEmpty()) mapOf("requestBody" to mapOf("required" to "true", "content" to requestsContents.toOpenAPIMap())) else emptyMap())
+                .plus(responses.toOpenAPIMap("responses")))
     }
 }
 
@@ -133,7 +131,7 @@ data class OpenAPIResource(val path: String,
             return contentsByContentType.map { (contentType, contents) ->
                 Content(
                         contentType = contentType,
-                        examples = contents.mapNotNull { it.examples }.flatten(),
+                        examples = contents.map { it.examples }.flatten(),
                         schema = contents.mapNotNull { it.schema }
                                 .let { if (it.isNotEmpty()) jsonSchemaMerger.mergeSchemas(it) else null }
                 )
@@ -193,7 +191,7 @@ data class OpenAPIFragment(val id: String,
 
             return Content(
                     contentType = contentType,
-                    examples = if (!examples.isEmpty()) examples.map { (k, v) -> with(v as Map<*, *>) { Include(v["\$ref"] as String) } } else emptyList(),
+                    examples = if (!examples.isEmpty()) examples.map { (_, v) -> with(v as Map<*, *>) { Include(v["\$ref"] as String) } } else emptyList(),
                     schema = if (!schema.isEmpty()) Include(schema["\$ref"] as String) else null
             )
         }
@@ -214,7 +212,7 @@ data class OpenAPIFragment(val id: String,
             val response = methodContent["responses"] as? Map<*, *>
             return Method(
                     method = map.keys.first() as String,
-                    requestsContents = (methodContent["requestBody"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty(),
+                    requestsContents = (methodContent["requestBody"] as? Map<*, *>)?.let { it["content"] as? Map<*, *> }?.let { listOf(content(it)) }.orEmpty(),
                     parameters = parameters((methodContent["parameters"] as? List<*>).orEmpty()),
                     responses = response?.let { listOf(response(it)) }.orEmpty()
             )

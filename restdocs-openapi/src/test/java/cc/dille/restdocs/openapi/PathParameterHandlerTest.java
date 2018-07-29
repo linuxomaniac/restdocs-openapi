@@ -38,12 +38,14 @@ public class PathParameterHandlerTest {
         then(pathParameters.get(0)).containsEntry("type", "string");
         then(pathParameters.get(0)).containsEntry("description", "an id");
         then(pathParameters.get(0)).containsEntry("required", "true");
+        then(pathParameters.get(0)).containsEntry("example", "you lost");
 
         then(pathParameters.get(1)).containsEntry("name", "other");
         then(pathParameters.get(1)).containsEntry("in", "path");
         then(pathParameters.get(1)).containsEntry("type", "integer");
         then(pathParameters.get(1)).containsEntry("description", "other");
         then(pathParameters.get(1)).containsEntry("required", "true");
+        then(pathParameters.get(1)).containsEntry("example", "42");
     }
 
     @Test
@@ -65,8 +67,8 @@ public class PathParameterHandlerTest {
     private void whenGenerateInvokedWithPathParameters() {
         model = pathParameterHandler.generateModel(operation, OpenAPIResourceSnippetParameters.builder()
                 .pathParameters(
-                        parameterWithName("id").description("an id"),
-                        parameterWithName("other").type(INTEGER).description("other")
+                        parameterWithName("id").description("an id").example("you lost"),
+                        parameterWithName("other").type(INTEGER).description("other").example("42")
                 ).build());
     }
 

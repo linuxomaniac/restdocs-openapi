@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * OpenAPI query and path parameters have to have a type. The ParameterDescriptor does not contain one.
- * So we add a subclass that contains a type
+ * OpenAPI query and path parameters have to have a type and an example. The ParameterDescriptor does not contain them.
+ * So we add a subclass that contains a type and an example.
  */
 @RequiredArgsConstructor
 @Getter
@@ -19,6 +19,8 @@ public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<Para
     private OpenAPIScalarType type = STRING;
 
     private final String name;
+
+    private String example;
 
     private boolean optional;
 
@@ -32,6 +34,11 @@ public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<Para
         return this;
     }
 
+    public ParameterDescriptorWithOpenAPIType example(String example) {
+        this.example = example;
+        return this;
+    }
+
     protected static ParameterDescriptorWithOpenAPIType from(ParameterDescriptor parameterDescriptor) {
         ParameterDescriptorWithOpenAPIType newDescriptor = new ParameterDescriptorWithOpenAPIType(parameterDescriptor.getName());
         newDescriptor.description(parameterDescriptor.getDescription());
@@ -42,6 +49,7 @@ public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<Para
             newDescriptor.ignored();
         }
         newDescriptor.type(STRING);
+        newDescriptor.example("some string");
         return newDescriptor;
     }
 

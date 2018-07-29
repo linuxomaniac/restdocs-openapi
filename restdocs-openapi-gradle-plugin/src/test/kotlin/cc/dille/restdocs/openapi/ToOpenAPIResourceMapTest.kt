@@ -37,15 +37,13 @@ class ToOpenAPIResourceMapTest : FragmentFixtures {
 
         val openAPIMap = OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap()
 
-        System.out.println(openAPIMap)
-
         with(JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
             read<List<Map<*, *>>>("/tags/{id}.put.parameters").size `should be equal to` 4
             read<List<Map<*, *>>>("/tags/{id}.put.parameters").forEach {
                 (it["name"] as String).`should not be empty`()
                 (it["in"] as String).`should not be empty`()
                 (it["description"] as String).`should not be empty`()
-                (it["type"] as String).`should not be empty`()
+                ((it["schema"] as Map<*, *>)["type"] as String).`should not be empty`()
                 (it["example"] as String).`should not be empty`()
             }
 
@@ -65,6 +63,13 @@ class ToOpenAPIResourceMapTest : FragmentFixtures {
         val openAPIMap = OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap()
 
         with(JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
+            with(read<List<Map<*, *>>>("/payment-integrations/{paymentIntegrationId}.get.parameters").first()) {
+                (this["name"] as String).`should not be empty`()
+                (this["in"] as String).`should not be empty`()
+                (this["description"] as String).`should not be empty`()
+                ((this["schema"] as Map<*, *>)["type"] as String).`should not be empty`()
+                (this["example"] as String).`should not be empty`()
+            }
             read<Map<String, *>>("/payment-integrations/{paymentIntegrationId}.get.responses.200").`should not be empty`()
             read<String>("/payment-integrations/{paymentIntegrationId}.get.responses.200.description").`should not be empty`()
         }

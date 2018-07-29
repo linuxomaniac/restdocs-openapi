@@ -15,7 +15,7 @@ class OpenAPIResourceWriterTest {
         tempFolder.newFile().let { file ->
             OpenAPIWriter.writeFile(file, mapOf("title" to "title", "baseUri" to "http://localhost"), "3.0.0")
             file.readLines().let {
-                it.shouldContain("openapi: 3.0.1")
+                it.shouldContain("openapi: 3.0.0")
                 it.shouldContain("title: title")
                 it.shouldContain("baseUri: http://localhost")
             }

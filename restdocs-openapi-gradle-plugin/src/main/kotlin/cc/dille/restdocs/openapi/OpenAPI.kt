@@ -57,7 +57,10 @@ private fun yaml() = Yaml(IncludeConstructor(), IncludeRepresenter(),
             isAllowReadOnlyProperties = true
         })
 
-data class Include(val location: String)
+data class Include(val location: String) {
+    fun toMap(): Map<String, String> = mapOf(includeTag.toString() to location)
+    override fun toString(): String = location
+}
 
 internal class IncludeRepresenter : Representer() {
     init {

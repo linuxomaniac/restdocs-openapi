@@ -17,12 +17,13 @@ public class ParameterDescriptorWithOpenAPITypeTest {
 
         then(descriptor.isOptional()).isTrue();
         then(descriptor.getDescription()).isNotNull();
-        then(descriptor.getType()).isEqualTo(OpenAPIScalarType.STRING);
+        then(descriptor.getType()).isEqualTo(OpenAPIScalarType.INTEGER);
+        then(descriptor.getExample()).isEqualTo("155");
     }
 
     private void whenParameterDescriptorCreatedFromRestDocsParameter() {
         descriptor = ParameterDescriptorWithOpenAPIType.from(RequestDocumentation.parameterWithName("some")
                 .description("some")
-                .optional());
+                .optional()).type(OpenAPIScalarType.INTEGER).example("155");
     }
 }

@@ -15,13 +15,15 @@ import java.io.File
 
 class RestdocsOpenAPIResourceTaskTest {
 
-    @Rule @JvmField val testProjectDir = TemporaryFolder()
+    @Rule
+    @JvmField
+    val testProjectDir = TemporaryFolder()
 
     lateinit var buildFile: File
 
     private var apiTitle = "API documentation"
     private var baseUri: String? = null
-    private var ramlVersion = "1.0"
+    private var openAPIVersion = "3.0.1"
     private var separatePublicApi: Boolean = false
     private var outputFileNamePrefix = "api"
     private lateinit var pluginClasspath: List<File>
@@ -35,16 +37,16 @@ class RestdocsOpenAPIResourceTaskTest {
 
         pluginClasspath = javaClass.classLoader
                 .getResourceAsStream("plugin-classpath.txt")
-                ?.let { inputStream ->  inputStream.reader().readLines().map { File(it) } }
+                ?.let { inputStream -> inputStream.reader().readLines().map { File(it) } }
                 ?: throw IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
     }
 
     @Test
-    fun `should aggregate raml fragments`() {
+    fun `should aggregate openAPI fragments`() {
         apiTitle = "Notes API"
         baseUri = "http://localhost:8080/"
         separatePublicApi = true
-        ramlVersion = "0.8"
+        openAPIVersion = "3.0.1"
         outputFileNamePrefix = "index"
         givenBuildFileWithRamldocClosure()
         givenSnippetFiles()
@@ -52,32 +54,32 @@ class RestdocsOpenAPIResourceTaskTest {
 
         whenPluginExecuted()
 
-        result.task(":ramldoc")?.outcome `should equal` SUCCESS
+        result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
         thenApiRamlFileGenerated()
         thenGroupFileGenerated()
         thenRequestBodyJsonFileFoundInOutputDirectory()
     }
 
     @Test
-    fun `should aggregate raml fragments with missing ramldoc closure`() {
+    fun `should aggregate openAPI fragments with missing openAPIdoc closure`() {
         givenBuildFileWithoutRamldocClosure()
         givenSnippetFiles()
         givenRequestBodyJsonFile()
 
         whenPluginExecuted()
 
-        result.task(":ramldoc")?.outcome `should equal` SUCCESS
+        result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
         thenApiRamlFileGenerated()
         thenGroupFileGenerated()
         thenRequestBodyJsonFileFoundInOutputDirectory()
     }
 
     private fun thenRequestBodyJsonFileFoundInOutputDirectory() {
-        File(testProjectDir.root,"build/ramldoc/carts-create-request.json").`should exist`()
+        File(testProjectDir.root, "build/openAPIdoc/carts-create-request.json").`should exist`()
     }
 
     private fun thenGroupFileGenerated() {
-        val groupFile = File(testProjectDir.root, "build/ramldoc/carts.openapi")
+        val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.openapi")
         val groupFileLines = groupFile.readLines()
         println(groupFile.readText())
         groupFileLines.any { it.startsWith("get:") }.`should be true`()
@@ -85,13 +87,10 @@ class RestdocsOpenAPIResourceTaskTest {
         groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
         groupFileLines.any { it.startsWith("  get:") }.`should be true`()
         groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
-        if (ramlVersion == "0.8")
-            groupFileLines.any { it.contains("schema: !include 'carts-create-request.json'") }.`should be true`()
-        else
-            groupFileLines.any { it.contains("type: !include 'carts-create-request.json'") }.`should be true`()
+        groupFileLines.any { it.contains("schema: \$ref: 'carts-create-request.json'") }.`should be true`()
 
         if (separatePublicApi)
-             File(testProjectDir.root, "build/ramldoc/carts-public.openapi").`should exist`()
+            File(testProjectDir.root, "build/openAPIdoc/carts-public.openapi").`should exist`()
     }
 
     private fun thenApiRamlFileGenerated() {
@@ -102,10 +101,10 @@ class RestdocsOpenAPIResourceTaskTest {
     }
 
     private fun thenApiRamlFileExistsWithHeaders(): List<String> {
-        val apiFile = File(testProjectDir.root, "build/ramldoc/${outputFileNamePrefix}.openapi")
+        val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.openapi")
         apiFile.`should exist`()
         return apiFile.readLines().also { lines ->
-            lines `should contain` "#%RAML $ramlVersion"
+            lines `should contain` "openapi: $openAPIVersion"
             lines `should contain` "title: $apiTitle"
             baseUri?.let { lines.any { it.startsWith("baseUri:") }.`should be true`() }
         }
@@ -117,10 +116,10 @@ class RestdocsOpenAPIResourceTaskTest {
 
     private fun givenBuildFileWithRamldocClosure() {
         buildFile.writeText(baseBuildFile() + """
-ramldoc {
+openAPIdoc {
     apiTitle = '$apiTitle'
     apiBaseUri = '$baseUri'
-    ramlVersion = "$ramlVersion"
+    openAPIVersion = "$openAPIVersion"
     separatePublicApi = $separatePublicApi
     outputFileNamePrefix = "$outputFileNamePrefix"
 }
@@ -130,7 +129,7 @@ ramldoc {
     private fun whenPluginExecuted() {
         result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments("--info", "--stacktrace", "ramldoc")
+                .withArguments("--info", "--stacktrace", "openAPIdoc")
                 .withPluginClasspath(pluginClasspath)
                 .build()
     }

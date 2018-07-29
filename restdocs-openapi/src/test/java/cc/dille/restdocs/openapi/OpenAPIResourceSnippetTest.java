@@ -76,7 +76,7 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
         givenResponseFieldDescriptors();
         givenPathParameterDescriptors();
         givenRequestParameterDescriptors();
-
+        
         whenOpenAPISnippetInvoked();
 
         thenFragmentFileExists();
@@ -114,11 +114,11 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
     }
 
     private void givenPathParameterDescriptors() {
-        parametersBuilder.pathParameters(parameterWithName("id").type(INTEGER).description("an id"));
+        parametersBuilder.pathParameters(parameterWithName("id").type(INTEGER).description("an id").example("12"));
     }
 
     private void givenRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(parameterWithName("test-param").type(STRING).description("test param"));
+        parametersBuilder.requestParameters(parameterWithName("test-param").type(STRING).description("test param").example("some value"));
     }
 
     @SneakyThrows
