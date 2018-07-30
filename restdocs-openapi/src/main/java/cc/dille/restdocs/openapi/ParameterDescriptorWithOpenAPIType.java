@@ -2,15 +2,19 @@ package cc.dille.restdocs.openapi;
 
 import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.STRING;
 
+import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
+import org.springframework.restdocs.snippet.AbstractDescriptor;
 import org.springframework.restdocs.snippet.IgnorableDescriptor;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.management.Descriptor;
+
 /**
- * OpenAPI query and path parameters have to have a type and an example. The ParameterDescriptor does not contain them.
- * So we add a subclass that contains a type and an example.
+ * OpenAPI parameters have to have a type and an example. The ParameterDescriptor does not contain them.
+ * So we add a subclass that contains type and example.
  */
 @RequiredArgsConstructor
 @Getter
@@ -20,7 +24,9 @@ public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<Para
 
     private final String name;
 
-    private String example;
+    private String example = null;
+
+    private String in = null;
 
     private boolean optional;
 
@@ -39,17 +45,35 @@ public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<Para
         return this;
     }
 
-    protected static ParameterDescriptorWithOpenAPIType from(ParameterDescriptor parameterDescriptor) {
-        ParameterDescriptorWithOpenAPIType newDescriptor = new ParameterDescriptorWithOpenAPIType(parameterDescriptor.getName());
-        newDescriptor.description(parameterDescriptor.getDescription());
-        if (parameterDescriptor.isOptional()) {
+    public ParameterDescriptorWithOpenAPIType in(String in) {
+        this.in = in;
+        return this;
+    }
+
+    protected static ParameterDescriptorWithOpenAPIType fromRequestParameter(ParameterDescriptor parameterDescriptor) {
+        return from(parameterDescriptor.getName(), (String) parameterDescriptor.getDescription(), "query", parameterDescriptor.isOptional(), parameterDescriptor.isIgnored());
+    }
+
+    protected static ParameterDescriptorWithOpenAPIType fromPathParameter(ParameterDescriptor parameterDescriptor) {
+        return from(parameterDescriptor.getName(), (String) parameterDescriptor.getDescription(), "path", parameterDescriptor.isOptional(), parameterDescriptor.isIgnored());
+    }
+
+    protected static ParameterDescriptorWithOpenAPIType fromRequestHeader(HeaderDescriptor headerDescriptor) {
+        return from(headerDescriptor.getName(), (String) headerDescriptor.getDescription(), "header", headerDescriptor.isOptional(), false);
+    }
+
+    private static ParameterDescriptorWithOpenAPIType from(String name, String description, String in, boolean optional, boolean ignored) {
+        ParameterDescriptorWithOpenAPIType newDescriptor = new ParameterDescriptorWithOpenAPIType(name);
+        newDescriptor.description(description);
+        if (optional) {
             newDescriptor.optional();
         }
-        if (parameterDescriptor.isIgnored()) {
+        if (ignored) {
             newDescriptor.ignored();
         }
+        newDescriptor.in(in);
         newDescriptor.type(STRING);
-        newDescriptor.example("some string");
+
         return newDescriptor;
     }
 

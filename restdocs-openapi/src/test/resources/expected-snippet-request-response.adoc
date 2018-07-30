@@ -7,24 +7,26 @@
         required: true
         schema:
           type: integer
+        example: 12
       - name: test-param
         in: query
         description: test param
         required: true
         schema:
           type: string
+        example: some value
+    requestBody:
+      required: true
+      content:
+        application/json:
+        schema:
+          $ref: 'test-schema-request.json'
+        examples:
+          example0:
+            $ref: 'test-request.json'
     responses:
       201:
         description: some resource
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: 'test-schema-request.json'
-              examples:
-                example0:
-                  $ref: 'test-request.json'
         content:
           application/json:
             schema:

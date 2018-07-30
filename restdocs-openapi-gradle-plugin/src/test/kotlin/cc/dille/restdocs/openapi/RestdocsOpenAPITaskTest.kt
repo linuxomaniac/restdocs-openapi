@@ -1,4 +1,4 @@
-package cc.dille.restdocs.openapi
+package cc.dille.restdocs.yaml
 
 import org.amshove.kluent.`should be true`
 import org.amshove.kluent.`should contain`
@@ -13,8 +13,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-class RestdocsOpenAPIResourceTaskTest {
-
+class RestdocsOpenAPITaskTest {
     @Rule
     @JvmField
     val testProjectDir = TemporaryFolder()
@@ -24,7 +23,6 @@ class RestdocsOpenAPIResourceTaskTest {
     private var apiTitle = "API documentation"
     private var baseUri: String? = null
     private var openAPIVersion = "3.0.1"
-    private var separatePublicApi: Boolean = false
     private var outputFileNamePrefix = "api"
     private lateinit var pluginClasspath: List<File>
     private lateinit var result: BuildResult
@@ -45,31 +43,30 @@ class RestdocsOpenAPIResourceTaskTest {
     fun `should aggregate openAPI fragments`() {
         apiTitle = "Notes API"
         baseUri = "http://localhost:8080/"
-        separatePublicApi = true
         openAPIVersion = "3.0.1"
         outputFileNamePrefix = "index"
-        givenBuildFileWithRamldocClosure()
+        givenBuildFileWithOpenAPIDocClosure()
         givenSnippetFiles()
         givenRequestBodyJsonFile()
 
         whenPluginExecuted()
 
         result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenApiRamlFileGenerated()
+        thenOpenAPIFileGenerated()
         thenGroupFileGenerated()
         thenRequestBodyJsonFileFoundInOutputDirectory()
     }
 
     @Test
     fun `should aggregate openAPI fragments with missing openAPIdoc closure`() {
-        givenBuildFileWithoutRamldocClosure()
+        givenBuildFileWithoutOpenAPIDocClosure()
         givenSnippetFiles()
         givenRequestBodyJsonFile()
 
         whenPluginExecuted()
 
         result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenApiRamlFileGenerated()
+        thenOpenAPIFileGenerated()
         thenGroupFileGenerated()
         thenRequestBodyJsonFileFoundInOutputDirectory()
     }
@@ -79,29 +76,28 @@ class RestdocsOpenAPIResourceTaskTest {
     }
 
     private fun thenGroupFileGenerated() {
-        val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.openapi")
+        val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.yaml")
         val groupFileLines = groupFile.readLines()
-        println(groupFile.readText())
+        // TODO: remove this
+//        println(groupFile.readText())
         groupFileLines.any { it.startsWith("get:") }.`should be true`()
         groupFileLines.any { it.startsWith("post:") }.`should be true`()
         groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
         groupFileLines.any { it.startsWith("  get:") }.`should be true`()
         groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
         groupFileLines.any { it.contains("schema: \$ref: 'carts-create-request.json'") }.`should be true`()
-
-        if (separatePublicApi)
-            File(testProjectDir.root, "build/openAPIdoc/carts-public.openapi").`should exist`()
     }
 
-    private fun thenApiRamlFileGenerated() {
-        thenApiRamlFileExistsWithHeaders().also { lines ->
-            lines `should contain` "/carts: !include 'carts.openapi'"
-            lines `should contain` "/: !include 'root.openapi'"
+    private fun thenOpenAPIFileGenerated() {
+        thenOpenAPIFileExistsWithHeaders().also { lines ->
+            lines `should contain` "/carts: \$ref 'carts.yaml'"
+            lines `should contain` "/: \$ref: 'root.yaml'"
         }
     }
 
-    private fun thenApiRamlFileExistsWithHeaders(): List<String> {
-        val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.openapi")
+    private fun thenOpenAPIFileExistsWithHeaders(): List<String> {
+        val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
+        println(apiFile.readText())
         apiFile.`should exist`()
         return apiFile.readLines().also { lines ->
             lines `should contain` "openapi: $openAPIVersion"
@@ -110,17 +106,16 @@ class RestdocsOpenAPIResourceTaskTest {
         }
     }
 
-    private fun givenBuildFileWithoutRamldocClosure() {
+    private fun givenBuildFileWithoutOpenAPIDocClosure() {
         buildFile.writeText(baseBuildFile())
     }
 
-    private fun givenBuildFileWithRamldocClosure() {
+    private fun givenBuildFileWithOpenAPIDocClosure() {
         buildFile.writeText(baseBuildFile() + """
 openAPIdoc {
     apiTitle = '$apiTitle'
     apiBaseUri = '$baseUri'
     openAPIVersion = "$openAPIVersion"
-    separatePublicApi = $separatePublicApi
     outputFileNamePrefix = "$outputFileNamePrefix"
 }
 """)
@@ -135,36 +130,42 @@ openAPIdoc {
     }
 
     private fun givenSnippetFiles() {
-        File(testProjectDir.newFolder("build", "generated-snippets", "carts-create"), "openapi-resource.openapi").writeText("""/carts:
+        File(testProjectDir.newFolder("build", "generated-snippets", "carts-create"), "openapi-resource.yaml").writeText("""/carts:
   post:
-    description: "TODO - figure out how to set"
-    securedBy: ["pymt:u"]
-    body:
-      application/hal+json:
-        schema: !include carts-create-request.json
-        example: !include carts-create-request.json
+    requestBody:
+      required: true
+      content:
+        application/hal+json:
+          schema:
+           ${'$'}ref: 'carts-create-request.json'
+          examples:
+            example0:
+              ${'$'}ref: 'carts-create-request.json'
 """)
-        File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.openapi").writeText("""/carts/{cartId}:
+
+        File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
   get:
-    description: "TODO - figure out how to set"
-    securedBy: ["pymt:u"]
     responses:
       200:
+        description: "TODO - figure out how to set"
 """)
-        File(testProjectDir.newFolder("build", "generated-snippets", "carts-list"), "openapi-resource.openapi").writeText("""/carts:
+        File(testProjectDir.newFolder("build", "generated-snippets", "carts-list"), "openapi-resource.yaml").writeText("""/carts:
   get:
-    description: "TODO - figure out how to set"
-    securedBy: ["pymt:u"]
+    responses:
+      200:
+        description: "TODO - figure out how to set"
 """)
-        File(testProjectDir.newFolder("build", "generated-snippets", "carts-delete"), "openapi-resource.openapi").writeText("""/carts/{cartId}:
+        File(testProjectDir.newFolder("build", "generated-snippets", "carts-delete"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
   delete:
-    description: "TODO - figure out how to set"
-    securedBy: ["pymt:u"]
+    responses:
+      201:
+        description: "TODO - figure out how to set"
 """)
-        File(testProjectDir.newFolder("build", "generated-snippets", "index-get"), "openapi-resource.openapi").writeText("""/:
+        File(testProjectDir.newFolder("build", "generated-snippets", "index-get"), "openapi-resource.yaml").writeText("""/:
   get:
-    description: "TODO - figure out how to set"
-    securedBy: ["pymt:u"]
+    responses:
+      200:
+        description: "TODO - figure out how to set"
 """)
     }
 
@@ -182,7 +183,7 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'com.epages.restdocs-openapi'
+    id 'cc.dille.restdocs-openapi'
 }
 """.trimIndent()
 }

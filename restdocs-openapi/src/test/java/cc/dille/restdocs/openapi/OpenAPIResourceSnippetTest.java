@@ -52,13 +52,6 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
 
         whenOpenAPISnippetInvoked();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(generatedOpenAPIFragmentFile()))) {
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        }
-
         thenFragmentFileExists();
         then(generatedOpenAPIFragmentFile()).hasSameContentAs(new File("src/test/resources/expected-snippet-request-only.adoc"));
         then(generatedRequestJsonFile()).exists();

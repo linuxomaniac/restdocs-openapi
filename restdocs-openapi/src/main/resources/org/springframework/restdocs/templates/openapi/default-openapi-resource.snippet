@@ -9,21 +9,23 @@
         required: {{required}}
         schema:
           type: {{type}}
+        {{#example}}
         example: {{example}}
+        {{/example}}
       {{/parameters}}
     {{/parametersPresent}}
     {{#requestBodyPresent}}
     requestBody:
-    required: true
-    content:
-      {{contentTypeRequest}}:
-      {{#requestFieldsPresent}}
-      schema:
-        $ref: '{{requestSchemaFileName}}'
-      {{/requestFieldsPresent}}
-      examples:
-        example0:
-          $ref: '{{requestBodyFileName}}'
+      required: true
+      content:
+        {{contentTypeRequest}}:
+        {{#requestFieldsPresent}}
+        schema:
+          $ref: '{{requestSchemaFileName}}'
+        {{/requestFieldsPresent}}
+        examples:
+          example0:
+            $ref: '{{requestBodyFileName}}'
     {{/requestBodyPresent}}
     responses:
       {{status}}:

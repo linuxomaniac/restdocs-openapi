@@ -7,15 +7,16 @@
         required: true
         schema:
           type: integer
+        example: 12
+    requestBody:
+      required: true
+      content:
+        application/json:
+        schema:
+          $ref: 'test-schema-request.json'
+        examples:
+          example0:
+            $ref: 'test-request.json'
     responses:
       200:
         description: some resource
-        requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: 'test-schema-request.json'
-              examples:
-                example0:
-                  $ref: 'test-request.json'

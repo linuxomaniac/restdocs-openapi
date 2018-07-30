@@ -6,7 +6,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 
-class OpenAPIResourceWriterTest {
+class OpenAPIWriterTest {
 
     @Rule @JvmField val tempFolder = TemporaryFolder()
 

@@ -8,7 +8,7 @@ open class RestdocsOpenAPIPluginExtension(project: Project) {
     var apiTitle = "API documentation"
 
     var separatePublicApi: Boolean = false
-    var outputDirectory = "build/apidoc"
+    var outputDirectory = "build/openAPIdoc"
     var snippetsDirectory = "build/generated-snippets"
 
     var outputFileNamePrefix = "api"

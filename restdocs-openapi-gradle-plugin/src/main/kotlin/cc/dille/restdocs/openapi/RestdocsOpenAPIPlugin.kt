@@ -8,10 +8,10 @@ class RestdocsOpenAPIPlugin: Plugin<Project> {
 
     override fun apply(project: Project) {
         with(project) {
-            extensions.create("apidoc", RestdocsOpenAPIPluginExtension::class.java, project)
+            extensions.create("openAPIdoc", RestdocsOpenAPIPluginExtension::class.java, project)
             afterEvaluate {
-                val openAPIdoc = extensions.findByName("apidoc") as RestdocsOpenAPIPluginExtension
-                tasks.create("apidoc", RestdocsOpenAPITask::class.java).apply {
+                val openAPIdoc = extensions.findByName("openAPIdoc") as RestdocsOpenAPIPluginExtension
+                tasks.create("openAPIdoc", RestdocsOpenAPITask::class.java).apply {
                     dependsOn("check")
                     description = "Aggregate fragments into an OpenAPIResource file"
 

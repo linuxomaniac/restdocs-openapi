@@ -8,7 +8,7 @@ import org.amshove.kluent.`should not be empty`
 import org.junit.Test
 
 
-class ToOpenAPIResourceMapTest : FragmentFixtures {
+class ToOpenAPIMapTest : FragmentFixtures {
 
     val objectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 

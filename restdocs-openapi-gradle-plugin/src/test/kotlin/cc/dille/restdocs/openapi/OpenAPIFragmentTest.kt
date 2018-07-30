@@ -7,7 +7,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
-class OpenAPIResourceFragmentTest : FragmentFixtures {
+class OpenAPIFragmentTest : FragmentFixtures {
 
     @Rule
     @JvmField

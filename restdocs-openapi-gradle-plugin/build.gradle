@@ -41,14 +41,14 @@ task createClasspathManifest {
     outputs.dir outputDir
 
     doLast {
-        outputDir.mkdirs()
         file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
     }
 }
 
 // Add the classpath file to the test runtime classpath
 dependencies {
-    testRuntime files(createClasspathManifest)
+    // it used to be testRuntime
+    testCompile files(createClasspathManifest)
 }
 
 task wrapper(type: Wrapper) {

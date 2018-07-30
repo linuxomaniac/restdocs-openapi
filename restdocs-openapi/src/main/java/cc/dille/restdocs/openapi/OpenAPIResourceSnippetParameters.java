@@ -36,7 +36,7 @@ public class OpenAPIResourceSnippetParameters {
     private final List<LinkDescriptor> links;
     private final List<ParameterDescriptorWithOpenAPIType> pathParameters;
     private final List<ParameterDescriptorWithOpenAPIType> requestParameters;
-    private final List<HeaderDescriptor> requestHeaders;
+    private final List<ParameterDescriptorWithOpenAPIType> requestHeaders;
     private final List<HeaderDescriptor> responseHeaders;
 
     List<FieldDescriptor> getResponseFieldsWithLinks() {
@@ -89,7 +89,7 @@ public class OpenAPIResourceSnippetParameters {
         private List<LinkDescriptor> links = emptyList();
         private List<ParameterDescriptorWithOpenAPIType> pathParameters = emptyList();
         private List<ParameterDescriptorWithOpenAPIType> requestParameters = emptyList();
-        private List<HeaderDescriptor> requestHeaders = emptyList();
+        private List<ParameterDescriptorWithOpenAPIType> requestHeaders = emptyList();
         private List<HeaderDescriptor> responseHeaders = emptyList();
 
         public OpenAPIResourceSnippetParametersBuilder requestFields(FieldDescriptor... requestFields) {
@@ -118,27 +118,32 @@ public class OpenAPIResourceSnippetParameters {
         }
 
         public OpenAPIResourceSnippetParametersBuilder pathParameters(ParameterDescriptor... pathParameters) {
-            this.pathParameters = Stream.of(pathParameters).map(ParameterDescriptorWithOpenAPIType::from).collect(Collectors.toList());
+            this.pathParameters = Stream.of(pathParameters).map(ParameterDescriptorWithOpenAPIType::fromPathParameter).collect(Collectors.toList());
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder pathParameters(ParameterDescriptorWithOpenAPIType... pathParameters) {
-            this.pathParameters = Arrays.asList(pathParameters);
+            this.pathParameters = Stream.of(pathParameters).map(p -> p.in("path")).collect(Collectors.toList());
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestParameters(ParameterDescriptor... requestParameters) {
-            this.requestParameters = Stream.of(requestParameters).map(ParameterDescriptorWithOpenAPIType::from).collect(Collectors.toList());
+            this.requestParameters = Stream.of(requestParameters).map(ParameterDescriptorWithOpenAPIType::fromRequestParameter).collect(Collectors.toList());
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestParameters(ParameterDescriptorWithOpenAPIType... requestParameters) {
-            this.requestParameters = Arrays.asList(requestParameters);
+            this.requestParameters = Stream.of(requestParameters).map(p -> p.in("query")).collect(Collectors.toList());
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestHeaders(HeaderDescriptor... requestHeaders) {
-            this.requestHeaders = Arrays.asList(requestHeaders);
+            this.requestHeaders = Stream.of(requestHeaders).map(ParameterDescriptorWithOpenAPIType::fromRequestHeader).collect(Collectors.toList());
+            return this;
+        }
+
+        public OpenAPIResourceSnippetParametersBuilder requestHeaders(ParameterDescriptorWithOpenAPIType... requestHeaders) {
+            this.requestHeaders = Stream.of(requestHeaders).map(p -> p.in("header")).collect(Collectors.toList());
             return this;
         }
 

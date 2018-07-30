@@ -17,7 +17,7 @@ import java.io.InputStream
 
 object OpenAPIParser {
 
-    val includeTag = Tag("\$ref")
+    val includeTag = Tag("!include")
 
     fun parseFragment(fragmentFile: File): Map<*, *> = parseFragment(fragmentFile.inputStream())
 
@@ -45,6 +45,7 @@ object OpenAPIWriter {
     fun writeFile(targetFile: File, contentMap: Map<*, *>, version: String? = "3.0.1") {
         targetFile.writer().let { writer ->
             writer.write("openapi: $version\n")
+            System.out.println(contentMap)
             yaml().dump(contentMap, writer)
         }
     }

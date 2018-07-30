@@ -45,6 +45,15 @@ fun List<ToOpenAPIMap>.toOpenAPIMap(key: String): Map<*, *> =
 fun List<ToOpenAPIMap>.toOpenAPIMap(): Map<*, *> =
         this.flatMap { it.toOpenAPIMap().toList() }.toMap()
 
+data class RequestBody(val required: Boolean = false,
+                       val contents: List<Content> = emptyList()) : ToOpenAPIMap {
+
+    override fun toOpenAPIMap(): Map<*, *> {
+        // TODO
+        return if (content != null) mapOf("required" to required.toString(), "content" to content.toOpenAPIMap()) else emptyMap<String, String>()
+    }
+}
+
 data class Content(val contentType: String,
                    val schema: Include? = null,
                    val examples: List<Include> = emptyList()) : ToOpenAPIMap {
@@ -79,6 +88,7 @@ data class Method(val method: String,
 
     override fun toOpenAPIMap(): Map<*, *> {
         return mapOf(method to mapOf("parameters" to parameters.map { it.toOpenAPIMap() })
+                // TODO : here
                 .plus(if (!requestsContents.isEmpty()) mapOf("requestBody" to mapOf("required" to "true", "content" to requestsContents.toOpenAPIMap())) else emptyMap())
                 .plus(responses.toOpenAPIMap("responses")))
     }
@@ -196,6 +206,17 @@ data class OpenAPIFragment(val id: String,
             )
         }
 
+        private fun requestBody(map: Map<*, *>): RequestBody? {
+            if(map.isEmpty()) {
+               return null
+            }
+
+            return RequestBody(
+                    required = if(map["required"] != null) (map["required"] as String).toBoolean() else false,
+                    contents = listOf(content(map["content"] as Map <*, *>))
+            )
+        }
+
         private fun response(map: Map<*, *>): Response {
             val status = map.keys.first() as Int
             val values = (map[status] as? Map<*, *>).orEmpty()
@@ -212,7 +233,7 @@ data class OpenAPIFragment(val id: String,
             val response = methodContent["responses"] as? Map<*, *>
             return Method(
                     method = map.keys.first() as String,
-                    requestsContents = (methodContent["requestBody"] as? Map<*, *>)?.let { it["content"] as? Map<*, *> }?.let { listOf(content(it)) }.orEmpty(),
+                    requestsContents = requestBody(methodContent["resquestBody"] as Map<*, *>),
                     parameters = parameters((methodContent["parameters"] as? List<*>).orEmpty()),
                     responses = response?.let { listOf(response(it)) }.orEmpty()
             )

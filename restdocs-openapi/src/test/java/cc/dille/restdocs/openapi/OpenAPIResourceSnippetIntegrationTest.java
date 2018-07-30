@@ -147,8 +147,8 @@ public class OpenAPIResourceSnippetIntegrationTest implements OpenAPIResourceSni
                 .requestFields(fieldDescriptors())
                 .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
                 .requestHeaders(
-                        headerWithName("X-Custom-Header").description("A custom header"),
-                        headerWithName(ACCEPT).description("Accept")
+                        parameterWithName("X-Custom-Header").description("A custom header").example("test value"),
+                        parameterWithName(ACCEPT).description("Accept")
                 )
                 .responseHeaders(
                         headerWithName("X-Custom-Header").description("A custom header"),

@@ -22,7 +22,7 @@ public class ParameterDescriptorWithOpenAPITypeTest {
     }
 
     private void whenParameterDescriptorCreatedFromRestDocsParameter() {
-        descriptor = ParameterDescriptorWithOpenAPIType.from(RequestDocumentation.parameterWithName("some")
+        descriptor = ParameterDescriptorWithOpenAPIType.fromRequestParameter(RequestDocumentation.parameterWithName("some")
                 .description("some")
                 .optional()).type(OpenAPIScalarType.INTEGER).example("155");
     }

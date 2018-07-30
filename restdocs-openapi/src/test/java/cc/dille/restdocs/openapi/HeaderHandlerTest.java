@@ -31,7 +31,7 @@ public class HeaderHandlerTest {
         then(model).containsEntry("parametersPresent", true);
         then(model).containsKey("parameters");
         thenHeadersModelContainsTuples("parameters",
-                tuple(AUTHORIZATION, "Authorization", "Basic some", "string", "header", "true"),
+                tuple(AUTHORIZATION, "Authorization header", "Basic some", "string", "header", "true"),
                 tuple(ACCEPT, "Accept", HAL_JSON_VALUE, "string", "header", "false")
         );
     }
@@ -93,7 +93,7 @@ public class HeaderHandlerTest {
     private void givenDocumentedRequestHeaders() {
         snippetParameters = OpenAPIResourceSnippetParameters.builder()
                 .requestHeaders(
-                        headerWithName(AUTHORIZATION).description("Authorization"),
+                        headerWithName(AUTHORIZATION).description("Authorization header"),
                         headerWithName(ACCEPT).description("Accept").optional()
                 )
                 .build();
