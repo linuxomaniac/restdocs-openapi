@@ -12,11 +12,9 @@
       required: true
       content:
         application/json:
-        schema:
-          $ref: 'test-schema-request.json'
+        schema: !include 'test-schema-request.json'
         examples:
-          example0:
-            $ref: 'test-request.json'
+          example0: !include 'test-request.json'
     responses:
       200:
         description: some resource

@@ -61,7 +61,7 @@ open class RestdocsOpenAPITask: DefaultTask() {
                 .let { openAPIResources -> openAPIResources
                         .groupBy {it.firstPathPart }
                         .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) } }
-                .let { OpenAPIApi(apiTitle, apiBaseUri, it) }
+                .let { OpenAPIApi(openAPIVersion, apiTitle, apiBaseUri, it) }
 
         OpenAPIWriter.writeApi(
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },

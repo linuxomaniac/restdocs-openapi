@@ -19,11 +19,9 @@ interface FragmentFixtures {
                 description: some
                 content:
                   application/hal+json:
-                    schema:
-                      ${'$'}ref: 'payment-integration-get-schema-response.json'
+                    schema: !include 'payment-integration-get-schema-response.json'
                     examples:
-                      example0:
-                        ${'$'}ref: 'payment-integration-get-response.json'
+                      example0: !include 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithoutSchema() = """
@@ -43,8 +41,7 @@ interface FragmentFixtures {
                 content:
                   application/hal+json:
                     examples:
-                      example0:
-                        ${'$'}ref: 'payment-integration-get-response.json'
+                      example0: !include 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithEmptyResponse() = """
@@ -99,11 +96,9 @@ interface FragmentFixtures {
               required: true
               content:
                 application/hal+json:
-                  schema:
-                    ${'$'}ref: 'tags-create-schema-request.json'
+                  schema: !include 'tags-create-schema-request.json'
                   examples:
-                    example0:
-                      ${'$'}ref: 'tags-create-request.json'
+                    example0: !include 'tags-create-request.json'
             responses:
               200:
                 description: Update a tag
@@ -113,11 +108,9 @@ interface FragmentFixtures {
                     example: test
                 content:
                   application/hal+json:
-                    schema:
-                      ${'$'}ref: 'tags-list-schema-response.json'
+                    schema: !include 'tags-list-schema-response.json'
                     examples:
-                      example0:
-                        ${'$'}ref: 'tags-list-response.json'
+                      example0: !include 'tags-list-response.json'
         """.trimIndent()
 
     fun parsedFragmentMap(stringProvider: () -> String) = OpenAPIParser.parseFragment(stringProvider())

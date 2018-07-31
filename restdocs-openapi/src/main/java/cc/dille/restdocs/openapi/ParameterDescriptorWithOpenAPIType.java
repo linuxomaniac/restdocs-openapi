@@ -4,7 +4,6 @@ import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenA
 
 import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
-import org.springframework.restdocs.snippet.AbstractDescriptor;
 import org.springframework.restdocs.snippet.IgnorableDescriptor;
 
 import lombok.Getter;

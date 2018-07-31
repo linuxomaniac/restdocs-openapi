@@ -13,7 +13,7 @@ class OpenAPIWriterTest {
     @Test
     fun `should_write_map`() {
         tempFolder.newFile().let { file ->
-            OpenAPIWriter.writeFile(file, mapOf("title" to "title", "baseUri" to "http://localhost"), "3.0.0")
+            OpenAPIWriter.writeFile(file, mapOf("openapi" to "3.0.0", "title" to "title", "baseUri" to "http://localhost"))
             file.readLines().let {
                 it.shouldContain("openapi: 3.0.0")
                 it.shouldContain("title: title")

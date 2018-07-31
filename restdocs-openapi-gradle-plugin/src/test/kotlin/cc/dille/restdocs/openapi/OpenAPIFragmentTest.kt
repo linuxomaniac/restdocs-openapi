@@ -28,7 +28,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/carts/{cartId}"
             method.method `should be equal to` "get"
-            method.requestsContents.shouldBeEmpty()
+            method.requestContent?.contents?.shouldBeEmpty()
             method.responses `should contain` Response(status = 200, description = "TODO - figure out how to set")
             method.parameters `should contain` Parameter("cartId", "path", "some integer", "true", "integer", "10")
         }
@@ -43,7 +43,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
             method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
-            method.requestsContents.shouldBeEmpty()
+            method.requestContent?.contents?.shouldBeEmpty()
             method.responses `should contain` Response(
                     status = 200,
                     description = "some",
@@ -65,7 +65,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
             method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
-            method.requestsContents.shouldBeEmpty ()
+            method.requestContent?.contents?.shouldBeEmpty ()
             method.responses `should contain` Response(
                     status = 200,
                     description = "some description",
@@ -85,7 +85,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
-            method.requestsContents.shouldBeEmpty()
+            method.requestContent?.contents?.shouldBeEmpty()
             method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
             method.responses `should contain` Response(200, "some", emptyList())
         }
@@ -132,8 +132,9 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 parameters[3].type `should equal` "string"
                 parameters[3].example `should equal` "test"
 
-                requestsContents.size `should equal` 1
-                with(requestsContents.first()) {
+                requestContent?.contents?.size `should equal` 1
+                requestContent?.contents.`should not be null`()
+                with(requestContent?.contents!!.first()) {
                     contentType `should equal` "application/hal+json"
                     examples.size `should equal` 1
                     schema.`should not be null`()
@@ -164,8 +165,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
     }
 
     private fun givenFile() {
-        file = testProjectDir.newFolder("build", "generated-snippets", expectedId)
-                .let { File(it, "openapi-resource.yaml") }
+        file = File(testProjectDir.newFolder("build", "generated-snippets", expectedId), "openapi-resource.yaml")
                 .also {
                     it.writeText("""/carts/{cartId}:
                         |  get:

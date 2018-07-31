@@ -20,12 +20,10 @@
       content:
         {{contentTypeRequest}}:
         {{#requestFieldsPresent}}
-        schema:
-          $ref: '{{requestSchemaFileName}}'
+        schema: !include '{{requestSchemaFileName}}'
         {{/requestFieldsPresent}}
         examples:
-          example0:
-            $ref: '{{requestBodyFileName}}'
+          example0: !include '{{requestBodyFileName}}'
     {{/requestBodyPresent}}
     responses:
       {{status}}:
@@ -42,10 +40,8 @@
         content:
           {{contentTypeResponse}}:
             {{#responseFieldsPresent}}
-            schema:
-              $ref: '{{responseSchemaFileName}}'
+            schema: !include '{{responseSchemaFileName}}'
             {{/responseFieldsPresent}}
             examples:
-              example0:
-                $ref: '{{responseBodyFileName}}'
+              example0: !include '{{responseBodyFileName}}'
         {{/responseBodyPresent}}

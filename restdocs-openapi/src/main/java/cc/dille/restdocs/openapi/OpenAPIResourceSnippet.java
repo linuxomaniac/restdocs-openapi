@@ -51,8 +51,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
                 new ResponseHandler(),
                 new LinkHandler(),
                 new ParameterHandler(),
-                new ResponseHeaderHandler(),
-                new TraitExtractorChain(singletonList(new PrivateResourceTraitExtractor()))));
+                new ResponseHeaderHandler()));
     }
 
     @Override

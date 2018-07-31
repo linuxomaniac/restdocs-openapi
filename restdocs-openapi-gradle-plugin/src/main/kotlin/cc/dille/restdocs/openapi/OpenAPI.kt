@@ -29,7 +29,6 @@ object OpenAPIParser {
 }
 
 object OpenAPIWriter {
-
     fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
         writeFile(targetFile = fileFactory(apiFileName),
                 contentMap = api.toMainFileMap(groupFileNameProvider)
@@ -42,9 +41,8 @@ object OpenAPIWriter {
         }
     }
 
-    fun writeFile(targetFile: File, contentMap: Map<*, *>, version: String? = "3.0.1") {
+    fun writeFile(targetFile: File, contentMap: Map<*, *>) {
         targetFile.writer().let { writer ->
-            writer.write("openapi: $version\n")
             System.out.println(contentMap)
             yaml().dump(contentMap, writer)
         }

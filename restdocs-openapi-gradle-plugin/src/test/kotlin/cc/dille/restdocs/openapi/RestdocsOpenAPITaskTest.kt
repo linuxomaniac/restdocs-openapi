@@ -1,4 +1,4 @@
-package cc.dille.restdocs.yaml
+package cc.dille.restdocs.openapi
 
 import org.amshove.kluent.`should be true`
 import org.amshove.kluent.`should contain`
@@ -79,24 +79,25 @@ class RestdocsOpenAPITaskTest {
         val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.yaml")
         val groupFileLines = groupFile.readLines()
         // TODO: remove this
-//        println(groupFile.readText())
+        println(groupFile.readText())
         groupFileLines.any { it.startsWith("get:") }.`should be true`()
         groupFileLines.any { it.startsWith("post:") }.`should be true`()
         groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
         groupFileLines.any { it.startsWith("  get:") }.`should be true`()
         groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
-        groupFileLines.any { it.contains("schema: \$ref: 'carts-create-request.json'") }.`should be true`()
+        groupFileLines.any { it.contains("schema: !include 'carts-create-request.json'") }.`should be true`()
     }
 
     private fun thenOpenAPIFileGenerated() {
         thenOpenAPIFileExistsWithHeaders().also { lines ->
-            lines `should contain` "/carts: \$ref 'carts.yaml'"
-            lines `should contain` "/: \$ref: 'root.yaml'"
+            lines `should contain` "/carts: !include 'carts.yaml'"
+            lines `should contain` "/: !include 'root.yaml'"
         }
     }
 
     private fun thenOpenAPIFileExistsWithHeaders(): List<String> {
         val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
+        // TODO this too
         println(apiFile.readText())
         apiFile.`should exist`()
         return apiFile.readLines().also { lines ->
@@ -126,6 +127,7 @@ openAPIdoc {
                 .withProjectDir(testProjectDir.root)
                 .withArguments("--info", "--stacktrace", "openAPIdoc")
                 .withPluginClasspath(pluginClasspath)
+                .forwardOutput()// TODO: remove
                 .build()
     }
 
@@ -136,11 +138,9 @@ openAPIdoc {
       required: true
       content:
         application/hal+json:
-          schema:
-           ${'$'}ref: 'carts-create-request.json'
+          schema: !include 'carts-create-request.json'
           examples:
-            example0:
-              ${'$'}ref: 'carts-create-request.json'
+            example0: !include 'carts-create-request.json'
 """)
 
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.yaml").writeText("""/carts/{cartId}:

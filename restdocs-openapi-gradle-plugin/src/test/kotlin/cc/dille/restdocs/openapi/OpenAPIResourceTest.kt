@@ -1,9 +1,6 @@
 package cc.dille.restdocs.openapi
 
-import org.amshove.kluent.`should be empty`
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should throw`
+import org.amshove.kluent.*
 import org.junit.Test
 
 
@@ -15,8 +12,10 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(
                                 method = "get",
-                                requestsContents = listOf(
-                                        Content("application/json", Include("cart-get-request-schema.json"), listOf(Include("cart-get-request.json")))),
+                                requestContent = RequestContent(
+                                        false,
+                                        listOf(Content("application/json", Include("cart-get-request-schema.json"), listOf(Include("cart-get-request.json"))))
+                                ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
@@ -27,8 +26,9 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-get-additional", "/carts/{id}",
                         Method(
                                 method = "get",
-                                requestsContents = listOf(
-                                        Content("application/json", Include("cart-get-additional-request-schema.json"), listOf(Include("cart-get-additional-request.json")))),
+                                requestContent = RequestContent(true,
+                                        listOf(Content("application/json", Include("cart-get-additional-request-schema.json"), listOf(Include("cart-get-additional-request.json"))))
+                                ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
@@ -42,8 +42,10 @@ class OpenAPIResourceTest {
         with(resource) {
             path `should equal` "/carts/{id}"
             methods.size `should equal` 1
-            methods.first().requestsContents.size `should equal` 1
-            with(methods.first().requestsContents.first()) {
+            methods.first().requestContent?.required `should be` true
+            methods.first().requestContent?.contents?.size `should equal` 1
+            methods.first().requestContent?.contents?.`should not be null`()
+            with(methods.first().requestContent?.contents!!.first()) {
                 contentType `should equal` "application/json"
                 examples `should equal` listOf(Include("cart-get-request.json"), Include("cart-get-additional-request.json"))
                 schema `should equal` Include("cart-get-request-schema.json")
@@ -65,8 +67,9 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
-                                requestsContents = listOf(
-                                        Content("application/json", Include("cart-line-item-update-request.json"), listOf(Include("cart-line-item-update-schema.json")))),
+                                requestContent = RequestContent(true,
+                                        listOf(Content("application/json", Include("cart-line-item-update-request.json"), listOf(Include("cart-line-item-update-schema.json"))))
+                                ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
@@ -77,8 +80,9 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-line-item-assign", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
-                                requestsContents = listOf(
-                                        Content("text/uri-list", Include("cart-line-item-assign-request.json"), listOf(Include("cart-line-item-assign-schema.json")))),
+                                requestContent = RequestContent(false,
+                                        listOf(Content("text/uri-list", Include("cart-line-item-assign-request.json"), listOf(Include("cart-line-item-assign-schema.json"))))
+                                ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
@@ -94,8 +98,10 @@ class OpenAPIResourceTest {
             path `should equal` "/carts/{id}/line-items"
             methods.size `should equal` 1
             with(methods.first()) {
-                requestsContents.size `should equal` 2
-                requestsContents.map { it.contentType } `should equal` listOf("application/json", "text/uri-list")
+                requestContent?.required `should be` true
+                requestContent?.contents.`should not be null`()
+                requestContent?.contents?.size `should equal` 2
+                requestContent?.contents!!.map { it.contentType } `should equal` listOf("application/json", "text/uri-list")
                 responses.size `should equal` 1
                 responses.first().contents.size `should equal` 2
                 responses.first().contents.map { it.contentType } `should equal` listOf("application/json", "text/uri-list")
