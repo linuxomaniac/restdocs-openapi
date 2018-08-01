@@ -32,18 +32,18 @@ object OpenAPIWriter {
     fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
         writeFile(targetFile = fileFactory(apiFileName),
                 contentMap = api.toMainFileMap(groupFileNameProvider)
-                )
+        )
 
         api.resourceGroups.map {
             writeFile(
                     targetFile = fileFactory(groupFileNameProvider(it.firstPathPart)),
-                    contentMap = it.toOpenAPIMap())
+                    contentMap = it.toOpenAPIMap()
+            )
         }
     }
 
     fun writeFile(targetFile: File, contentMap: Map<*, *>) {
         targetFile.writer().let { writer ->
-            System.out.println(contentMap)
             yaml().dump(contentMap, writer)
         }
     }
@@ -56,10 +56,7 @@ private fun yaml() = Yaml(IncludeConstructor(), IncludeRepresenter(),
             isAllowReadOnlyProperties = true
         })
 
-data class Include(val location: String) {
-    fun toMap(): Map<String, String> = mapOf(includeTag.toString() to location)
-    override fun toString(): String = location
-}
+data class Include(val location: String)
 
 internal class IncludeRepresenter : Representer() {
     init {

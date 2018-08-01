@@ -78,8 +78,6 @@ class RestdocsOpenAPITaskTest {
     private fun thenGroupFileGenerated() {
         val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.yaml")
         val groupFileLines = groupFile.readLines()
-        // TODO: remove this
-        println(groupFile.readText())
         groupFileLines.any { it.startsWith("get:") }.`should be true`()
         groupFileLines.any { it.startsWith("post:") }.`should be true`()
         groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
@@ -97,8 +95,6 @@ class RestdocsOpenAPITaskTest {
 
     private fun thenOpenAPIFileExistsWithHeaders(): List<String> {
         val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
-        // TODO this too
-        println(apiFile.readText())
         apiFile.`should exist`()
         return apiFile.readLines().also { lines ->
             lines `should contain` "openapi: $openAPIVersion"
@@ -127,7 +123,7 @@ openAPIdoc {
                 .withProjectDir(testProjectDir.root)
                 .withArguments("--info", "--stacktrace", "openAPIdoc")
                 .withPluginClasspath(pluginClasspath)
-                .forwardOutput()// TODO: remove
+//                .forwardOutput()
                 .build()
     }
 

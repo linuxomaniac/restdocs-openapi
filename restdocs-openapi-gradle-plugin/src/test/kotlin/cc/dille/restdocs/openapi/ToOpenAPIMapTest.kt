@@ -47,12 +47,12 @@ class ToOpenAPIMapTest : FragmentFixtures {
                 (it["example"] as String).`should not be empty`()
             }
 
-            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.schema.\$ref").`should not be empty`()
-            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.examples.example0.\$ref").`should not be empty`()
+            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.schema.location").`should not be empty`()
+            read<String>("/tags/{id}.put.requestBody.content.application/hal+json.examples.example0.location").`should not be empty`()
             read<String>("/tags/{id}.put.responses.200.headers.X-Custom-Header.description").`should not be empty`()
             read<String>("/tags/{id}.put.responses.200.headers.X-Custom-Header.example").`should not be empty`()
-            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.schema.\$ref").`should not be empty`()
-            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.examples.example0.\$ref").`should not be empty`()
+            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.schema.location").`should not be empty`()
+            read<String>("/tags/{id}.put.responses.200.content.application/hal+json.examples.example0.location").`should not be empty`()
         }
     }
 

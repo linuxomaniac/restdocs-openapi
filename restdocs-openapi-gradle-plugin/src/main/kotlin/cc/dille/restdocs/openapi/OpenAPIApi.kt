@@ -46,7 +46,7 @@ fun List<ToOpenAPIMap>.toOpenAPIMap(): Map<*, *> =
         this.flatMap { it.toOpenAPIMap().toList() }.toMap()
 
 data class RequestContent(val required: Boolean = false,
-                       val contents: List<Content> = emptyList()) : ToOpenAPIMap {
+                          val contents: List<Content> = emptyList()) : ToOpenAPIMap {
 
     override fun toOpenAPIMap(): Map<*, *> {
         return if (!contents.isEmpty()) mapOf("requestBody" to mapOf("required" to required.toString(), "content" to contents.toOpenAPIMap())) else emptyMap<String, String>()
@@ -62,8 +62,8 @@ data class Content(val contentType: String,
 
         return mapOf(contentType to
                 listOfNotNull(
-                        "schema" to schema?.toMap(),
-                        if (!examples.isEmpty()) "examples" to examples.flatMap { mapOf("example" + nex++.toString() to it.toMap()).toList() }.toMap() else null
+                        "schema" to schema,
+                        if (!examples.isEmpty()) "examples" to examples.flatMap { mapOf("example" + nex++.toString() to it).toList() }.toMap() else null
                 ).toMap()
         )
     }
@@ -100,14 +100,11 @@ data class Header(val name: String, val description: String, val example: String
             ))
 }
 
-data class OpenAPIResource(val path: String,
-                           val methods: List<Method> = emptyList()) : ToOpenAPIMap {
-    val firstPathPart by lazy {
-        path.split("/").find { !it.isEmpty() }?.let { "/$it" } ?: "/"
-    }
+data class OpenAPIResource(val path: String, val methods: List<Method> = emptyList()) : ToOpenAPIMap {
+    val firstPathPart by lazy { path.split("/").find { !it.isEmpty() }?.let { "/$it" } ?: "/" }
 
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(path to methods.flatMap { it.toOpenAPIMap().toList() }.toMap())
+            methods.flatMap { it.toOpenAPIMap().toList() }.toMap().let { if (path.isEmpty()) it else mapOf(path to it) }
 
     companion object {
         fun fromFragments(allFragments: List<OpenAPIFragment>, jsonSchemaMerger: JsonSchemaMerger): OpenAPIResource {
@@ -125,7 +122,9 @@ data class OpenAPIResource(val path: String,
                                 .groupBy { it.status }
 
                         fragments.first().method.copy(
-                                requestContent = RequestContent(fragments.any { it.method.requestContent?.required?:false }, mergeBodiesWithSameContentType(contentsByContentType, jsonSchemaMerger)),
+                                requestContent = RequestContent(fragments.any {
+                                    it.method.requestContent?.required ?: false
+                                }, mergeBodiesWithSameContentType(contentsByContentType, jsonSchemaMerger)),
                                 responses = mergeResponsesWithSameStatusAndContentType(responsesByStatus, jsonSchemaMerger)
                         )
                     }
@@ -168,7 +167,7 @@ data class OpenAPIFragment(val id: String,
                            val method: Method) {
 
     companion object {
-//        @Suppress("UNCHECKED_CAST")
+        //        @Suppress("UNCHECKED_CAST")
         fun fromYamlMap(id: String, yamlMap: Map<*, *>): OpenAPIFragment {
 
             val path = yamlMap.keys.first()
@@ -201,13 +200,13 @@ data class OpenAPIFragment(val id: String,
         }
 
         private fun requestBody(map: Map<*, *>): RequestContent? {
-            if(map.isEmpty()) {
-               return null
+            if (map.isEmpty()) {
+                return null
             }
 
             return RequestContent(
-                    required = map["required"] as? Boolean?:false,
-                    contents = listOf(content(map["content"] as Map <*, *>))
+                    required = map["required"] as? Boolean ?: false,
+                    contents = listOf(content(map["content"] as Map<*, *>))
             )
         }
 
