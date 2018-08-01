@@ -1,10 +1,11 @@
 buildscript {
+    ext.kotlin_version = '1.2.51'
     repositories {
         jcenter()
     }
     dependencies {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.31"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -30,8 +31,4 @@ scmVersion {
 
 allprojects {
     project.version = scmVersion.version
-}
-
-task wrapper(type: Wrapper) {
-	gradleVersion = '4.6'
 }

@@ -1,5 +1,3 @@
-
-
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'kotlin'
 apply plugin: "org.jetbrains.kotlin.jvm"
@@ -51,9 +49,6 @@ dependencies {
     testCompile files(createClasspathManifest)
 }
 
-task wrapper(type: Wrapper) {
-	gradleVersion = '4.6'
-}
 buildscript {
     ext.kotlin_version = '1.2.51'
     repositories {

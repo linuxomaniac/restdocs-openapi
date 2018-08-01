@@ -16,8 +16,8 @@ repositories {
 dependencies {
     compile 'org.springframework.restdocs:spring-restdocs-core:1.2.4.RELEASE'
     compile 'org.springframework.restdocs:spring-restdocs-mockmvc:1.2.4.RELEASE'
+    compile 'com.github.everit-org.json-schema:org.everit.json.schema:1.9.1'
     compileOnly 'org.projectlombok:lombok:1.16.18'
-    compile 'com.github.everit-org.json-schema:org.everit.json.schema:1.8.0'
     testCompile 'org.projectlombok:lombok:1.16.18'
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:3.9.1'
@@ -45,8 +45,4 @@ tasks.coveralls {
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
-}
-
-task wrapper(type: Wrapper) {
-	gradleVersion = '4.6'
 }
