@@ -229,7 +229,7 @@ data class OpenAPIFragment(val id: String,
 
             return RequestContent(
                     required = map["required"] as? Boolean ?: false,
-                    contents = listOf(content(map["content"] as Map<*, *>))
+                    contents = (map["content"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty()
             )
         }
 
@@ -240,7 +240,7 @@ data class OpenAPIFragment(val id: String,
                     status = status,
                     description = values["description"] as? String,
                     headers = headers((values["headers"] as? Map<*, *>).orEmpty()),
-                    contents = if (values["content"] != null) listOf(content(values["content"] as Map<*, *>)) else emptyList()
+                    contents = (values["content"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty()
             )
         }
 
