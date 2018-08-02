@@ -8,21 +8,38 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 
-open class RestdocsOpenAPITask: DefaultTask() {
+open class RestdocsOpenAPITask : DefaultTask() {
 
     @Input
     lateinit var openAPIVersion: String
 
     @Input
-    @Optional
-    var apiBaseUri: String? = null
+    lateinit var infoVersion: String
+
+    @Input
+    lateinit var infoTitle: String
 
     @Input
     @Optional
-    lateinit var apiTitle: String
+    var infoDescription: String? = null
 
     @Input
-    var separatePublicApi: Boolean = false
+    @Optional
+    var infoContactName: String? = null
+
+    @Input
+    @Optional
+    var infoContactEmail: String? = null
+
+
+    @Input
+    @Optional
+    var serverUrl: String? = null
+
+    @Input
+    @Optional
+    var serverDescription: String? = null
+
 
     @Input
     lateinit var outputDirectory: String
@@ -58,10 +75,22 @@ open class RestdocsOpenAPITask: DefaultTask() {
     private fun writeFiles(openAPIFragments: List<OpenAPIFragment>, fileNameSuffix: String) {
         val openAPIApi = openAPIFragments.groupBy { it.path }
                 .map { (_, fragmentsWithSamePath) -> OpenAPIResource.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
-                .let { openAPIResources -> openAPIResources
-                        .groupBy {it.firstPathPart }
-                        .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) } }
-                .let { OpenAPIApi(openAPIVersion, apiTitle, apiBaseUri, it) }
+                .let { openAPIResources ->
+                    openAPIResources
+                            .groupBy { it.firstPathPart }
+                            .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) }
+                }
+                .let {
+                    OpenAPIApi(openAPIVersion,
+                            infoVersion,
+                            infoTitle,
+                            infoDescription,
+                            infoContactName,
+                            infoContactEmail,
+                            serverUrl,
+                            serverDescription,
+                            it)
+                }
 
         OpenAPIWriter.writeApi(
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },
@@ -85,8 +114,8 @@ open class RestdocsOpenAPITask: DefaultTask() {
 
     private fun copyBodyJsonFilesToOutput() {
         snippetsDirectoryFile.walkTopDown().forEach {
-                    if (it.name.endsWith("-request.json") || it.name.endsWith("-response.json"))
-                        Files.copy(it.toPath(), outputDirectoryFile.toPath().resolve(it.name), StandardCopyOption.REPLACE_EXISTING)
-                }
+            if (it.name.endsWith("-request.json") || it.name.endsWith("-response.json"))
+                Files.copy(it.toPath(), outputDirectoryFile.toPath().resolve(it.name), StandardCopyOption.REPLACE_EXISTING)
+        }
     }
 }

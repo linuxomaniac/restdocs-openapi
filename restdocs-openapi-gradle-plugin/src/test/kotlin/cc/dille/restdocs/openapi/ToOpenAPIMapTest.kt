@@ -44,7 +44,7 @@ class ToOpenAPIMapTest : FragmentFixtures {
                 (it["in"] as String).`should not be empty`()
                 (it["description"] as String).`should not be empty`()
                 ((it["schema"] as Map<*, *>)["type"] as String).`should not be empty`()
-                (it["example"] as String).`should not be empty`()
+                (it["example"] as? String)?.`should not be empty`()
             }
 
             read<String>("/tags/{id}.put.requestBody.content.application/hal+json.schema.location").`should not be empty`()

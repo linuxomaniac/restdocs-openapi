@@ -127,7 +127,7 @@ public class OpenAPIDocumentationIntegrationTest extends OpenAPIResourceSnippetI
     }
 
     private void whenDocumentedAsPrivateResource() throws Exception {
-        OperationRequestPreprocessor operationRequestPreprocessor = r -> { return r;};
+        OperationRequestPreprocessor operationRequestPreprocessor = r -> r;
         resultActions
                 .andDo(
                         OpenAPIDocumentation.document(operationName,

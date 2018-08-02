@@ -2,16 +2,40 @@ package cc.dille.restdocs.openapi
 
 import java.io.File
 
-data class OpenAPIApi(val version: String, val title: String, val baseUri: String?, private val _resourceGroups: List<ResourceGroup>) {
+data class OpenAPIApi(var openAPIVersion: String,
+                      var infoVersion: String,
+                      var infoTitle: String,
+                      var infoDescription: String? = null,
+                      var infoContactName: String? = null,
+                      var infoContactEmail: String? = null,
+                      var serverUrl: String? = null,
+                      var serverDescription: String? = null,
+                      private val _resourceGroups: List<ResourceGroup>) {
     val resourceGroups by lazy {
         _resourceGroups.sortedBy { it.firstPathPart }
     }
 
     fun toMainFileMap(groupFileNameProvider: (String) -> String) =
-            mapOf("openapi" to version, "title" to title)
-                    .let { if (baseUri != null) it.plus("baseUri" to baseUri) else it }
+            listOfNotNull(
+                    "openapi" to openAPIVersion,
+                    "info" to listOfNotNull(
+                            "version" to infoVersion,
+                            "title" to infoTitle,
+                            if (infoContactEmail != null || infoContactName != null) "contact" to listOfNotNull(
+                                    infoContactEmail?.let { "email" to it },
+                                    infoContactName?.let { "name" to it }
+                            ).toMap()
+                            else null,
+                            infoDescription?.let { "description" to it }
+                    ).toMap(),
+                    if (serverUrl != null || serverDescription != null)
+                        "servers" to listOf(listOfNotNull(
+                                serverDescription?.let { "description" to it },
+                                serverUrl?.let { "url" to it }
+                        ).toMap())
+                    else null
+            ).toMap()
                     .plus(resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) })
-                    .toMap()
 }
 
 interface ToOpenAPIMap {
@@ -27,15 +51,15 @@ data class ResourceGroup(val firstPathPart: String, private val _openAPIResource
             openAPIResources.flatMap { it.toOpenAPIMap().toList() }.toMap()
 }
 
-data class Parameter(val name: String, val in_: String, val description: String, val required: String, val type: String, val example: String) : ToOpenAPIMap {
+data class Parameter(val name: String, val in_: String, val description: String?, val required: Boolean?, val type: String?, val example: String?) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf("name" to name,
+            listOfNotNull("name" to name,
                     "in" to in_,
-                    "description" to description,
-                    "required" to required,
-                    "schema" to mapOf("type" to type),
-                    "example" to example
-            )
+                    description?.let { "description" to it },
+                    required?.let { "required" to it }, // to it.toString()
+                    type?.let { "schema" to mapOf("type" to it) },
+                    example?.let { "example" to it }
+            ).toMap()
 }
 
 fun List<ToOpenAPIMap>.toOpenAPIMap(key: String): Map<*, *> =
@@ -92,12 +116,12 @@ data class Method(val method: String,
     }
 }
 
-data class Header(val name: String, val description: String, val example: String) : ToOpenAPIMap {
+data class Header(val name: String, val description: String?, val example: String?) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(name to mapOf(
-                    "description" to description,
-                    "example" to example
-            ))
+            mapOf(name to listOfNotNull(
+                    description?.let { "description" to it },
+                    example?.let { "example" to it }
+            ).toMap())
 }
 
 data class OpenAPIResource(val path: String, val methods: List<Method> = emptyList()) : ToOpenAPIMap {
@@ -167,7 +191,6 @@ data class OpenAPIFragment(val id: String,
                            val method: Method) {
 
     companion object {
-        //        @Suppress("UNCHECKED_CAST")
         fun fromYamlMap(id: String, yamlMap: Map<*, *>): OpenAPIFragment {
 
             val path = yamlMap.keys.first()
@@ -238,10 +261,10 @@ data class OpenAPIFragment(val id: String,
                     Parameter(
                             value["name"] as String,
                             value["in"] as String,
-                            value["description"] as String,
-                            value["required"].toString(),
-                            (value["schema"] as Map<*, *>)["type"] as String,
-                            value["example"].toString()
+                            value["description"] as String?,
+                            value["required"] as Boolean?,
+                            (value["schema"] as? Map<*, *>)?.let { it["type"] as? String },
+                            value["example"]?.toString()
                     )
                 }
             }
@@ -250,7 +273,7 @@ data class OpenAPIFragment(val id: String,
         private fun headers(map: Map<*, *>): List<Header> {
             return map.map { (key, value) ->
                 with(value as Map<*, *>) {
-                    Header(key as String, value["description"] as String, value["example"] as String)
+                    Header(key as String, value["description"] as? String, value["example"] as? String)
                 }
             }
         }

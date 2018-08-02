@@ -4,11 +4,19 @@
     parameters:
       {{#parameters}}
       - name: {{name}}
+        {{#in}}
         in: {{in}}
+        {{/in}}
+        {{#description}}
         description: {{description}}
+        {{/description}}
+        {{#required}}
         required: {{required}}
+        {{/required}}
+        {{#type}}
         schema:
           type: {{type}}
+        {{/type}}
         {{#example}}
         example: {{example}}
         {{/example}}
@@ -32,8 +40,12 @@
         headers:
           {{#responseHeaders}}
           {{name}}:
+            {{#description}}
             description: {{description}}
+            {{/description}}
+            {{#example}}
             example: {{example}}
+            {{/example}}
           {{/responseHeaders}}
         {{/responseHeadersPresent}}
         {{#responseBodyPresent}}

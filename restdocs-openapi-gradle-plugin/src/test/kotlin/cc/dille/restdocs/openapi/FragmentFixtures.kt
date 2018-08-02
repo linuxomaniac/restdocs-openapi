@@ -84,7 +84,6 @@ interface FragmentFixtures {
                 required: false
                 schema:
                   type: integer
-                example: 42
               - name: other
                 in: query
                 description: other

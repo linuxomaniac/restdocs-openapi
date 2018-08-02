@@ -1,9 +1,6 @@
 package cc.dille.restdocs.openapi
 
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.`should contain`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should exist`
+import org.amshove.kluent.*
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
@@ -20,12 +17,20 @@ class RestdocsOpenAPITaskTest {
 
     lateinit var buildFile: File
 
-    private var apiTitle = "API documentation"
-    private var baseUri: String? = null
+    // These are the default values in RestdocsOpenAPIPluginExtension
     private var openAPIVersion = "3.0.1"
+    private var infoVersion = "0.1.0"
+    private var infoTitle = "API documentation"
+    private var infoDescription: String? = null
+    private var infoContactName: String? = null
+    private var infoContactEmail: String? = null
+    private var serverUrl: String? = null
+    private var serverDescription: String? = null
     private var outputFileNamePrefix = "api"
+
     private lateinit var pluginClasspath: List<File>
     private lateinit var result: BuildResult
+
 
     @Before
     fun setUp() {
@@ -41,10 +46,16 @@ class RestdocsOpenAPITaskTest {
 
     @Test
     fun `should aggregate openAPI fragments`() {
-        apiTitle = "Notes API"
-        baseUri = "http://localhost:8080/"
-        openAPIVersion = "3.0.1"
+        openAPIVersion = "3.0.0"
+        infoVersion = "0.1.0-test"
+        infoTitle = "API documentation test"
+        infoDescription = "I hope the tests are OK"
+        infoContactName = "John Smith"
+        infoContactEmail = "abuse@example.org"
+        serverUrl = "example.org"
+        serverDescription = "Default server"
         outputFileNamePrefix = "index"
+
         givenBuildFileWithOpenAPIDocClosure()
         givenSnippetFiles()
         givenRequestBodyJsonFile()
@@ -78,12 +89,18 @@ class RestdocsOpenAPITaskTest {
     private fun thenGroupFileGenerated() {
         val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.yaml")
         val groupFileLines = groupFile.readLines()
+        val groupFileContent = groupFile.readText().replace("\\s+".toRegex(), " ")
+
         groupFileLines.any { it.startsWith("get:") }.`should be true`()
         groupFileLines.any { it.startsWith("post:") }.`should be true`()
         groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
         groupFileLines.any { it.startsWith("  get:") }.`should be true`()
         groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
-        groupFileLines.any { it.contains("schema: !include 'carts-create-request.json'") }.`should be true`()
+        groupFileLines.any { it.contains("schema: !include 'carts-create-request-schema.json'") }.`should be true`()
+
+        groupFileContent.contains("examples: example0: !include 'carts-create-request.json'").`should be true`()
+        groupFileContent.contains("- name: some in: query description: some required: false schema: type: integer").`should be true`()
+        groupFileContent.contains("- name: other in: query description: other required: true schema: type: string example: test").`should be true`()
     }
 
     private fun thenOpenAPIFileGenerated() {
@@ -97,9 +114,14 @@ class RestdocsOpenAPITaskTest {
         val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
         apiFile.`should exist`()
         return apiFile.readLines().also { lines ->
-            lines `should contain` "openapi: $openAPIVersion"
-            lines `should contain` "title: $apiTitle"
-            baseUri?.let { lines.any { it.startsWith("baseUri:") }.`should be true`() }
+            lines.any { it.contains("openapi: $openAPIVersion") }.`should be true`()
+            lines.any { it.contains("version: $infoVersion") }.`should be true`()
+            lines.any { it.contains("title: $infoTitle") }.`should be true`()
+            infoContactName?.let { _ -> lines.any { it.contains("name: $infoContactName") }.`should be true`() }
+            infoContactEmail?.let { _ -> lines.any { it.contains("email: $infoContactEmail") }.`should be true`() }
+            infoDescription?.let { _ -> lines.any { it.contains("description: $infoDescription") }.`should be true`() }
+            serverUrl?.let { _ -> lines.any { it.contains("url: $serverUrl") }.`should be true`() }
+            serverDescription?.let { _ -> lines.any { it.contains("description: $serverDescription") }.`should be true`() }
         }
     }
 
@@ -110,9 +132,14 @@ class RestdocsOpenAPITaskTest {
     private fun givenBuildFileWithOpenAPIDocClosure() {
         buildFile.writeText(baseBuildFile() + """
 openAPIdoc {
-    apiTitle = '$apiTitle'
-    apiBaseUri = '$baseUri'
     openAPIVersion = "$openAPIVersion"
+    infoVersion = "$infoVersion"
+    infoTitle = "$infoTitle"
+    infoDescription = "$infoDescription"
+    infoContactName = "$infoContactName"
+    infoContactEmail = "$infoContactEmail"
+    serverUrl = "$serverUrl"
+    serverDescription = "$serverDescription"
     outputFileNamePrefix = "$outputFileNamePrefix"
 }
 """)
@@ -134,7 +161,7 @@ openAPIdoc {
       required: true
       content:
         application/hal+json:
-          schema: !include 'carts-create-request.json'
+          schema: !include 'carts-create-request-schema.json'
           examples:
             example0: !include 'carts-create-request.json'
 """)
@@ -147,6 +174,20 @@ openAPIdoc {
 """)
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-list"), "openapi-resource.yaml").writeText("""/carts:
   get:
+    parameters:
+      - name: some
+        in: query
+        description: some
+        required: false
+        schema:
+          type: integer
+      - name: other
+        in: query
+        description: other
+        required: true
+        schema:
+          type: string
+        example: test
     responses:
       200:
         description: "TODO - figure out how to set"

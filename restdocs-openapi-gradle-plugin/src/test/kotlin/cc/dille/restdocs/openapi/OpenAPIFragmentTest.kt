@@ -30,7 +30,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             method.method `should be equal to` "get"
             method.requestContent?.contents?.shouldBeEmpty()
             method.responses `should contain` Response(status = 200, description = "TODO - figure out how to set")
-            method.parameters `should contain` Parameter("cartId", "path", "some integer", "true", "integer", "10")
+            method.parameters `should contain` Parameter("cartId", "path", "some integer", true, "integer", "10")
         }
     }
 
@@ -42,7 +42,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
-            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", true, "integer", "12")
             method.requestContent?.contents?.shouldBeEmpty()
             method.responses `should contain` Response(
                     status = 200,
@@ -64,7 +64,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             id `should be equal to` expectedId
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
-            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id",  true, "integer", "12")
             method.requestContent?.contents?.shouldBeEmpty ()
             method.responses `should contain` Response(
                     status = 200,
@@ -86,7 +86,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             path `should be equal to` "/payment-integrations/{paymentIntegrationId}"
             method.method `should be equal to` "get"
             method.requestContent?.contents?.shouldBeEmpty()
-            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", "true", "integer", "12")
+            method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", true, "integer", "12")
             method.responses `should contain` Response(200, "some", emptyList())
         }
     }
@@ -107,28 +107,27 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 parameters[0].name `should equal` "id"
                 parameters[0].in_ `should equal` "path"
                 parameters[0].description `should equal` "The id"
-                parameters[0].required `should equal` "true"
+                parameters[0].required `should equal` true
                 parameters[0].type `should equal` "integer"
                 parameters[0].example `should equal` "12"
 
                 parameters[1].name `should equal` "X-Custom-Header"
                 parameters[1].in_ `should equal` "header"
                 parameters[1].description `should equal` "A custom header"
-                parameters[1].required `should equal` "true"
+                parameters[1].required `should equal` true
                 parameters[1].type `should equal` "string"
                 parameters[1].example `should equal` "test"
 
                 parameters[2].name `should equal` "some"
                 parameters[2].in_ `should equal` "query"
                 parameters[2].description `should equal` "some"
-                parameters[2].required `should equal` "false"
+                parameters[2].required `should equal` false
                 parameters[2].type `should equal` "integer"
-                parameters[2].example `should equal` "42"
 
                 parameters[3].name `should equal` "other"
                 parameters[3].in_ `should equal` "query"
                 parameters[3].description `should equal` "other"
-                parameters[3].required `should equal` "true"
+                parameters[3].required `should equal` true
                 parameters[3].type `should equal` "string"
                 parameters[3].example `should equal` "test"
 
