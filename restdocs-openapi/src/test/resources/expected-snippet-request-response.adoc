@@ -19,9 +19,9 @@
       required: true
       content:
         application/json:
-        schema: !include 'test-schema-request.json'
-        examples:
-          example0: !include 'test-request.json'
+          schema: !include 'test-schema-request.json'
+          examples:
+            example0: !include 'test-request.json'
     responses:
       201:
         description: some resource

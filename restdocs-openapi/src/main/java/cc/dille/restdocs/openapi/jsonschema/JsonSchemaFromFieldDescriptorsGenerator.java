@@ -171,7 +171,7 @@ public class JsonSchemaFromFieldDescriptorsGenerator {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName);
             }
-            if (fieldDescriptor.getType().equals(JsonFieldType.NULL) || fieldDescriptor.getType().equals(JsonFieldType.VARIES)) {
+            if (fieldDescriptor.getType() == null || fieldDescriptor.getType().equals(JsonFieldType.NULL) || fieldDescriptor.getType().equals(JsonFieldType.VARIES)) {
                 builder.addPropertySchema(propertyName, NullSchema.builder()
                         .description((String) fieldDescriptor.getDescription())
                         .build());

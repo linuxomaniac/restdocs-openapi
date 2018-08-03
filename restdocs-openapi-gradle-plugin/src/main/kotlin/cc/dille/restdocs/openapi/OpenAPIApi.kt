@@ -56,7 +56,7 @@ data class Parameter(val name: String, val in_: String, val description: String?
             listOfNotNull("name" to name,
                     "in" to in_,
                     description?.let { "description" to it },
-                    required?.let { "required" to it }, // to it.toString()
+                    required?.let { "required" to it },
                     type?.let { "schema" to mapOf("type" to it) },
                     example?.let { "example" to it }
             ).toMap()
@@ -86,7 +86,7 @@ data class Content(val contentType: String,
 
         return mapOf(contentType to
                 listOfNotNull(
-                        "schema" to schema,
+                        schema?.let { "schema" to schema },
                         if (!examples.isEmpty()) "examples" to examples.flatMap { mapOf("example" + nex++.toString() to it).toList() }.toMap() else null
                 ).toMap()
         )
@@ -109,11 +109,10 @@ data class Method(val method: String,
                   val requestContent: RequestContent? = null,
                   val responses: List<Response> = emptyList()) : ToOpenAPIMap {
 
-    override fun toOpenAPIMap(): Map<*, *> {
-        return mapOf(method to mapOf("parameters" to parameters.map { it.toOpenAPIMap() })
-                .plus(requestContent?.toOpenAPIMap() ?: emptyMap())
-                .plus(responses.toOpenAPIMap("responses")))
-    }
+    override fun toOpenAPIMap(): Map<*, *> =
+            mapOf(method to (if (!parameters.isEmpty()) mapOf("parameters" to parameters.map { it.toOpenAPIMap() }) else emptyMap<String, String>())
+                    .plus(requestContent?.toOpenAPIMap() ?: emptyMap())
+                    .plus(responses.toOpenAPIMap("responses")))
 }
 
 data class Header(val name: String, val description: String?, val example: String?) : ToOpenAPIMap {

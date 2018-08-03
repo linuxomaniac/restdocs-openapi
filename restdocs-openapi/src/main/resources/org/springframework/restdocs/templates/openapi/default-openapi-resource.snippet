@@ -27,11 +27,11 @@
       required: true
       content:
         {{contentTypeRequest}}:
-        {{#requestFieldsPresent}}
-        schema: !include '{{requestSchemaFileName}}'
-        {{/requestFieldsPresent}}
-        examples:
-          example0: !include '{{requestBodyFileName}}'
+          {{#requestFieldsPresent}}
+          schema: !include '{{requestSchemaFileName}}'
+          {{/requestFieldsPresent}}
+          examples:
+            example0: !include '{{requestBodyFileName}}'
     {{/requestBodyPresent}}
     responses:
       {{status}}:

@@ -24,7 +24,7 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;

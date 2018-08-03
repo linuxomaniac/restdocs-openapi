@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,11 +47,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.SneakyThrows;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -229,7 +225,7 @@ public class OpenAPIResourceSnippetIntegrationTest implements OpenAPIResourceSni
 
     @RequiredArgsConstructor
     @Getter
-    static class TestDataHolder {
+    private static class TestDataHolder {
         @NotNull
         private final String comment;
         private final boolean flag;
