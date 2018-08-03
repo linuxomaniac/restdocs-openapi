@@ -62,8 +62,6 @@ class ToOpenAPIMapTest : FragmentFixtures {
 
         val openAPIMap = OpenAPIResource.fromFragments(fragments, NoOpJsonSchemaMerger).toOpenAPIMap()
 
-        println(openAPIMap)
-
         with(JsonPath.parse(objectMapper.writeValueAsString(openAPIMap))) {
             with(read<List<Map<*, *>>>("/payment-integrations/{paymentIntegrationId}.get.parameters").first()) {
                 (this["name"] as String).`should not be empty`()
