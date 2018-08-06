@@ -13,8 +13,7 @@
       content:
         application/json:
           schema: !include 'test-schema-request.json'
-          examples:
-            example0: !include 'test-request.json'
+          example: !include 'test-request.json'
     responses:
       200:
         description: some resource

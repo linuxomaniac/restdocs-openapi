@@ -50,7 +50,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                     contents = listOf(Content(
                             contentType = "application/hal+json",
                             schema = Include("payment-integration-get-schema-response.json"),
-                            examples = listOf(Include("payment-integration-get-response.json"))
+                            example = Include("payment-integration-get-response.json")
                     ))
             )
         }
@@ -71,7 +71,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                     description = "some description",
                     contents = listOf(Content(
                             contentType = "application/hal+json",
-                            examples = listOf(Include("payment-integration-get-response.json"))
+                            example = Include("payment-integration-get-response.json")
                     ))
             )
         }
@@ -135,8 +135,8 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 requestContent?.contents.`should not be null`()
                 with(requestContent?.contents!!.first()) {
                     contentType `should equal` "application/hal+json"
-                    examples.size `should equal` 1
                     schema.`should not be null`()
+                    example.`should not be null`()
                 }
 
                 responses.size `should be` 1
@@ -148,7 +148,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                     headers.first().description `should equal` "A custom header"
                     headers.first().example `should equal` "test"
 
-                    contents.first().examples.size `should equal` 1
+                    contents.first().example.`should not be null`()
                     contents.first().schema.`should not be null`()
                 }
             }

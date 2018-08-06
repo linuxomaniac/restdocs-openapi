@@ -26,6 +26,8 @@ class RestdocsOpenAPIPlugin : Plugin<Project> {
                     serverUrl = openAPIdoc.serverUrl
                     serverDescription = openAPIdoc.serverDescription
 
+                    mergeFiles = openAPIdoc.mergeFiles
+
                     outputDirectory = openAPIdoc.outputDirectory
                     snippetsDirectory = openAPIdoc.snippetsDirectory
 

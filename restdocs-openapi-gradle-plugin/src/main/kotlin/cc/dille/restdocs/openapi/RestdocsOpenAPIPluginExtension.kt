@@ -14,6 +14,8 @@ open class RestdocsOpenAPIPluginExtension(project: Project) {
     var serverUrl: String? = null
     var serverDescription: String? = null
 
+    var mergeFiles = false
+
     var outputDirectory = "build/openAPIdoc"
     var snippetsDirectory = "build/generated-snippets"
 

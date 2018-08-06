@@ -30,8 +30,7 @@
           {{#requestFieldsPresent}}
           schema: !include '{{requestSchemaFileName}}'
           {{/requestFieldsPresent}}
-          examples:
-            example0: !include '{{requestBodyFileName}}'
+          example: !include '{{requestBodyFileName}}'
     {{/requestBodyPresent}}
     responses:
       {{status}}:
@@ -54,6 +53,5 @@
             {{#responseFieldsPresent}}
             schema: !include '{{responseSchemaFileName}}'
             {{/responseFieldsPresent}}
-            examples:
-              example0: !include '{{responseBodyFileName}}'
+            example: !include '{{responseBodyFileName}}'
         {{/responseBodyPresent}}

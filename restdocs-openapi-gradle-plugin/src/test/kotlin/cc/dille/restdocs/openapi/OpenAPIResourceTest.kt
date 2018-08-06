@@ -14,12 +14,12 @@ class OpenAPIResourceTest {
                                 method = "get",
                                 requestContent = RequestContent(
                                         false,
-                                        listOf(Content("application/json", Include("cart-get-request-schema.json"), listOf(Include("cart-get-request.json"))))
+                                        listOf(Content("application/json", Include("cart-get-request-schema.json"), Include("cart-get-request.json")))
                                 ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-get-response-schema.json"), listOf(Include("cart-get-response.json"))))
+                                        contents = listOf(Content("application/json", Include("cart-get-response-schema.json"), Include("cart-get-response.json")))
                                 ))
                         )
                 ),
@@ -27,12 +27,12 @@ class OpenAPIResourceTest {
                         Method(
                                 method = "get",
                                 requestContent = RequestContent(true,
-                                        listOf(Content("application/json", Include("cart-get-additional-request-schema.json"), listOf(Include("cart-get-additional-request.json"))))
+                                        listOf(Content("application/json", Include("cart-get-additional-request-schema.json"), Include("cart-get-additional-request.json")))
                                 ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-get-additional-response-schema.json"), listOf(Include("cart-get-additional-response.json"))))
+                                        contents = listOf(Content("application/json", Include("cart-get-additional-response-schema.json"), Include("cart-get-additional-response.json")))
                                 ))
                         )
                 )
@@ -47,7 +47,7 @@ class OpenAPIResourceTest {
             methods.first().requestContent?.contents?.`should not be null`()
             with(methods.first().requestContent?.contents!!.first()) {
                 contentType `should equal` "application/json"
-                examples `should equal` listOf(Include("cart-get-request.json"), Include("cart-get-additional-request.json"))
+                example `should equal` Include("cart-get-request.json")
                 schema `should equal` Include("cart-get-request-schema.json")
             }
 
@@ -55,7 +55,7 @@ class OpenAPIResourceTest {
             with(methods.first().responses.first()) {
                 contents.size `should be` 1
                 contents.first().contentType `should equal` "application/json"
-                contents.first().examples `should equal` listOf(Include("cart-get-response.json"), Include("cart-get-additional-response.json"))
+                contents.first().example `should equal` Include("cart-get-response.json")
                 contents.first().schema `should equal` Include("cart-get-response-schema.json")
             }
         }
@@ -68,12 +68,12 @@ class OpenAPIResourceTest {
                         Method(
                                 method = "put",
                                 requestContent = RequestContent(true,
-                                        listOf(Content("application/json", Include("cart-line-item-update-request.json"), listOf(Include("cart-line-item-update-schema.json"))))
+                                        listOf(Content("application/json", Include("cart-line-item-update-request.json"), Include("cart-line-item-update-schema.json")))
                                 ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-line-item-update-response.json"), listOf(Include("cart-line-item-update-response-schema.json"))))
+                                        contents = listOf(Content("application/json", Include("cart-line-item-update-response.json"), Include("cart-line-item-update-response-schema.json")))
                                 ))
                         )
                 ),
@@ -81,12 +81,12 @@ class OpenAPIResourceTest {
                         Method(
                                 method = "put",
                                 requestContent = RequestContent(false,
-                                        listOf(Content("text/uri-list", Include("cart-line-item-assign-request.json"), listOf(Include("cart-line-item-assign-schema.json"))))
+                                        listOf(Content("text/uri-list", Include("cart-line-item-assign-request.json"), Include("cart-line-item-assign-schema.json")))
                                 ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), listOf(Include("cart-line-item-assign-response-schema.json"))))
+                                        contents = listOf(Content("text/uri-list", Include("cart-line-item-assign-response.json"), Include("cart-line-item-assign-response-schema.json")))
                                 ))
                         )
                 )

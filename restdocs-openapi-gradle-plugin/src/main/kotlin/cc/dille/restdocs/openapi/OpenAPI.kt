@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.nodes.Tag
 import org.yaml.snakeyaml.representer.Represent
 import org.yaml.snakeyaml.representer.Representer
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 
 
@@ -29,27 +30,31 @@ object OpenAPIParser {
 }
 
 object OpenAPIWriter {
-    fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String) {
-        writeFile(targetFile = fileFactory(apiFileName),
-                contentMap = api.toMainFileMap(groupFileNameProvider)
-        )
-
+    fun writeApi(fileFactory: (String) -> File, api: OpenAPIApi, apiFileName: String, groupFileNameProvider: (String) -> String, mergeIncludes: Boolean = false) {
         api.resourceGroups.map {
             writeFile(
-                    targetFile = fileFactory(groupFileNameProvider(it.firstPathPart)),
-                    contentMap = it.toOpenAPIMap()
+                    targetFile = groupFileNameProvider(it.firstPathPart),
+                    contentMap = it.toOpenAPIMap(),
+                    fileFactory = fileFactory,
+                    mergeIncludes = mergeIncludes
             )
         }
+
+        writeFile(targetFile = apiFileName,
+                contentMap = api.toMainFileMap(groupFileNameProvider),
+                fileFactory = fileFactory,
+                mergeIncludes = mergeIncludes
+        )
     }
 
-    fun writeFile(targetFile: File, contentMap: Map<*, *>) {
-        targetFile.writer().let { writer ->
-            yaml().dump(contentMap, writer)
+    fun writeFile(targetFile: String, contentMap: Map<*, *>, fileFactory: (String) -> File, mergeIncludes: Boolean) {
+        fileFactory(targetFile).writer().let { writer ->
+            yaml(fileFactory, mergeIncludes).dump(contentMap, writer)
         }
     }
 }
 
-private fun yaml() = Yaml(IncludeConstructor(), IncludeRepresenter(),
+private fun yaml(fileFactory: ((String) -> File)? = null, mergeIncludes: Boolean? = null) = Yaml(IncludeConstructor(), IncludeRepresenter(fileFactory, mergeIncludes),
         DumperOptions().apply {
             defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
             defaultScalarStyle = PLAIN
@@ -58,14 +63,26 @@ private fun yaml() = Yaml(IncludeConstructor(), IncludeRepresenter(),
 
 data class Include(val location: String)
 
-internal class IncludeRepresenter : Representer() {
+internal class IncludeRepresenter(fileFactory: ((String) -> File)?, mergeIncludes: Boolean?) : Representer() {
+    private var fileFactory: ((String) -> File)?
+    private var mergeIncludes: Boolean
+
     init {
         this.representers[Include::class.java] = RepresentInclude()
+        this.fileFactory = fileFactory
+        this.mergeIncludes = mergeIncludes?:false
     }
 
     private inner class RepresentInclude : Represent {
         override fun representData(data: Any): Node {
-            return representScalar(includeTag, (data as Include).location)
+            return if(mergeIncludes && fileFactory != null) {
+                val file = fileFactory!!.invoke((data as Include).location)
+                val fip = FileInputStream(file)
+                val y = yaml(fileFactory, mergeIncludes).load<Any>(fip)
+                represent(y)
+            } else {
+                representScalar(includeTag, (data as Include).location)
+            }
         }
     }
 }

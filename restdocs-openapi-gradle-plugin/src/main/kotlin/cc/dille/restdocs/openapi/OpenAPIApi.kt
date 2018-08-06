@@ -33,9 +33,9 @@ data class OpenAPIApi(var openAPIVersion: String,
                                 serverDescription?.let { "description" to it },
                                 serverUrl?.let { "url" to it }
                         ).toMap())
-                    else null
+                    else null,
+                    "paths" to resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) }.toMap()
             ).toMap()
-                    .plus(resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) })
 }
 
 interface ToOpenAPIMap {
@@ -79,18 +79,15 @@ data class RequestContent(val required: Boolean = false,
 
 data class Content(val contentType: String,
                    val schema: Include? = null,
-                   val examples: List<Include> = emptyList()) : ToOpenAPIMap {
+                   val example: Include? = null) : ToOpenAPIMap {
 
-    override fun toOpenAPIMap(): Map<*, *> {
-        var nex = 0
-
-        return mapOf(contentType to
-                listOfNotNull(
-                        schema?.let { "schema" to schema },
-                        if (!examples.isEmpty()) "examples" to examples.flatMap { mapOf("example" + nex++.toString() to it).toList() }.toMap() else null
-                ).toMap()
-        )
-    }
+    override fun toOpenAPIMap(): Map<*, *> =
+            mapOf(contentType to
+                    listOfNotNull(
+                            schema?.let { "schema" to schema },
+                            example?.let { "example" to example }
+                    ).toMap()
+            )
 }
 
 data class Response(val status: Int,
@@ -161,7 +158,7 @@ data class OpenAPIResource(val path: String, val methods: List<Method> = emptyLi
             return contentsByContentType.map { (contentType, contents) ->
                 Content(
                         contentType = contentType,
-                        examples = contents.map { it.examples }.flatten(),
+                        example = contents.map { it.example }.first(),
                         schema = contents.mapNotNull { it.schema }
                                 .let { if (it.isNotEmpty()) jsonSchemaMerger.mergeSchemas(it) else null }
                 )
@@ -216,7 +213,7 @@ data class OpenAPIFragment(val id: String,
 
             return Content(
                     contentType = contentType,
-                    examples = (values["examples"] as Map<*, *>).map { (_, v) -> v as Include },
+                    example = values["example"] as? Include,
                     schema = values["schema"] as? Include
             )
         }

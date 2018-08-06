@@ -20,8 +20,7 @@ interface FragmentFixtures {
                 content:
                   application/hal+json:
                     schema: !include 'payment-integration-get-schema-response.json'
-                    examples:
-                      example0: !include 'payment-integration-get-response.json'
+                    example: !include 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithoutSchema() = """
@@ -40,8 +39,7 @@ interface FragmentFixtures {
                 description: some description
                 content:
                   application/hal+json:
-                    examples:
-                      example0: !include 'payment-integration-get-response.json'
+                    example: !include 'payment-integration-get-response.json'
         """.trimIndent()
 
     fun rawFragmentWithEmptyResponse() = """
@@ -96,8 +94,7 @@ interface FragmentFixtures {
               content:
                 application/hal+json:
                   schema: !include 'tags-create-schema-request.json'
-                  examples:
-                    example0: !include 'tags-create-request.json'
+                  example: !include 'tags-create-request.json'
             responses:
               200:
                 description: Update a tag
@@ -108,8 +105,7 @@ interface FragmentFixtures {
                 content:
                   application/hal+json:
                     schema: !include 'tags-list-schema-response.json'
-                    examples:
-                      example0: !include 'tags-list-response.json'
+                    example: !include 'tags-list-response.json'
         """.trimIndent()
 
     fun parsedFragmentMap(stringProvider: () -> String) = OpenAPIParser.parseFragment(stringProvider())

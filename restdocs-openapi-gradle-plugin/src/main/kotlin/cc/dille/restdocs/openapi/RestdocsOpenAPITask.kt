@@ -42,6 +42,10 @@ open class RestdocsOpenAPITask : DefaultTask() {
 
 
     @Input
+    @Optional
+    var mergeFiles: Boolean = false
+
+    @Input
     lateinit var outputDirectory: String
 
     @Input
@@ -96,7 +100,8 @@ open class RestdocsOpenAPITask : DefaultTask() {
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },
                 api = openAPIApi,
                 apiFileName = "$outputFileNamePrefix$fileNameSuffix",
-                groupFileNameProvider = { path -> groupFileName(path, fileNameSuffix) }
+                groupFileNameProvider = { path -> groupFileName(path, fileNameSuffix) },
+                mergeIncludes = mergeFiles
         )
     }
 

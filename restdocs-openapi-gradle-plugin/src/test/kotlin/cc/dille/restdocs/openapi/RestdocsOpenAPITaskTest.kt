@@ -10,6 +10,8 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
+// TODO: Test when mergeFiles = true!
+
 class RestdocsOpenAPITaskTest {
     @Rule
     @JvmField
@@ -98,15 +100,15 @@ class RestdocsOpenAPITaskTest {
         groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
         groupFileLines.any { it.contains("schema: !include 'carts-create-request-schema.json'") }.`should be true`()
 
-        groupFileContent.contains("examples: example0: !include 'carts-create-request.json'").`should be true`()
+        groupFileContent.contains("example: !include 'carts-create-request.json'").`should be true`()
         groupFileContent.contains("- name: some in: query description: some required: false schema: type: integer").`should be true`()
         groupFileContent.contains("- name: other in: query description: other required: true schema: type: string example: test").`should be true`()
     }
 
     private fun thenOpenAPIFileGenerated() {
         thenOpenAPIFileExistsWithHeaders().also { lines ->
-            lines `should contain` "/carts: !include 'carts.yaml'"
-            lines `should contain` "/: !include 'root.yaml'"
+            lines.any { it.contains("/carts: !include 'carts.yaml'") }.`should be true`()
+            lines.any { it.contains("/: !include 'root.yaml'") }.`should be true`()
         }
     }
 
@@ -162,8 +164,7 @@ openAPIdoc {
       content:
         application/hal+json:
           schema: !include 'carts-create-request-schema.json'
-          examples:
-            example0: !include 'carts-create-request.json'
+          example: !include 'carts-create-request.json'
 """)
 
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
