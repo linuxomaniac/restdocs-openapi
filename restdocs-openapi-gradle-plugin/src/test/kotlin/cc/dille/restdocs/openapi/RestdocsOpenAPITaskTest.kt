@@ -1,6 +1,8 @@
 package cc.dille.restdocs.openapi
 
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be true`
+import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should exist`
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
@@ -10,7 +12,6 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-// TODO: Test when mergeFiles = true!
 
 class RestdocsOpenAPITaskTest {
     @Rule
@@ -65,9 +66,7 @@ class RestdocsOpenAPITaskTest {
         whenPluginExecuted()
 
         result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenOpenAPIFileGenerated()
         thenGroupFileGenerated()
-        thenRequestBodyJsonFileFoundInOutputDirectory()
     }
 
     @Test
@@ -79,43 +78,33 @@ class RestdocsOpenAPITaskTest {
         whenPluginExecuted()
 
         result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenOpenAPIFileGenerated()
         thenGroupFileGenerated()
-        thenRequestBodyJsonFileFoundInOutputDirectory()
-    }
-
-    private fun thenRequestBodyJsonFileFoundInOutputDirectory() {
-        File(testProjectDir.root, "build/openAPIdoc/carts-create-request.json").`should exist`()
     }
 
     private fun thenGroupFileGenerated() {
-        val groupFile = File(testProjectDir.root, "build/openAPIdoc/carts.yaml")
-        val groupFileLines = groupFile.readLines()
-        val groupFileContent = groupFile.readText().replace("\\s+".toRegex(), " ")
+        thenOpenAPIFileExistsWithHeaders().also { apiFile ->
 
-        groupFileLines.any { it.startsWith("get:") }.`should be true`()
-        groupFileLines.any { it.startsWith("post:") }.`should be true`()
-        groupFileLines.any { it.startsWith("/{cartId}:") }.`should be true`()
-        groupFileLines.any { it.startsWith("  get:") }.`should be true`()
-        groupFileLines.any { it.startsWith("  delete:") }.`should be true`()
-        groupFileLines.any { it.contains("schema: !include 'carts-create-request-schema.json'") }.`should be true`()
+            apiFile.readLines().apply {
+                any { it.startsWith("  /:") }.`should be true`()
+                any { it.startsWith("  /carts/{cartId}:") }.`should be true`()
+                any { it.startsWith("  /carts:") }.`should be true`()
+                any { it.startsWith("    get:") }.`should be true`()
+                any { it.startsWith("    post:") }.`should be true`()
+                any { it.startsWith("    delete:") }.`should be true`()
+            }
 
-        groupFileContent.contains("example: !include 'carts-create-request.json'").`should be true`()
-        groupFileContent.contains("- name: some in: query description: some required: false schema: type: integer").`should be true`()
-        groupFileContent.contains("- name: other in: query description: other required: true schema: type: string example: test").`should be true`()
-    }
-
-    private fun thenOpenAPIFileGenerated() {
-        thenOpenAPIFileExistsWithHeaders().also { lines ->
-            lines.any { it.contains("/carts: !include 'carts.yaml'") }.`should be true`()
-            lines.any { it.contains("/: !include 'root.yaml'") }.`should be true`()
+            apiFile.readText().replace("\\s+".toRegex(), " ").apply {
+                contains("example: " + requestBodyJson()).`should be true`()
+                contains("- name: some in: query description: some required: false schema: type: integer").`should be true`()
+                contains("- name: other in: query description: other required: true schema: type: string example: test").`should be true`()
+            }
         }
     }
 
-    private fun thenOpenAPIFileExistsWithHeaders(): List<String> {
+    private fun thenOpenAPIFileExistsWithHeaders(): File {
         val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
         apiFile.`should exist`()
-        return apiFile.readLines().also { lines ->
+        apiFile.readLines().also { lines ->
             lines.any { it.contains("openapi: $openAPIVersion") }.`should be true`()
             lines.any { it.contains("version: $infoVersion") }.`should be true`()
             lines.any { it.contains("title: $infoTitle") }.`should be true`()
@@ -125,6 +114,8 @@ class RestdocsOpenAPITaskTest {
             serverUrl?.let { _ -> lines.any { it.contains("url: $serverUrl") }.`should be true`() }
             serverDescription?.let { _ -> lines.any { it.contains("description: $serverDescription") }.`should be true`() }
         }
+
+        return apiFile
     }
 
     private fun givenBuildFileWithoutOpenAPIDocClosure() {
@@ -152,7 +143,7 @@ openAPIdoc {
                 .withProjectDir(testProjectDir.root)
                 .withArguments("--info", "--stacktrace", "openAPIdoc")
                 .withPluginClasspath(pluginClasspath)
-//                .forwardOutput()
+                .forwardOutput()
                 .build()
     }
 
@@ -163,7 +154,6 @@ openAPIdoc {
       required: true
       content:
         application/hal+json:
-          schema: !include 'carts-create-request-schema.json'
           example: !include 'carts-create-request.json'
 """)
 
@@ -207,19 +197,13 @@ openAPIdoc {
 """)
     }
 
+    private fun requestBodyJson() = """{}"""
+
     private fun givenRequestBodyJsonFile() {
-        testProjectDir.newFile("build/generated-snippets/carts-create/carts-create-request.json").writeText("""{}""")
+        testProjectDir.newFile("build/generated-snippets/carts-create/carts-create-request.json").writeText(requestBodyJson())
     }
 
-    private fun baseBuildFile() = """
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-}
-
-plugins {
+    private fun baseBuildFile() = """plugins {
     id 'java'
     id 'cc.dille.restdocs-openapi'
 }

@@ -172,14 +172,14 @@ public class JsonSchemaFromFieldDescriptorsGenerator {
                 builder.addRequiredProperty(propertyName);
             }
             if (fieldDescriptor.getType() == null || fieldDescriptor.getType().equals(JsonFieldType.NULL) || fieldDescriptor.getType().equals(JsonFieldType.VARIES)) {
-                builder.addPropertySchema(propertyName, NullSchema.builder()
+                // When no type is found, we consider this is a string
+                builder.addPropertySchema(propertyName, /* NullSchema.builder() */ StringSchema.builder()
                         .description((String) fieldDescriptor.getDescription())
                         .build());
             } else if (fieldDescriptor.getType().equals(JsonFieldType.OBJECT)) {
                 builder.addPropertySchema(propertyName, ObjectSchema.builder()
                         .description((String) fieldDescriptor.getDescription())
                         .build());
-
             } else if (fieldDescriptor.getType().equals(JsonFieldType.ARRAY)) {
                 builder.addPropertySchema(propertyName, ArraySchema.builder()
                         .description((String) fieldDescriptor.getDescription())

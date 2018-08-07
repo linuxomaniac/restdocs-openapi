@@ -1,0 +1,66 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        flatDir { dirs 'libs' }
+    }
+    dependencies {
+        // ADD THIS
+        classpath "com.fasterxml.jackson.core:jackson-databind:2.9.6"
+        classpath "org.yaml:snakeyaml:1.21"
+        classpath 'cc.dille:restdocs-openapi-gradle-plugin:0.1.0-SNAPSHOT'
+    }
+}
+
+plugins {
+    id "java"
+    id 'org.springframework.boot' version '2.0.4.RELEASE'
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+//    id 'cc.dille.restdocs-openapi'
+}
+
+apply plugin: "cc.dille.restdocs-openapi"
+
+repositories {
+    jcenter()
+    // ADD THIS
+    maven { url 'https://jitpack.io' }
+    flatDir { dirs 'libs' }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE")
+    implementation('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
+    implementation('org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE')
+    implementation('org.springframework:spring-web:5.0.8.RELEASE')
+    implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
+    implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
+    implementation('org.springframework.hateoas:spring-hateoas:0.25.0.RELEASE')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.9.6')
+
+//    testImplementation('junit:junit:4.12')
+    testImplementation('org.springframework.boot:spring-boot-test:2.0.4.RELEASE')
+//    testImplementation('com.google.guava:guava:23.0-android')
+    testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
+    testImplementation('cc.dille:restdocs-openapi:0.1.0-SNAPSHOT')
+
+    // ADD THIS!
+    implementation('com.github.everit-org.json-schema:org.everit.json.schema:1.9.1')
+
+}
+
+openAPIdoc {
+    openAPIVersion = "3.0.1"
+
+    infoVersion = "0.1.0"
+    infoTitle = "API documentation"
+    infoDescription = "API to manage sample objects"
+
+    infoContactName = "test"
+
+    serverUrl = "http://localhost:8080"
+    serverDescription = "Testing environment"
+}

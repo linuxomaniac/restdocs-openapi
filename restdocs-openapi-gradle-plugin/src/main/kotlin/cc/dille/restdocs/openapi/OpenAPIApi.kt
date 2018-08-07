@@ -10,12 +10,9 @@ data class OpenAPIApi(var openAPIVersion: String,
                       var infoContactEmail: String? = null,
                       var serverUrl: String? = null,
                       var serverDescription: String? = null,
-                      private val _resourceGroups: List<ResourceGroup>) {
-    val resourceGroups by lazy {
-        _resourceGroups.sortedBy { it.firstPathPart }
-    }
+                      private val resourceGroups: List<ResourceGroup>) {
 
-    fun toMainFileMap(groupFileNameProvider: (String) -> String) =
+    fun toMainFileMap() =
             listOfNotNull(
                     "openapi" to openAPIVersion,
                     "info" to listOfNotNull(
@@ -34,7 +31,7 @@ data class OpenAPIApi(var openAPIVersion: String,
                                 serverUrl?.let { "url" to it }
                         ).toMap())
                     else null,
-                    "paths" to resourceGroups.map { it.firstPathPart to Include(groupFileNameProvider(it.firstPathPart)) }.toMap()
+                    "paths" to resourceGroups.toOpenAPIMap()
             ).toMap()
 }
 
@@ -42,11 +39,7 @@ interface ToOpenAPIMap {
     fun toOpenAPIMap(): Map<*, *>
 }
 
-data class ResourceGroup(val firstPathPart: String, private val _openAPIResources: List<OpenAPIResource>) : ToOpenAPIMap {
-    private val openAPIResources by lazy {
-        _openAPIResources.map { it.copy(path = it.path.removePrefix(firstPathPart)) }.sortedBy { it.path.length }
-    }
-
+data class ResourceGroup(val path: String, private val openAPIResources: List<OpenAPIResource>) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
             openAPIResources.flatMap { it.toOpenAPIMap().toList() }.toMap()
 }
@@ -73,7 +66,7 @@ data class RequestContent(val required: Boolean = false,
                           val contents: List<Content> = emptyList()) : ToOpenAPIMap {
 
     override fun toOpenAPIMap(): Map<*, *> {
-        return if (!contents.isEmpty()) mapOf("requestBody" to mapOf("required" to required.toString(), "content" to contents.toOpenAPIMap())) else emptyMap<String, String>()
+        return if (!contents.isEmpty()) mapOf("requestBody" to mapOf("required" to required, "content" to contents.toOpenAPIMap())) else emptyMap<String, String>()
     }
 }
 
@@ -121,8 +114,6 @@ data class Header(val name: String, val description: String?, val example: Strin
 }
 
 data class OpenAPIResource(val path: String, val methods: List<Method> = emptyList()) : ToOpenAPIMap {
-    val firstPathPart by lazy { path.split("/").find { !it.isEmpty() }?.let { "/$it" } ?: "/" }
-
     override fun toOpenAPIMap(): Map<*, *> =
             methods.flatMap { it.toOpenAPIMap().toList() }.toMap().let { if (path.isEmpty()) it else mapOf(path to it) }
 

@@ -1,0 +1,15 @@
+= Index
+include::{snippets}/index/listing/auto-section.adoc[]
+
+= Greeting
+== Listing
+include::{snippets}/greeting/listing/auto-section.adoc[]
+
+== Post
+include::{snippets}/greeting/post/auto-section.adoc[]
+
+== Get
+include::{snippets}/greeting/get-ok/auto-section.adoc[]
+
+== Delete
+include::{snippets}/greeting/delete-ok/auto-section.adoc[]

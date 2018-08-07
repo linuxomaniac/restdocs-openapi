@@ -40,11 +40,6 @@ open class RestdocsOpenAPITask : DefaultTask() {
     @Optional
     var serverDescription: String? = null
 
-
-    @Input
-    @Optional
-    var mergeFiles: Boolean = false
-
     @Input
     lateinit var outputDirectory: String
 
@@ -65,7 +60,7 @@ open class RestdocsOpenAPITask : DefaultTask() {
     fun aggregateOpenAPIFragments() {
         outputDirectoryFile.mkdirs()
 
-        copyBodyJsonFilesToOutput()
+//        copyBodyJsonFilesToOutput()
 
         val openAPIFragments = snippetsDirectoryFile.walkTopDown()
                 .filter { it.name is String && it.name.startsWith("openapi-resource") }
@@ -81,8 +76,8 @@ open class RestdocsOpenAPITask : DefaultTask() {
                 .map { (_, fragmentsWithSamePath) -> OpenAPIResource.fromFragments(fragmentsWithSamePath, JsonSchemaMerger(outputDirectoryFile)) }
                 .let { openAPIResources ->
                     openAPIResources
-                            .groupBy { it.firstPathPart }
-                            .map { (firstPathPart, resources) -> ResourceGroup(firstPathPart, resources) }
+                            .groupBy { it.path }
+                            .map { (path, resources) -> ResourceGroup(path, resources) }
                 }
                 .let {
                     OpenAPIApi(openAPIVersion,
@@ -99,28 +94,15 @@ open class RestdocsOpenAPITask : DefaultTask() {
         OpenAPIWriter.writeApi(
                 fileFactory = { filename -> project.file("$outputDirectory/$filename") },
                 api = openAPIApi,
-                apiFileName = "$outputFileNamePrefix$fileNameSuffix",
-                groupFileNameProvider = { path -> groupFileName(path, fileNameSuffix) },
-                mergeIncludes = mergeFiles
+                apiFileName = "$outputFileNamePrefix$fileNameSuffix"
         )
     }
 
-    private fun groupFileName(path: String, fileNameSuffix: String): String {
-        val fileNamePrefix = if (path == "/") "root" else path
-                .replaceFirst("/", "")
-                .replace("\\{", "")
-                .replace("}", "")
-                .replace("/", "-")
-
-        return if (fileNamePrefix == outputFileNamePrefix) "$fileNamePrefix-group$fileNameSuffix"
-        else "$fileNamePrefix$fileNameSuffix"
-    }
-
-
-    private fun copyBodyJsonFilesToOutput() {
-        snippetsDirectoryFile.walkTopDown().forEach {
-            if (it.name.endsWith("-request.json") || it.name.endsWith("-response.json"))
-                Files.copy(it.toPath(), outputDirectoryFile.toPath().resolve(it.name), StandardCopyOption.REPLACE_EXISTING)
+    /* private fun copyBodyJsonFilesToOutput() {
+        snippetsDirectoryFile.walkTopDown().forEach {file ->
+            if (listOf("-request.json", "-response.json", "-merged-response.json", "-merged-request.json").any { file.name.endsWith(it) }) {
+                Files.copy(file.toPath(), outputDirectoryFile.toPath().resolve(file.name), StandardCopyOption.REPLACE_EXISTING)
+            }
         }
-    }
+    } */
 }
