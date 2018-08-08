@@ -1,4 +1,4 @@
-package cc.dille.hello;
+package cc.dille.restdocs.openapi.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -6,6 +6,7 @@ import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class LinkHandlerTest {
 
         whenModelGeneratedWithLinkDescriptors(linkWithRel("self").description("self"));
 
-        then(model).isEmpty();
+        then(model.toString()).isEqualTo("{links=[{name=self, description=self, operationId=}], responseLinksPresent=true}");
     }
 
     @Test

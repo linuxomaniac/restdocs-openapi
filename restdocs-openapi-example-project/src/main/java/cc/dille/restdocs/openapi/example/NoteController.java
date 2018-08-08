@@ -1,7 +1,7 @@
-package cc.dille.hello;
+package cc.dille.restdocs.openapi.example;
 
-import cc.dille.hello.status.NoContentException;
-import cc.dille.hello.status.ResourceNotFoundException;
+import cc.dille.restdocs.openapi.example.status.NoContentException;
+import cc.dille.restdocs.openapi.example.status.ResourceNotFoundException;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.Map;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @RestController
-@RequestMapping(path = "/greeting", produces = MediaTypes.HAL_JSON_VALUE)
-public class GreetingController {
+@RequestMapping(path = "/note", produces = MediaTypes.HAL_JSON_VALUE)
+public class NoteController {
 
-    private Map<Long, Greeting> m = new HashMap<Long, Greeting>();
+    private Map<Long, Note> m = new HashMap<Long, Note>();
 
     /**
      * Get all the Greetings recorded.
@@ -27,19 +27,19 @@ public class GreetingController {
      * @return A collection of the recorded Greetings is returned.
      */
     @GetMapping()
-    public Collection<Greeting> indexGreeting() {
+    public Collection<Note> indexGreeting() {
         return m.values();
     }
 
     /**
-     * Get a Greeting by id.
+     * Get a Note by id.
      *
-     * @param id The unique identifier of the {@link Greeting} to get
-     * @return The matching Greeting is returned if existing.
+     * @param id The unique identifier of the {@link Note} to get
+     * @return The matching Note is returned if existing.
      */
     @GetMapping("/{id}")
-    Greeting getGreeting(@PathVariable long id) {
-        Greeting g = m.get(id);
+    Note getGreeting(@PathVariable long id) {
+        Note g = m.get(id);
 
         if (g == null) {
             throw new ResourceNotFoundException();
@@ -49,10 +49,10 @@ public class GreetingController {
     }
 
     /**
-     * Deletes a Greeting by id.
+     * Deletes a Note by id.
      *
-     * @param id ID of the greeting.
-     *           Deletes a greeting.
+     * @param id ID of the note.
+     *           Deletes a note.
      */
     @DeleteMapping("/{id}")
     void deleteGreeting(@PathVariable long id) {
@@ -66,19 +66,19 @@ public class GreetingController {
     }
 
     /**
-     * Adds a new greeting element.
+     * Adds a new note element.
      *
-     * @param greeting Greeting Content
+     * @param note Note Content
      * @return reponse
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = {MediaTypes.HAL_JSON_VALUE})
-    public ResourceSupport postGreeting(@Valid @RequestBody Greeting greeting) throws MalformedURLException {
-        m.put(greeting.getId(), greeting);
+    public ResourceSupport postGreeting(@Valid @RequestBody Note note) throws MalformedURLException {
+        m.put(note.getId(), note);
 
         ResourceSupport index = new ResourceSupport();
-        index.add(linkTo(GreetingController.class).slash(String.valueOf(greeting.getId())).withRel("self"));
-        index.add(linkTo(GreetingController.class).withRel("greeting"));
+        index.add(linkTo(NoteController.class).slash(String.valueOf(note.getId())).withRel("self"));
+        index.add(linkTo(NoteController.class).withRel("note"));
         return index;
     }
 }

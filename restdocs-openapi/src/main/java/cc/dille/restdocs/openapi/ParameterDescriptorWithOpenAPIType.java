@@ -18,10 +18,9 @@ import javax.management.Descriptor;
 @RequiredArgsConstructor
 @Getter
 public class ParameterDescriptorWithOpenAPIType extends IgnorableDescriptor<ParameterDescriptorWithOpenAPIType> {
+    private final String name;
 
     private OpenAPIScalarType type = STRING;
-
-    private final String name;
 
     private String example = null;
 

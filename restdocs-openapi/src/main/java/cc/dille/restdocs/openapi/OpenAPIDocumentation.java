@@ -175,4 +175,7 @@ public class OpenAPIDocumentation {
         return enhancedSnippets.toArray(new Snippet[0]);
     }
 
+    public static LinkDescriptorWithOpenAPIType linkWithRel(String rel) {
+        return new LinkDescriptorWithOpenAPIType(rel);
+    }
 }

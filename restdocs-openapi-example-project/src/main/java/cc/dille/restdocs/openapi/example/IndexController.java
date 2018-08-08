@@ -1,4 +1,4 @@
-package cc.dille.hello;
+package cc.dille.restdocs.openapi.example;
 
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.ResourceSupport;
@@ -19,7 +19,7 @@ public class IndexController {
     public ResourceSupport index() {
         ResourceSupport index = new ResourceSupport();
         index.add(
-                linkTo(GreetingController.class).withRel("greeting"),
+                linkTo(NoteController.class).withRel("note"),
                 linkTo(IndexController.class).withSelfRel());
         return index;
     }

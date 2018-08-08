@@ -1,6 +1,6 @@
-package cc.dille.hello.doc;
+package cc.dille.restdocs.openapi.example.doc;
 
-import cc.dille.hello.Application;
+import cc.dille.restdocs.openapi.example.Application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;

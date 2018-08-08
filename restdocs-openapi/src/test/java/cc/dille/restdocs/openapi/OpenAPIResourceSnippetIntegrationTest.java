@@ -13,7 +13,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static cc.dille.restdocs.openapi.OpenAPIDocumentation.linkWithRel;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -154,8 +154,8 @@ public class OpenAPIResourceSnippetIntegrationTest implements OpenAPIResourceSni
                         parameterWithName("someId").description("some id").type(STRING),
                         parameterWithName("otherId").description("otherId id").type(INTEGER))
                 .links(
-                        linkWithRel("self").description("some"),
-                        linkWithRel("multiple").description("multiple")
+                        linkWithRel("self").description("some").operationId("getIndex"),
+                        linkWithRel("multiple").description("multiple").operationId("getMultiple")
                 )
                 .build());
     }

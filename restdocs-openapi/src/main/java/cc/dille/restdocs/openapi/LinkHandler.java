@@ -1,46 +1,75 @@
 package cc.dille.restdocs.openapi;
 
 
-import static java.util.Collections.emptyMap;
-
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation;
 import org.springframework.restdocs.hypermedia.LinkDescriptor;
 import org.springframework.restdocs.hypermedia.LinksSnippet;
 import org.springframework.restdocs.operation.Operation;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+
 /**
- * Handle {@link org.springframework.restdocs.hypermedia.LinkDescriptor}
- *
+ * Handle {@link cc.dille.restdocs.openapi.LinkDescriptorWithOpenAPIType}
+ * <p>
  * Links are added to the model as part of the response in {@link ResponseHandler}.
- * So this implementation just takes care about triggering the validation if the documented links
  */
 public class LinkHandler implements OperationHandler {
 
     @Override
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters parameters) {
-        if (!parameters.getLinks().isEmpty()) {
+        List<LinkDescriptorWithOpenAPIType> links = parameters.getLinks();
+        if (!links.isEmpty()) {
             new LinkSnippetWrapper(parameters.getLinks()).validateLinks(operation);
+
+            Map<String, Object> model = new HashMap<>();
+            model.put("responseLinksPresent", true);
+            model.put("links", mapDescriptorsToModel(links));
+            return model;
         }
+
         return emptyMap();
+    }
+
+    private List<Map<String, String>> mapDescriptorsToModel(List<LinkDescriptorWithOpenAPIType> linksDescriptors) {
+        return linksDescriptors.stream().map(linkDescriptor -> {
+            Map<String, String> linkMap = new HashMap<>();
+            if (!linkDescriptor.isIgnored()) {
+                linkMap.put("name", linkDescriptor.getRel());
+                linkMap.put("description", (String) linkDescriptor.getDescription());
+                linkMap.put("operationId", (linkDescriptor.getOperationId() != null) ? linkDescriptor.getOperationId() : "");
+            }
+            return linkMap;
+        }).collect(toList());
     }
 
     static class LinkSnippetWrapper extends LinksSnippet {
 
-        LinkSnippetWrapper(List<LinkDescriptor> descriptors) {
-            //using ContentTypeLinkExtractor would be more flexible but we cannot access it here
-            super(HypermediaDocumentation.halLinks(), descriptors);
+        LinkSnippetWrapper(List<LinkDescriptorWithOpenAPIType> descriptors) {
+            super(HypermediaDocumentation.halLinks(), descriptors.stream().map(d -> {
+                        LinkDescriptor ld = linkWithRel(d.getRel()).description(d.getDescription());
+                        if (d.isIgnored()) {
+                            ld.ignored();
+                        }
+                        return ld;
+                    }
+            ).collect(Collectors.toList()));
         }
 
         /**
          * delegate to createModel which will validate the links.
          * That is checking that all documented links exist in the response and also if all existing links are documented
+         *
          * @param operation
          */
         void validateLinks(Operation operation) {
-            createModel(operation);
+            super.createModel(operation);
         }
     }
 }

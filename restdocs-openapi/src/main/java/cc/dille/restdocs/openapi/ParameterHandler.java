@@ -3,6 +3,7 @@ package cc.dille.restdocs.openapi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.restdocs.headers.RequestHeadersSnippet;
 import org.springframework.restdocs.operation.Operation;
+import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.restdocs.request.PathParametersSnippet;
 import org.springframework.restdocs.request.RequestParametersSnippet;
 import org.springframework.util.MultiValueMap;
@@ -20,25 +21,27 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 @RequiredArgsConstructor
 class ParameterHandler implements OperationHandler {
 
-    public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters parameters) {
+    public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters snippetParameters) {
         List<Map<String, String>> res = new ArrayList<>();
 
-        List<ParameterDescriptorWithOpenAPIType> headers = parameters.getRequestHeaders();
-        if (!headers.isEmpty()) {
-            new RequestHeaderSnippetValidator(headers).validate(operation);
-            res.addAll(mapDescriptorsToModel(headers, prepareParameters(operation.getRequest().getHeaders())));
-        }
+        List<ParameterDescriptorWithOpenAPIType> parameters = snippetParameters.getParameters();
+        if (!parameters.isEmpty()) {
+            List<ParameterDescriptorWithOpenAPIType> filteredParameters;
 
-        List<ParameterDescriptorWithOpenAPIType> pathParameters = parameters.getPathParameters();
-        if (!pathParameters.isEmpty()) {
-            new PathParameterSnippetWrapper(pathParameters).validate(operation);
-            res.addAll(mapDescriptorsToModel(pathParameters, prepareParameters(operation.getRequest().getParameters())));
-        }
+            filteredParameters = parameters.stream().filter(p -> p.getIn().equals("header")).collect(Collectors.toList());
+            if (!filteredParameters.isEmpty()) {
+                new RequestHeaderSnippetValidator(filteredParameters).validate(operation);
+            }
+            filteredParameters = parameters.stream().filter(p -> p.getIn().equals("path")).collect(Collectors.toList());
+            if (!filteredParameters.isEmpty()) {
+                new PathParameterSnippetWrapper(filteredParameters).validate(operation);
+            }
+            filteredParameters = parameters.stream().filter(p -> p.getIn().equals("query")).collect(Collectors.toList());
+            if (!filteredParameters.isEmpty()) {
+                new RequestParameterSnippetWrapper(filteredParameters).validate(operation);
+            }
 
-        List<ParameterDescriptorWithOpenAPIType> requestParameters = parameters.getRequestParameters();
-        if (!requestParameters.isEmpty()) {
-            new RequestParameterSnippetWrapper(requestParameters).validate(operation);
-            res.addAll(mapDescriptorsToModel(requestParameters, prepareParameters(operation.getRequest().getParameters())));
+            res.addAll(mapDescriptorsToModel(parameters, prepareParameters(operation.getRequest().getHeaders())));
         }
 
         Map<String, Object> model = new HashMap<>();
@@ -63,12 +66,14 @@ class ParameterHandler implements OperationHandler {
     private List<Map<String, String>> mapDescriptorsToModel(List<ParameterDescriptorWithOpenAPIType> parametersDescriptors, Map<String, String> presentParameters) {
         return parametersDescriptors.stream().map(parameterDescriptor -> {
             Map<String, String> parameterMap = new HashMap<>();
-            parameterMap.put("name", parameterDescriptor.getName());
-            parameterMap.put("in", parameterDescriptor.getIn());
-            parameterMap.put("description", (String) parameterDescriptor.getDescription());
-            parameterMap.put("required", Boolean.toString(!parameterDescriptor.isOptional()));
-            parameterMap.put("type", parameterDescriptor.getType().getTypeName());
-            parameterMap.put("example", (parameterDescriptor.getExample() != null)?parameterDescriptor.getExample():presentParameters.get(parameterDescriptor.getName()));
+            if(!parameterDescriptor.isIgnored()) {
+                parameterMap.put("name", parameterDescriptor.getName());
+                parameterMap.put("in", parameterDescriptor.getIn());
+                parameterMap.put("description", (String) parameterDescriptor.getDescription());
+                parameterMap.put("required", Boolean.toString(!parameterDescriptor.isOptional()));
+                parameterMap.put("type", parameterDescriptor.getType().getTypeName());
+                parameterMap.put("example", (parameterDescriptor.getExample() != null) ? parameterDescriptor.getExample() : presentParameters.get(parameterDescriptor.getName()));
+            }
             return parameterMap;
         }).collect(toList());
     }
@@ -93,9 +98,14 @@ class ParameterHandler implements OperationHandler {
     static class RequestParameterSnippetWrapper extends RequestParametersSnippet implements ElementsValidator {
 
         RequestParameterSnippetWrapper(List<ParameterDescriptorWithOpenAPIType> descriptors) {
-            super(descriptors.stream().map(d -> parameterWithName(d.getName())
-                    .description(d.getDescription()))
-                    .collect(Collectors.toList()));
+            super(descriptors.stream().map(d -> {
+                        ParameterDescriptor pd = parameterWithName(d.getName()).description(d.getDescription());
+                        if (d.isIgnored()) {
+                            pd.ignored();
+                        }
+                        return pd;
+                    }
+            ).collect(Collectors.toList()));
         }
 
         @Override
@@ -107,9 +117,14 @@ class ParameterHandler implements OperationHandler {
     static class PathParameterSnippetWrapper extends PathParametersSnippet implements ElementsValidator {
 
         PathParameterSnippetWrapper(List<ParameterDescriptorWithOpenAPIType> descriptors) {
-            super(descriptors.stream().map(d -> parameterWithName(d.getName())
-                    .description(d.getDescription()))
-                    .collect(Collectors.toList()));
+            super(descriptors.stream().map(d -> {
+                        ParameterDescriptor pd = parameterWithName(d.getName()).description(d.getDescription());
+                        if (d.isIgnored()) {
+                            pd.ignored();
+                        }
+                        return pd;
+                    }
+            ).collect(Collectors.toList()));
         }
 
         @Override

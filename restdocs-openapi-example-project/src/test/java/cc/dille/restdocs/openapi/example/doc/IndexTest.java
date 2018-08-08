@@ -1,8 +1,7 @@
-package cc.dille.hello.doc;
+package cc.dille.restdocs.openapi.example.doc;
 
 import cc.dille.restdocs.openapi.OpenAPIResourceSnippetParameters;
 import org.junit.Test;
-import org.springframework.restdocs.payload.JsonFieldType;
 
 import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.openAPIResource;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
@@ -24,7 +23,7 @@ public class IndexTest extends RestDocTest {
                                 fieldWithPath("_links").description("Links to other resources"))
                         .links(
                                 linkWithRel("self").description("This self reference"),
-                                linkWithRel("greeting").description("The link to the greetings"))
+                                linkWithRel("note").description("The link to the greetings"))
                         .build())));
     }
 }
