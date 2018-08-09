@@ -1,18 +1,17 @@
 package cc.dille.restdocs.openapi;
 
+import org.junit.Test;
+import org.springframework.restdocs.hypermedia.LinkDescriptor;
+import org.springframework.restdocs.operation.Operation;
+import org.springframework.restdocs.snippet.SnippetException;
+
+import java.util.Map;
+
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Test;
-import org.springframework.restdocs.hypermedia.LinkDescriptor;
-import org.springframework.restdocs.operation.Operation;
-import org.springframework.restdocs.snippet.SnippetException;
 
 public class LinkHandlerTest {
 
@@ -37,7 +36,7 @@ public class LinkHandlerTest {
 
         whenModelGeneratedWithLinkDescriptors(linkWithRel("self").description("self"));
 
-        then(model.toString()).isEqualTo("{links=[{name=self, description=self, operationId=}], responseLinksPresent=true}");
+        then(model.toString()).isEqualTo("{links=[{name=self, description=self, operationId=null}], responseLinksPresent=true}");
     }
 
     @Test

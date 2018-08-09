@@ -48,7 +48,7 @@ public class OperationBuilder {
 	private OperationRequestBuilder requestBuilder;
 
 	public OperationBuilder() {
-		prepare("test", new File("build", "generated-snipptets"));
+		prepare("test", new File("build", "generated-snippets"));
 	}
 
 	public OperationBuilder(String operationName, File outputDirectory) {

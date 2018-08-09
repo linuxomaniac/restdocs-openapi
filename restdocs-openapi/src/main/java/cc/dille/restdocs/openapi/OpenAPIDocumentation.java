@@ -91,7 +91,7 @@ public class OpenAPIDocumentation {
                                                           Function<List<Snippet>, List<Snippet>> snippetFilter,
                                                           Snippet... snippets) {
 
-        Snippet[] enhancedSnippets = enhanceSnippetsWithopenAPI(description, privateResource, snippetFilter, snippets);
+        Snippet[] enhancedSnippets = enhanceSnippetsWithOpenAPI(description, privateResource, snippetFilter, snippets);
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
             return MockMvcRestDocumentation.document(identifier, requestPreprocessor, responsePreprocessor, enhancedSnippets);
@@ -104,7 +104,7 @@ public class OpenAPIDocumentation {
         return MockMvcRestDocumentation.document(identifier, enhancedSnippets);
     }
 
-    protected static Snippet[] enhanceSnippetsWithopenAPI(String description,
+    protected static Snippet[] enhanceSnippetsWithOpenAPI(String description,
                                                        boolean privateResource,
                                                        Function<List<Snippet>, List<Snippet>> snippetFilter,
                                                        Snippet... snippets) {
@@ -173,9 +173,5 @@ public class OpenAPIDocumentation {
         enhancedSnippets = snippetFilter.apply(enhancedSnippets);
 
         return enhancedSnippets.toArray(new Snippet[0]);
-    }
-
-    public static LinkDescriptorWithOpenAPIType linkWithRel(String rel) {
-        return new LinkDescriptorWithOpenAPIType(rel);
     }
 }

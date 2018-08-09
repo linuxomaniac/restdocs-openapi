@@ -1,6 +1,5 @@
 package cc.dille.restdocs.openapi;
 
-import static java.util.Collections.singletonList;
 import static org.springframework.restdocs.config.SnippetConfigurer.DEFAULT_SNIPPET_ENCODING;
 import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
 
@@ -57,9 +56,11 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
     @Override
     protected Map<String, Object> createModel(Operation operation) {
         Map<String, Object> model = new HashMap<>();
-        model.put("method", operation.getRequest().getMethod().name().toLowerCase());
-        model.put("description", parameters.getDescription() == null ? operation.getName() : parameters.getDescription());
         model.put("resource", getUriPath(operation));
+        model.put("method", operation.getRequest().getMethod().name().toLowerCase());
+        model.put("description", parameters.getDescription());
+        model.put("summary", parameters.getSummary() == null ? operation.getName() : parameters.getSummary());
+        model.put("operationId", parameters.getOperationId());
         model.put("status", operation.getResponse().getStatus().value());
 
         model.putAll(handlerChain.process(operation, parameters));

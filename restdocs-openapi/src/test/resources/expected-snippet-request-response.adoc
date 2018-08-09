@@ -1,5 +1,7 @@
 /some/{id}:
   post:
+    summary: test
+    operationId: postSome
     parameters:
       - name: id
         in: path
@@ -24,6 +26,14 @@
     responses:
       201:
         description: some resource
+        headers:
+          Test-header:
+            description: header
+            example: some value
+        links:
+          self:
+            operationId: getSome
+            description: Sample description
         content:
           application/json:
             schema: !include 'test-schema-response.json'

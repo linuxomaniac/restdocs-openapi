@@ -1,20 +1,17 @@
 package cc.dille.restdocs.openapi;
 
-import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.restdocs.headers.HeaderDescriptor;
+import org.springframework.restdocs.headers.ResponseHeadersSnippet;
+import org.springframework.restdocs.operation.Operation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.restdocs.headers.HeaderDescriptor;
-import org.springframework.restdocs.headers.RequestHeadersSnippet;
-import org.springframework.restdocs.headers.ResponseHeadersSnippet;
-import org.springframework.restdocs.operation.Operation;
-
-import lombok.RequiredArgsConstructor;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 class ResponseHeaderHandler implements OperationHandler {

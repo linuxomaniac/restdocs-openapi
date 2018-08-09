@@ -8,12 +8,10 @@ import org.springframework.restdocs.request.PathParametersSnippet;
 import org.springframework.restdocs.request.RequestParametersSnippet;
 import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -22,8 +20,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 class ParameterHandler implements OperationHandler {
 
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters snippetParameters) {
-        List<Map<String, String>> res = new ArrayList<>();
-
         List<ParameterDescriptorWithOpenAPIType> parameters = snippetParameters.getParameters();
         if (!parameters.isEmpty()) {
             List<ParameterDescriptorWithOpenAPIType> filteredParameters;
@@ -41,16 +37,19 @@ class ParameterHandler implements OperationHandler {
                 new RequestParameterSnippetWrapper(filteredParameters).validate(operation);
             }
 
-            res.addAll(mapDescriptorsToModel(parameters, prepareParameters(operation.getRequest().getHeaders())));
+            List<Map<String, String>> descriptors = mapDescriptorsToModel(parameters, prepareParameters(operation.getRequest().getHeaders()));
+
+            Map<String, Object> model = new HashMap<>();
+            if (!descriptors.isEmpty()) {
+                model.put("parametersPresent", true);
+                model.put("parameters", descriptors);
+            }
+
+            return model;
         }
 
-        Map<String, Object> model = new HashMap<>();
-        if (!res.isEmpty()) {
-            model.put("parametersPresent", true);
-            model.put("parameters", res);
-        }
 
-        return model;
+        return emptyMap();
     }
 
     private Map<String, String> prepareParameters(MultiValueMap<String, String> rawParameters) {
@@ -75,7 +74,7 @@ class ParameterHandler implements OperationHandler {
                 parameterMap.put("example", (parameterDescriptor.getExample() != null) ? parameterDescriptor.getExample() : presentParameters.get(parameterDescriptor.getName()));
             }
             return parameterMap;
-        }).collect(toList());
+        }).filter(m -> !m.isEmpty()).collect(toList());
     }
 
     private interface ElementsValidator {

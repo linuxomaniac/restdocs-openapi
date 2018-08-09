@@ -1,5 +1,7 @@
 /some/{id}:
   post:
+    summary: test
+    operationId: postSome
     parameters:
       - name: id
         in: path

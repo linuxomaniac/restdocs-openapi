@@ -6,6 +6,7 @@ interface FragmentFixtures {
     fun rawFragment() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
+            summary: get-payment
             parameters:
               - name: paymentIntegrationId
                 in: path
@@ -26,6 +27,7 @@ interface FragmentFixtures {
     fun rawFragmentWithoutSchema() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
+            summary: get-payment
             parameters:
               - name: paymentIntegrationId
                 in: path
@@ -45,6 +47,7 @@ interface FragmentFixtures {
     fun rawFragmentWithEmptyResponse() = """
         /payment-integrations/{paymentIntegrationId}:
           get:
+            summary: get-payment
             parameters:
               - name: paymentIntegrationId
                 in: path
@@ -61,6 +64,8 @@ interface FragmentFixtures {
     fun rawFullFragment() = """
         /tags/{id}:
           put:
+            summary: put-tag
+            operationId: putTag
             parameters:
               - name: id
                 in: path

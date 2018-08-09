@@ -29,7 +29,11 @@ import lombok.Getter;
 @Getter
 public class OpenAPIResourceSnippetParameters {
 
+    // description is to document the status
     private final String description;
+    // summary is to document the path
+    private final String summary;
+    private final String operationId;
     private final boolean privateResource;
     private final List<FieldDescriptor> requestFields;
     private final List<FieldDescriptor> responseFields;

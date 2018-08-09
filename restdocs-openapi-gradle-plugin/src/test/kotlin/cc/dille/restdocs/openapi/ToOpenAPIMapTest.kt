@@ -16,10 +16,10 @@ class ToOpenAPIMapTest : FragmentFixtures {
     fun `should convert minimal resource to openAPI map`() {
         val fragments = listOf(
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}",
-                        Method(method = "put", responses = listOf(Response(200, "description")))
+                        Method(method = "put", summary = "put-update", responses = listOf(Response(200, "description")))
                 ),
                 OpenAPIFragment("cart-get", "/carts/{id}",
-                        Method(method = "get", responses = listOf(Response(201, "description")))
+                        Method(method = "get", summary="get-cart", responses = listOf(Response(201, "description")))
                 )
         )
 

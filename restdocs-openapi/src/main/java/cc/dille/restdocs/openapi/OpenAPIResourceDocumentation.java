@@ -23,4 +23,8 @@ public abstract class OpenAPIResourceDocumentation {
     public static ParameterDescriptorWithOpenAPIType parameterWithName(String name) {
         return new ParameterDescriptorWithOpenAPIType(name);
     }
+
+    public static LinkDescriptorWithOpenAPIType linkWithRel(String rel) {
+        return new LinkDescriptorWithOpenAPIType(rel);
+    }
 }

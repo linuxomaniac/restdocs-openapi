@@ -29,8 +29,11 @@ public class LinkHandler implements OperationHandler {
             new LinkSnippetWrapper(parameters.getLinks()).validateLinks(operation);
 
             Map<String, Object> model = new HashMap<>();
-            model.put("responseLinksPresent", true);
-            model.put("links", mapDescriptorsToModel(links));
+            List<Map<String, String>> descriptors = mapDescriptorsToModel(links);
+            if (!descriptors.isEmpty()) {
+                model.put("responseLinksPresent", true);
+                model.put("links", descriptors);
+            }
             return model;
         }
 
@@ -43,10 +46,10 @@ public class LinkHandler implements OperationHandler {
             if (!linkDescriptor.isIgnored()) {
                 linkMap.put("name", linkDescriptor.getRel());
                 linkMap.put("description", (String) linkDescriptor.getDescription());
-                linkMap.put("operationId", (linkDescriptor.getOperationId() != null) ? linkDescriptor.getOperationId() : "");
+                linkMap.put("operationId", linkDescriptor.getOperationId());
             }
             return linkMap;
-        }).collect(toList());
+        }).filter(m -> !m.isEmpty()).collect(toList());
     }
 
     static class LinkSnippetWrapper extends LinksSnippet {

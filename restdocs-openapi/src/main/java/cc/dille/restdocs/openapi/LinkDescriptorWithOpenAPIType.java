@@ -20,7 +20,7 @@ public class LinkDescriptorWithOpenAPIType extends IgnorableDescriptor<LinkDescr
 
     private final String rel;
 
-    private String operationId = null;
+    private String operationId = "null";
 
     public LinkDescriptorWithOpenAPIType operationId(String operationId) {
         this.operationId = operationId;

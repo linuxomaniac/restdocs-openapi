@@ -1,31 +1,27 @@
 package cc.dille.restdocs.openapi;
 
-import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.STRING;
-import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.INTEGER;
-import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.parameterWithName;
-import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.openAPIResource;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.assertj.core.api.BDDAssertions.thenThrownBy;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
+import cc.dille.restdocs.openapi.OpenAPIResourceSnippet.MissingUrlTemplateException;
+import cc.dille.restdocs.openapi.OpenAPIResourceSnippetParameters.OpenAPIResourceSnippetParametersBuilder;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.restdocs.operation.Operation;
 
-import cc.dille.restdocs.openapi.OpenAPIResourceSnippet.MissingUrlTemplateException;
-import cc.dille.restdocs.openapi.OpenAPIResourceSnippetParameters.OpenAPIResourceSnippetParametersBuilder;
+import java.io.File;
+import java.io.IOException;
 
-import lombok.SneakyThrows;
+import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.*;
+import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.INTEGER;
+import static cc.dille.restdocs.openapi.ParameterDescriptorWithOpenAPIType.OpenAPIScalarType.STRING;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenThrownBy;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTrait {
 
@@ -67,9 +63,11 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
         givenOperationWithRequestAndResponseBody();
         givenRequestFieldDescriptors();
         givenResponseFieldDescriptors();
+        givenResponseHeaderDescriptors();
+        givenLinksDescriptors();
         givenPathParameterDescriptors();
         givenRequestParameterDescriptors();
-        
+
         whenOpenAPISnippetInvoked();
 
         thenFragmentFileExists();
@@ -170,28 +168,36 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
         parametersBuilder.responseFields(fieldWithPath("comment").description("description"));
     }
 
+    private void givenResponseHeaderDescriptors() {
+        parametersBuilder.responseHeaders(headerWithName("Test-header").description("header"));
+    }
+
+    private void givenLinksDescriptors() {
+        parametersBuilder.links(linkWithRel("self").operationId("getSome").description("Sample description"));
+    }
+
     private void givenOperationWithRequestAndResponseBody() {
         final OperationBuilder operationBuilder = new OperationBuilder("test", temporaryFolder.getRoot())
                 .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}");
-        final String content = "{\"comment\": \"some\"}";
         operationBuilder
                 .request("http://localhost:8080/some/123")
                 .param("test-param", "1")
                 .method("POST")
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .content(content);
+                .content("{\"comment\": \"some\"}");
         operationBuilder
                 .response()
                 .status(201)
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .content(content);
+                .header("test-header", "some value")
+                .content("{\"comment\": \"some\", \"_links\": {\"self\": {\"href\": \"some-url\"}}}");
         operation = operationBuilder.build();
 
     }
 
     private void whenOpenAPISnippetInvoked() throws IOException {
         openAPIResource(parametersBuilder
-                .description("some resource")
+                .description("some resource").operationId("postSome")
                 .build()).document(operation);
     }
 }

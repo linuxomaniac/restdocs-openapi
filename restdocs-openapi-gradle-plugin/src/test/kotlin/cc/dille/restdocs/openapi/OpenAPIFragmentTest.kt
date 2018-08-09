@@ -101,6 +101,8 @@ class OpenAPIFragmentTest : FragmentFixtures {
 
             with(method) {
                 method `should equal` "put"
+                operationId `should equal` "putTag"
+                summary `should equal` "put-tag"
 
                 parameters.size `should equal` 4
 
@@ -168,6 +170,8 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 .also {
                     it.writeText("""/carts/{cartId}:
                         |  get:
+                        |    summary: gets a cart
+                        |    operationId: getCart
                         |    parameters:
                         |      - name: cartId
                         |        in: path

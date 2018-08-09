@@ -1,5 +1,7 @@
 /some/{id}:
   post:
+    summary: test
+    operationId: postSome
     responses:
       201:
         description: some resource

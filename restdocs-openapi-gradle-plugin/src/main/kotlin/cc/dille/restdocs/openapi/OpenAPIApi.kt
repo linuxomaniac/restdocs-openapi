@@ -70,6 +70,19 @@ data class RequestContent(val required: Boolean = false,
     }
 }
 
+data class Link(val rel: String,
+                val operationId: String,
+                val description: String? = null) : ToOpenAPIMap {
+
+    override fun toOpenAPIMap(): Map<*, *> =
+            mapOf(rel to
+                    listOfNotNull(
+                            "operationId" to operationId,
+                            description?.let { "description" to description }
+                    ).toMap()
+            )
+}
+
 data class Content(val contentType: String,
                    val schema: Include? = null,
                    val example: Include? = null) : ToOpenAPIMap {
@@ -86,21 +99,29 @@ data class Content(val contentType: String,
 data class Response(val status: Int,
                     val description: String? = null,
                     val contents: List<Content> = emptyList(),
-                    val headers: List<Header> = emptyList()) : ToOpenAPIMap {
+                    val headers: List<Header> = emptyList(),
+                    val links: List<Link> = emptyList()) : ToOpenAPIMap {
     override fun toOpenAPIMap(): Map<*, *> =
             mapOf(status to mapOf("description" to description)
                     .plus(headers.toOpenAPIMap("headers"))
+                    .plus(links.toOpenAPIMap("links"))
                     .plus(contents.toOpenAPIMap("content"))
             )
 }
 
 data class Method(val method: String,
+                  val summary: String,
+                  val operationId: String? = null,
                   val parameters: List<Parameter> = emptyList(),
                   val requestContent: RequestContent? = null,
                   val responses: List<Response> = emptyList()) : ToOpenAPIMap {
 
     override fun toOpenAPIMap(): Map<*, *> =
-            mapOf(method to (if (!parameters.isEmpty()) mapOf("parameters" to parameters.map { it.toOpenAPIMap() }) else emptyMap<String, String>())
+            mapOf(method to listOfNotNull(
+                    "summary" to summary,
+                    operationId?.let { "operationId" to it },
+                    if (!parameters.isEmpty()) "parameters" to parameters.map { it.toOpenAPIMap() } else null
+            ).toMap()
                     .plus(requestContent?.toOpenAPIMap() ?: emptyMap())
                     .plus(responses.toOpenAPIMap("responses")))
 }
@@ -164,6 +185,7 @@ data class OpenAPIResource(val path: String, val methods: List<Method> = emptyLi
                         status = status,
                         description = responses.first().description,
                         headers = responses.flatMap { it.headers },
+                        links = responses.flatMap { it.links },
                         contents = mergeBodiesWithSameContentType(responses
                                 .flatMap { it.contents }
                                 .groupBy { it.contentType }, jsonSchemaMerger)
@@ -227,18 +249,20 @@ data class OpenAPIFragment(val id: String,
                     status = status,
                     description = values["description"] as? String,
                     headers = headers((values["headers"] as? Map<*, *>).orEmpty()),
+                    links = links((values["links"] as? Map<*, *>).orEmpty()),
                     contents = (values["content"] as? Map<*, *>)?.let { listOf(content(it)) }.orEmpty()
             )
         }
 
         private fun method(map: Map<*, *>): Method {
             val methodContent = map[map.keys.first()] as Map<*, *>
-            val response = methodContent["responses"] as? Map<*, *>
             return Method(
                     method = map.keys.first() as String,
+                    summary = methodContent["summary"] as String,
+                    operationId = methodContent["operationId"] as String?,
                     requestContent = requestBody((methodContent["requestBody"] as? Map<*, *>).orEmpty()),
                     parameters = parameters((methodContent["parameters"] as? List<*>).orEmpty()),
-                    responses = response?.let { listOf(response(it)) }.orEmpty()
+                    responses = (methodContent["responses"] as? Map<*, *>)?.let { listOf(response(it)) }.orEmpty()
             )
         }
 
@@ -261,6 +285,14 @@ data class OpenAPIFragment(val id: String,
             return map.map { (key, value) ->
                 with(value as Map<*, *>) {
                     Header(key as String, value["description"] as? String, value["example"] as? String)
+                }
+            }
+        }
+
+        private fun links(map: Map<*, *>): List<Link> {
+            return map.map { (key, value) ->
+                with(value as Map<*, *>) {
+                    Link(key as String, value["operationId"] as String, value["description"] as? String)
                 }
             }
         }

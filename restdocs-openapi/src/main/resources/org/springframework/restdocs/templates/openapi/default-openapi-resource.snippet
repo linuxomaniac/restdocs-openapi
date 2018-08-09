@@ -1,5 +1,9 @@
 {{resource}}:
   {{method}}:
+    summary: {{summary}}
+    {{#operationId}}
+    operationId: {{operationId}}
+    {{/operationId}}
     {{#parametersPresent}}
     parameters:
       {{#parameters}}
@@ -34,7 +38,9 @@
     {{/requestBodyPresent}}
     responses:
       {{status}}:
+        {{#description}}
         description: {{description}}
+        {{/description}}
         {{#responseHeadersPresent}}
         headers:
           {{#responseHeaders}}
@@ -47,6 +53,14 @@
             {{/example}}
           {{/responseHeaders}}
         {{/responseHeadersPresent}}
+        {{#responseLinksPresent}}
+        links:
+          {{#links}}
+          {{name}}:
+            operationId: {{operationId}}
+            description: {{description}}
+          {{/links}}
+        {{/responseLinksPresent}}
         {{#responseBodyPresent}}
         content:
           {{contentTypeResponse}}:
@@ -55,11 +69,3 @@
             {{/responseFieldsPresent}}
             example: !include '{{responseBodyFileName}}'
         {{/responseBodyPresent}}
-        {{#responseLinksPresent}}
-        links:
-          {{#links}}
-            {{name}}:
-              description: {{description}}
-              operationId: {{operationId}}
-          {{/links}}
-        {{/responseLinksPresent}}

@@ -85,12 +85,18 @@ class RestdocsOpenAPITaskTest {
         thenOpenAPIFileExistsWithHeaders().also { apiFile ->
 
             apiFile.readLines().apply {
+                println(this)
                 any { it.startsWith("  /:") }.`should be true`()
                 any { it.startsWith("  /carts/{cartId}:") }.`should be true`()
                 any { it.startsWith("  /carts:") }.`should be true`()
                 any { it.startsWith("    get:") }.`should be true`()
                 any { it.startsWith("    post:") }.`should be true`()
                 any { it.startsWith("    delete:") }.`should be true`()
+                any { it.startsWith("      summary: post cart") }.`should be true`()
+                any { it.startsWith("      summary: delete cart") }.`should be true`()
+                any { it.startsWith("      summary: cart get") }.`should be true`()
+                any { it.startsWith("      summary: get index") }.`should be true`()
+                any { it.startsWith("      summary: carts listing") }.`should be true`()
             }
 
             apiFile.readText().replace("\\s+".toRegex(), " ").apply {
@@ -143,13 +149,14 @@ openAPIdoc {
                 .withProjectDir(testProjectDir.root)
                 .withArguments("--info", "--stacktrace", "openAPIdoc")
                 .withPluginClasspath(pluginClasspath)
-                .forwardOutput()
+//                .forwardOutput()
                 .build()
     }
 
     private fun givenSnippetFiles() {
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-create"), "openapi-resource.yaml").writeText("""/carts:
   post:
+    summary: post cart
     requestBody:
       required: true
       content:
@@ -159,12 +166,14 @@ openAPIdoc {
 
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
   get:
+    summary: cart get
     responses:
       200:
         description: "TODO - figure out how to set"
 """)
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-list"), "openapi-resource.yaml").writeText("""/carts:
   get:
+    summary: carts listing
     parameters:
       - name: some
         in: query
@@ -185,12 +194,15 @@ openAPIdoc {
 """)
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-delete"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
   delete:
+    summary: delete cart
+    operationId: deleteCart
     responses:
       201:
         description: "TODO - figure out how to set"
 """)
         File(testProjectDir.newFolder("build", "generated-snippets", "index-get"), "openapi-resource.yaml").writeText("""/:
   get:
+    summary: get index
     responses:
       200:
         description: "TODO - figure out how to set"

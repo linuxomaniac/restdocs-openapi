@@ -17,6 +17,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// Some tests depend of each others, so we need to call them in order
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NoteTest extends RestDocTest {
     private FieldDescriptor[] noteFields = new FieldDescriptor[]{
@@ -30,7 +31,12 @@ public class NoteTest extends RestDocTest {
                 .andExpect(status().isCreated())
                 .andDo(document("note-post",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .description("Creates a Note")
+                                .operationId("postNote")
+                                .summary("Creates a note")
+                                // It's a bit confusing, but description is for the current status code,
+                                // whereas summary is for the whole method.
+                                // description is more like the behavior / the expected result of the current request.
+                                .description("New note is Created")
                                 .requestFields(noteFields)
                                 .build())));
     }
@@ -45,7 +51,9 @@ public class NoteTest extends RestDocTest {
                 .andExpect(jsonPath("$[0].content").value(TestValues.NOTE_0.getContent()))
                 .andDo(document("note-listing",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .description("Gets all the recorded notes")
+                                .operationId("getNotes")
+                                .summary("Gets all the recorded notes")
+                                .description("Returns notes")
                                 .responseFields(fieldWithPath("[]").description("Array of notes"),
                                         fieldWithPath("[].id").description("The id").type(JsonFieldType.NUMBER),
                                         fieldWithPath("[].content").description("the content").type(JsonFieldType.STRING))
@@ -60,7 +68,9 @@ public class NoteTest extends RestDocTest {
                 .andExpect(jsonPath("$.content").value(TestValues.NOTE_0.getContent()))
                 .andDo(document("note-get-ok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .description("Gets a Note")
+                                .operationId("getNote")
+                                .summary("Gets a Note")
+                                .description("Returns the requested note")
                                 .pathParameters(parameterWithName("id").description("The id of the Note to get"))
                                 .build())));
     }
@@ -71,6 +81,8 @@ public class NoteTest extends RestDocTest {
                 .andExpect(status().isNotFound())
                 .andDo(document("note-get-nok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
+                                .operationId("getNote")
+                                .summary("Gets a note")
                                 .description("No Note matching requested id found")
                                 .pathParameters(parameterWithName("id").description("The id of the Note to get"))
                                 .build())));
@@ -82,7 +94,9 @@ public class NoteTest extends RestDocTest {
                 .andExpect(status().isNoContent())
                 .andDo(document("note-delete-ok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .description("Deletes a Note")
+                                .operationId("deleteNote")
+                                .summary("Deletes a note")
+                                .description("The note has been deleted")
                                 .pathParameters(parameterWithName("id").description("The id of the Note to delete"))
                                 .build())));
     }
@@ -93,6 +107,8 @@ public class NoteTest extends RestDocTest {
                 .andExpect(status().isNotFound())
                 .andDo(document("note-delete-nok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
+                                .operationId("deleteNote")
+                                .summary("Deletes a note")
                                 .description("Deletion failed no such Note with requested id")
                                 .pathParameters(parameterWithName("id").description("The id of the Note to delete"))
                                 .build())));

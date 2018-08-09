@@ -12,6 +12,7 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-get", "/carts/{id}",
                         Method(
                                 method = "get",
+                                summary = "get-carts",
                                 requestContent = RequestContent(
                                         false,
                                         listOf(Content("application/json", Include("cart-get-request-schema.json"), Include("cart-get-request.json")))
@@ -26,13 +27,16 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-get-additional", "/carts/{id}",
                         Method(
                                 method = "get",
+                                operationId = "getCarts",
+                                summary = "get-carts",
                                 requestContent = RequestContent(true,
                                         listOf(Content("application/json", Include("cart-get-additional-request-schema.json"), Include("cart-get-additional-request.json")))
                                 ),
                                 responses = listOf(Response(
                                         status = 200,
                                         description = "description",
-                                        contents = listOf(Content("application/json", Include("cart-get-additional-response-schema.json"), Include("cart-get-additional-response.json")))
+                                        contents = listOf(Content("application/json", Include("cart-get-additional-response-schema.json"), Include("cart-get-additional-response.json"))),
+                                        links = listOf(Link("self", "getSelf", "sample link"))
                                 ))
                         )
                 )
@@ -57,6 +61,10 @@ class OpenAPIResourceTest {
                 contents.first().contentType `should equal` "application/json"
                 contents.first().example `should equal` Include("cart-get-response.json")
                 contents.first().schema `should equal` Include("cart-get-response-schema.json")
+                links.size `should equal` 1
+                links.first().rel `should equal` "self"
+                links.first().operationId `should equal` "getSelf"
+                links.first().description `should equal` "sample link"
             }
         }
     }
@@ -67,6 +75,7 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
+                                summary = "put-update",
                                 requestContent = RequestContent(true,
                                         listOf(Content("application/json", Include("cart-line-item-update-request.json"), Include("cart-line-item-update-schema.json")))
                                 ),
@@ -80,6 +89,7 @@ class OpenAPIResourceTest {
                 OpenAPIFragment("cart-line-item-assign", "/carts/{id}/line-items",
                         Method(
                                 method = "put",
+                                summary = "put-assign",
                                 requestContent = RequestContent(false,
                                         listOf(Content("text/uri-list", Include("cart-line-item-assign-request.json"), Include("cart-line-item-assign-schema.json")))
                                 ),
@@ -113,10 +123,10 @@ class OpenAPIResourceTest {
     fun `should fail on fragments with different path`() {
         val fragments = listOf(
                 OpenAPIFragment("cart-line-item-update", "/carts/{id}/line-items",
-                        Method(method = "put")
+                        Method(method = "put", summary = "1")
                 ),
                 OpenAPIFragment("cart-get", "/carts/{id}",
-                        Method(method = "get")
+                        Method(method = "get", summary = "2")
                 )
         )
 
