@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: API documentation
+  contact:
+    name: test
+  description: API to manage sample objectss
+servers:
+- description: Testing environment
+  url: http://localhost:8080
+paths:
+  /:
+    get:
+      responses:
+        200:
+          description: Get the links of the api
+          content:
+            application/hal+json:
+              schema:
+                type: object
+                properties:
+                  _links:
+                    description: Links to other resources
+                    type: object
+                    properties:
+                      note:
+                        description: The link to the greetings
+                        type: string
+                      self:
+                        description: This self reference
+                        type: string
+              example:
+                _links:
+                  note:
+                    href: http://localhost:8080/note
+                  self:
+                    href: http://localhost:8080

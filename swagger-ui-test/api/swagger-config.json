@@ -1,0 +1,12 @@
+{
+	"urls": [
+		{
+			"name": "API TEST v1",
+			"url": "http://localhost:8080/openapiv1.yaml"
+		},
+		{
+			"name": "API TEST v2",
+			"url": "http://localhost:8080/openapi.yaml"
+		},
+	]
+}

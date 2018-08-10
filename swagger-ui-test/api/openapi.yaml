@@ -1,0 +1,137 @@
+openapi: 3.0.1
+info:
+  version: 0.1.0
+  title: Dummy Note API
+  contact:
+    name: test
+    url: http://perdu.com
+  description: API to create or delete notes
+servers:
+- description: Testing environment
+  url: http://localhost:8080
+paths:
+  /note/{noteId}:
+    delete:
+      summary: note-delete-nok
+      operationId: deleteNote
+      parameters:
+      - name: noteId
+        in: path
+        description: The id of the Note to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: The note has been deleted
+        404:
+          description: Deletion failed no such Note with requested id
+    get:
+      summary: note-get-nok
+      operationId: noteGet
+      parameters:
+      - name: noteId
+        in: path
+        description: The id of the Note to get
+        required: true
+        schema:
+          type: string
+      responses:
+        404:
+          description: No Note matching requested id found
+        200:
+          description: Returns the requested note
+          content:
+            application/hal+json:
+              example:
+                note:
+                  id: 187016952
+                  content: 85754631-83a8-419a-94d7-e33bbb003737
+  /note:
+    post:
+      summary: Creates a note
+      operationId: notePost
+      requestBody:
+        required: true
+        content:
+          application/hal+json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: The id of the Note
+                  type: number
+                content:
+                  description: The content of the Note
+                  type: string
+            example:
+              id: 187016952
+              content: 85754631-83a8-419a-94d7-e33bbb003737
+      responses:
+        201:
+          description: New note is Created
+          content:
+            application/hal+json:
+              example:
+                id: 187016952
+                content: 85754631-83a8-419a-94d7-e33bbb003737
+    get:
+      summary: Gets all the recorded notes
+      operationId: noteListing
+      responses:
+        200:
+          description: Returns notes
+          content:
+            application/hal+json:
+              schema:
+                type: array
+                items:
+                  description: Array of notes
+                  type: object
+                  properties:
+                    id:
+                      description: The id
+                      type: number
+                    content:
+                      description: the content
+                      type: string
+              example:
+              - id: 187016952
+                content: 85754631-83a8-419a-94d7-e33bbb003737
+  /:
+    get:
+      summary: Get the links of the api
+      operationId: indexGet
+      responses:
+        200:
+          description: Returns the links
+          links:
+            self:
+              operationId: indexGet
+              description: This self reference
+              parameters:
+                test: test#/aa
+            note:
+              operationId: notesListing
+              description: The link to the notes
+          content:
+            application/hal+json:
+              schema:
+                type: object
+                properties:
+                  _links:
+                    description: Links to other resources
+                    type: object
+                    properties:
+                      note:
+                        description: The link to the notes
+                        type: string
+                      self:
+                        description: This self reference
+                        type: string
+              example:
+                _links:
+                  note:
+                    href: http://localhost:8080/note
+                  self:
+                    href: http://localhost:8080
