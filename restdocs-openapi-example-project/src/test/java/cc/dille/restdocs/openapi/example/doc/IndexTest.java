@@ -24,7 +24,7 @@ public class IndexTest extends RestDocTest {
                                 .responseFields(
                                         fieldWithPath("_links").description("Links to other resources"))
                                 .links(
-                                        linkWithRel("self").description("This self reference").operationId("indexGet").parameter("test", "test","aa"),
+                                        linkWithRel("self").description("This self reference").operationId("indexGet"),
                                         linkWithRel("note").description("The link to the notes").operationId("notesListing"))
                                 .build())));
     }
