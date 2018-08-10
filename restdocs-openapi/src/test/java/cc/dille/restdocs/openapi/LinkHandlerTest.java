@@ -11,7 +11,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.linkWithRel;
 
 public class LinkHandlerTest {
 
@@ -34,9 +34,9 @@ public class LinkHandlerTest {
     public void should_do_nothing_if_documented_links_are_valid() {
         givenResponseWithJsonBody();
 
-        whenModelGeneratedWithLinkDescriptors(linkWithRel("self").description("self"));
+        whenModelGeneratedWithLinkDescriptors(linkWithRel("self").description("self").operationId("getSome").parameter("id", "$response.body", "id"));
 
-        then(model.toString()).isEqualTo("{links=[{name=self, description=self, operationId=null}], responseLinksPresent=true}");
+        then(model.toString()).isEqualTo("{links=[{name=self, description=self, operationId=getSome, linkParametersPresent=true, parameters=[{name=id, location=$response.body#/id}]}], responseLinksPresent=true}");
     }
 
     @Test
@@ -57,7 +57,7 @@ public class LinkHandlerTest {
         )).isInstanceOf(SnippetException.class);
     }
 
-    private void whenModelGeneratedWithLinkDescriptors(LinkDescriptor... linkDescriptors) {
+    private void whenModelGeneratedWithLinkDescriptors(LinkDescriptorWithOpenAPIType... linkDescriptors) {
         model = linkHandler.generateModel(operation, OpenAPIResourceSnippetParameters.builder()
                 .links(linkDescriptors)
                 .build());
@@ -70,6 +70,7 @@ public class LinkHandlerTest {
                 .header(CONTENT_TYPE, HAL_JSON_VALUE)
                 .content("{\n" +
                         "    \"comment\":\"some\",\n" +
+                        "    \"id\": 45," +
                         "    \"_links\": {\n" +
                         "        \"self\": {\n" +
                         "            \"href\": \"http://localhost/some/id\"\n" +

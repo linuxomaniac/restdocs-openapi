@@ -58,6 +58,9 @@ interface FragmentFixtures {
                 example: 12
             responses:
               200:
+                headers:
+                  Test-ResponseHeader:
+                    description: hello
                 description: some
         """.trimIndent()
 
@@ -74,7 +77,7 @@ interface FragmentFixtures {
                 schema:
                   type: integer
                 example: 12
-              - name: X-Custom-Header
+              - name: X-Custom-ResponseHeader
                 in: header
                 description: A custom header
                 required: true
@@ -104,7 +107,7 @@ interface FragmentFixtures {
               200:
                 description: Update a tag
                 headers:
-                  X-Custom-Header:
+                  X-Custom-ResponseHeader:
                     description: A custom header
                     example: test
                 content:

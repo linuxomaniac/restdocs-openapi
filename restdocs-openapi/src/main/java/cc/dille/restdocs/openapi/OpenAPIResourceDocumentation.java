@@ -13,7 +13,7 @@ public abstract class OpenAPIResourceDocumentation {
     }
 
     public static OpenAPIResourceSnippet openAPIResource(String description) {
-        return new OpenAPIResourceSnippet(OpenAPIResourceSnippetParameters.builder().description(description).build());
+        return new OpenAPIResourceSnippet(OpenAPIResourceSnippetParameters.builder().statusDescription(description).build());
     }
 
     public static FieldDescriptors fields(FieldDescriptor... fieldDescriptors) {

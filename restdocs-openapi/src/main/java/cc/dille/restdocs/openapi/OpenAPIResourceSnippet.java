@@ -58,7 +58,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
         Map<String, Object> model = new HashMap<>();
         model.put("resource", getUriPath(operation));
         model.put("method", operation.getRequest().getMethod().name().toLowerCase());
-        model.put("description", parameters.getDescription());
+        model.put("statusDescription", parameters.getStatusDescription());
         model.put("summary", parameters.getSummary() == null ? operation.getName() : parameters.getSummary());
         model.put("operationId", parameters.getOperationId());
         model.put("status", operation.getResponse().getStatus().value());

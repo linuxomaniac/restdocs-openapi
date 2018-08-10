@@ -197,7 +197,7 @@ public class OpenAPIResourceSnippetTest implements OpenAPIResourceSnippetTestTra
 
     private void whenOpenAPISnippetInvoked() throws IOException {
         openAPIResource(parametersBuilder
-                .description("some resource").operationId("postSome")
+                .statusDescription("some resource").operationId("postSome")
                 .build()).document(operation);
     }
 }

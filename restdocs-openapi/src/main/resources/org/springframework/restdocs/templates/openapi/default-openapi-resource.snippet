@@ -38,9 +38,9 @@
     {{/requestBodyPresent}}
     responses:
       {{status}}:
-        {{#description}}
-        description: {{description}}
-        {{/description}}
+        {{#statusDescription}}
+        description: {{statusDescription}}
+        {{/statusDescription}}
         {{#responseHeadersPresent}}
         headers:
           {{#responseHeaders}}
@@ -59,6 +59,12 @@
           {{name}}:
             operationId: {{operationId}}
             description: {{description}}
+            {{#linkParametersPresent}}
+            parameters:
+              {{#parameters}}
+              {{name}}: {{location}}
+              {{/parameters}}
+            {{/linkParametersPresent}}
           {{/links}}
         {{/responseLinksPresent}}
         {{#responseBodyPresent}}

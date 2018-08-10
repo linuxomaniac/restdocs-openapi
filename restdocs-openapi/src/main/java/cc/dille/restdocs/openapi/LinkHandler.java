@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +30,7 @@ public class LinkHandler implements OperationHandler {
             new LinkSnippetWrapper(parameters.getLinks()).validateLinks(operation);
 
             Map<String, Object> model = new HashMap<>();
-            List<Map<String, String>> descriptors = mapDescriptorsToModel(links);
+            List<Map<String, Object>> descriptors = mapDescriptorsToModel(links);
             if (!descriptors.isEmpty()) {
                 model.put("responseLinksPresent", true);
                 model.put("links", descriptors);
@@ -40,13 +41,27 @@ public class LinkHandler implements OperationHandler {
         return emptyMap();
     }
 
-    private List<Map<String, String>> mapDescriptorsToModel(List<LinkDescriptorWithOpenAPIType> linksDescriptors) {
+    private List<Map<String, Object>> mapDescriptorsToModel(List<LinkDescriptorWithOpenAPIType> linksDescriptors) {
         return linksDescriptors.stream().map(linkDescriptor -> {
-            Map<String, String> linkMap = new HashMap<>();
+            Map<String, Object> linkMap = new HashMap<>();
             if (!linkDescriptor.isIgnored()) {
                 linkMap.put("name", linkDescriptor.getRel());
-                linkMap.put("description", (String) linkDescriptor.getDescription());
+                linkMap.put("description", linkDescriptor.getDescription());
                 linkMap.put("operationId", linkDescriptor.getOperationId());
+
+                if(!linkDescriptor.getParameters().isEmpty()) {
+                    List<Map<String, String>> linkParameters = linkDescriptor.getParameters().entrySet().stream().map(
+                            e -> {
+                                Map<String, String> map = new HashMap<>();
+                                map.put("name", e.getKey());
+                                map.put("location", e.getValue());
+                                return map;
+                            }
+                    ).collect(Collectors.toList());
+
+                    linkMap.put("linkParametersPresent", true);
+                    linkMap.put("parameters", linkParameters);
+                }
             }
             return linkMap;
         }).filter(m -> !m.isEmpty()).collect(toList());

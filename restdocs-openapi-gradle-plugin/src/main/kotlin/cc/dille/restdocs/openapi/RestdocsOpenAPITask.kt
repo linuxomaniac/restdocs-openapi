@@ -31,6 +31,9 @@ open class RestdocsOpenAPITask : DefaultTask() {
     @Optional
     var infoContactEmail: String? = null
 
+    @Input
+    @Optional
+    var infoContactUrl: String? = null
 
     @Input
     @Optional
@@ -86,6 +89,7 @@ open class RestdocsOpenAPITask : DefaultTask() {
                             infoDescription,
                             infoContactName,
                             infoContactEmail,
+                            infoContactUrl,
                             serverUrl,
                             serverDescription,
                             it)

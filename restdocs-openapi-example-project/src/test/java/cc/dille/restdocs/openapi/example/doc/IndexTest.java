@@ -19,13 +19,13 @@ public class IndexTest extends RestDocTest {
                 .andDo(document("index-listing",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
                                 .summary("Get the links of the api")
-                                .description("Returns the links")
-                                .operationId("getIndex")
+                                .statusDescription("Returns the links")
+                                .operationId("indexGet")
                                 .responseFields(
                                         fieldWithPath("_links").description("Links to other resources"))
                                 .links(
-                                        linkWithRel("self").description("This self reference").operationId("getIndex"),
-                                        linkWithRel("note").description("The link to the notes").operationId("getNotes"))
+                                        linkWithRel("self").description("This self reference").operationId("indexGet").parameter("test", "test","aa"),
+                                        linkWithRel("note").description("The link to the notes").operationId("notesListing"))
                                 .build())));
     }
 }

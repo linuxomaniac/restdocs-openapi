@@ -22,6 +22,7 @@ class RestdocsOpenAPIPlugin : Plugin<Project> {
                     infoDescription = openAPIdoc.infoDescription
                     infoContactName = openAPIdoc.infoContactName
                     infoContactEmail = openAPIdoc.infoContactEmail
+                    infoContactUrl = openAPIdoc.infoContactUrl
 
                     serverUrl = openAPIdoc.serverUrl
                     serverDescription = openAPIdoc.serverDescription

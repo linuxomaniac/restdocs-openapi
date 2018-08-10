@@ -20,7 +20,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 class ParameterHandler implements OperationHandler {
 
     public Map<String, Object> generateModel(Operation operation, OpenAPIResourceSnippetParameters snippetParameters) {
-        List<ParameterDescriptorWithOpenAPIType> parameters = snippetParameters.getParameters();
+        List<ParameterDescriptorWithOpenAPIType> parameters = snippetParameters.getRequestParameters();
         if (!parameters.isEmpty()) {
             List<ParameterDescriptorWithOpenAPIType> filteredParameters;
 

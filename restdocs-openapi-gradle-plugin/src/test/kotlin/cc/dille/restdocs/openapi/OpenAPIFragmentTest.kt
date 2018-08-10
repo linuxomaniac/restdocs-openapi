@@ -87,7 +87,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
             method.method `should be equal to` "get"
             method.requestContent?.contents?.shouldBeEmpty()
             method.parameters `should contain` Parameter("paymentIntegrationId", "path", "The id", true, "integer", "12")
-            method.responses `should contain` Response(200, "some", emptyList())
+            method.responses `should contain` Response(200, "some", emptyList(), listOf(ResponseHeader("Test-ResponseHeader", "hello")))
         }
     }
 
@@ -113,7 +113,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                 parameters[0].type `should equal` "integer"
                 parameters[0].example `should equal` "12"
 
-                parameters[1].name `should equal` "X-Custom-Header"
+                parameters[1].name `should equal` "X-Custom-ResponseHeader"
                 parameters[1].in_ `should equal` "header"
                 parameters[1].description `should equal` "A custom header"
                 parameters[1].required `should equal` true
@@ -146,7 +146,7 @@ class OpenAPIFragmentTest : FragmentFixtures {
                     status `should equal` 200
 
                     headers.size `should be` 1
-                    headers.first().name `should equal` "X-Custom-Header"
+                    headers.first().name `should equal` "X-Custom-ResponseHeader"
                     headers.first().description `should equal` "A custom header"
                     headers.first().example `should equal` "test"
 

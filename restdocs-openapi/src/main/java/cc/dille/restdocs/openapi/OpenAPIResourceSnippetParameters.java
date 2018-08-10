@@ -29,16 +29,16 @@ import lombok.Getter;
 @Getter
 public class OpenAPIResourceSnippetParameters {
 
-    // description is to document the status
-    private final String description;
-    // summary is to document the path
+    // statusDescription is the documentation of current status of the reponse
+    private final String statusDescription;
+    // summary is the documentation of the method
     private final String summary;
     private final String operationId;
-    private final boolean privateResource;
+    private boolean privateResource;
     private final List<FieldDescriptor> requestFields;
     private final List<FieldDescriptor> responseFields;
     private final List<LinkDescriptorWithOpenAPIType> links;
-    private final List<ParameterDescriptorWithOpenAPIType> parameters;
+    private final List<ParameterDescriptorWithOpenAPIType> requestParameters;
     private final List<HeaderDescriptor> responseHeaders;
 
     List<FieldDescriptor> getResponseFieldsWithLinks() {
@@ -86,7 +86,7 @@ public class OpenAPIResourceSnippetParameters {
         private List<FieldDescriptor> requestFields = new ArrayList<>();
         private List<FieldDescriptor> responseFields = new ArrayList<>();
         private List<LinkDescriptorWithOpenAPIType> links = new ArrayList<>();
-        private List<ParameterDescriptorWithOpenAPIType> parameters = new ArrayList<>();
+        private List<ParameterDescriptorWithOpenAPIType> requestParameters = new ArrayList<>();
         private List<HeaderDescriptor> responseHeaders = new ArrayList<>();
 
         public OpenAPIResourceSnippetParametersBuilder requestFields(FieldDescriptor... requestFields) {
@@ -120,32 +120,32 @@ public class OpenAPIResourceSnippetParameters {
         }
 
         public OpenAPIResourceSnippetParametersBuilder pathParameters(ParameterDescriptor... pathParameters) {
-            this.parameters.addAll(Stream.of(pathParameters).map(ParameterDescriptorWithOpenAPIType::fromPathParameter).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(pathParameters).map(ParameterDescriptorWithOpenAPIType::fromPathParameter).collect(Collectors.toList()));
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder pathParameters(ParameterDescriptorWithOpenAPIType... pathParameters) {
-            this.parameters.addAll(Stream.of(pathParameters).map(p -> p.in("path")).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(pathParameters).map(p -> p.in("path")).collect(Collectors.toList()));
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestParameters(ParameterDescriptor... requestParameters) {
-            this.parameters.addAll(Stream.of(requestParameters).map(ParameterDescriptorWithOpenAPIType::fromRequestParameter).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(requestParameters).map(ParameterDescriptorWithOpenAPIType::fromRequestParameter).collect(Collectors.toList()));
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestParameters(ParameterDescriptorWithOpenAPIType... requestParameters) {
-            this.parameters.addAll(Stream.of(requestParameters).map(p -> p.in("query")).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(requestParameters).map(p -> p.in("query")).collect(Collectors.toList()));
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestHeaders(HeaderDescriptor... requestHeaders) {
-            this.parameters.addAll(Stream.of(requestHeaders).map(ParameterDescriptorWithOpenAPIType::fromRequestHeader).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(requestHeaders).map(ParameterDescriptorWithOpenAPIType::fromRequestHeader).collect(Collectors.toList()));
             return this;
         }
 
         public OpenAPIResourceSnippetParametersBuilder requestHeaders(ParameterDescriptorWithOpenAPIType... requestHeaders) {
-            this.parameters.addAll(Stream.of(requestHeaders).map(p -> p.in("header")).collect(Collectors.toList()));
+            this.requestParameters.addAll(Stream.of(requestHeaders).map(p -> p.in("header")).collect(Collectors.toList()));
             return this;
         }
 

@@ -10,6 +10,7 @@ open class RestdocsOpenAPIPluginExtension(project: Project) {
     var infoDescription: String? = null
     var infoContactName: String? = null
     var infoContactEmail: String? = null
+    var infoContactUrl: String? = null
 
     var serverUrl: String? = null
     var serverDescription: String? = null

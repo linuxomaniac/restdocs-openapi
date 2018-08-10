@@ -8,12 +8,14 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.linkWithRel;
 import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.openAPIResource;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,12 +33,12 @@ public class NoteTest extends RestDocTest {
                 .andExpect(status().isCreated())
                 .andDo(document("note-post",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .operationId("postNote")
+                                .operationId("notePost")
                                 .summary("Creates a note")
-                                // It's a bit confusing, but description is for the current status code,
+                                // It's a bit confusing, but statusDescription is for the current status code,
                                 // whereas summary is for the whole method.
-                                // description is more like the behavior / the expected result of the current request.
-                                .description("New note is Created")
+                                // statusDescription is more like the behavior / the expected result of the current request.
+                                .statusDescription("New note is Created")
                                 .requestFields(noteFields)
                                 .build())));
     }
@@ -51,9 +53,9 @@ public class NoteTest extends RestDocTest {
                 .andExpect(jsonPath("$[0].content").value(TestValues.NOTE_0.getContent()))
                 .andDo(document("note-listing",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .operationId("getNotes")
+                                .operationId("noteListing")
                                 .summary("Gets all the recorded notes")
-                                .description("Returns notes")
+                                .statusDescription("Returns notes")
                                 .responseFields(fieldWithPath("[]").description("Array of notes"),
                                         fieldWithPath("[].id").description("The id").type(JsonFieldType.NUMBER),
                                         fieldWithPath("[].content").description("the content").type(JsonFieldType.STRING))
@@ -62,55 +64,51 @@ public class NoteTest extends RestDocTest {
 
     @Test
     public void Test02_getOk() throws Exception {
-        mockMvc.perform(get("/note/{id}", TestValues.NOTE_0.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        mockMvc.perform(get("/note/{noteId}", TestValues.NOTE_0.getId()).accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(TestValues.NOTE_0.getId()))
-                .andExpect(jsonPath("$.content").value(TestValues.NOTE_0.getContent()))
+                .andExpect(jsonPath("$.note.id").value(TestValues.NOTE_0.getId()))
+                .andExpect(jsonPath("$.note.content").value(TestValues.NOTE_0.getContent()))
                 .andDo(document("note-get-ok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .operationId("getNote")
+                                .operationId("noteGet")
                                 .summary("Gets a Note")
-                                .description("Returns the requested note")
-                                .pathParameters(parameterWithName("id").description("The id of the Note to get"))
+                                .statusDescription("Returns the requested note")
+                                .pathParameters(parameterWithName("noteId").description("The id of the Note to get"))
                                 .build())));
     }
 
     @Test
     public void Test03_getNok() throws Exception {
-        mockMvc.perform(get("/note/{id}", TestValues.NOTE_1.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        mockMvc.perform(get("/note/{noteId}", TestValues.NOTE_1.getId()).accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isNotFound())
                 .andDo(document("note-get-nok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .operationId("getNote")
-                                .summary("Gets a note")
-                                .description("No Note matching requested id found")
-                                .pathParameters(parameterWithName("id").description("The id of the Note to get"))
+                                .statusDescription("No Note matching requested id found")
+                                .pathParameters(parameterWithName("noteId").description("The id of the Note to get"))
                                 .build())));
     }
 
     @Test
     public void Test04_deleteOk() throws Exception {
-        mockMvc.perform(delete("/note/{id}", TestValues.NOTE_0.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        mockMvc.perform(delete("/note/{noteId}", TestValues.NOTE_0.getId()).accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isNoContent())
                 .andDo(document("note-delete-ok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
                                 .operationId("deleteNote")
                                 .summary("Deletes a note")
-                                .description("The note has been deleted")
-                                .pathParameters(parameterWithName("id").description("The id of the Note to delete"))
+                                .statusDescription("The note has been deleted")
+                                .pathParameters(parameterWithName("noteId").description("The id of the Note to delete"))
                                 .build())));
     }
 
     @Test
     public void Test05_deleteNok() throws Exception {
-        mockMvc.perform(delete("/note/{id}", TestValues.NOTE_1.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        mockMvc.perform(delete("/note/{noteId}", TestValues.NOTE_1.getId()).accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isNotFound())
                 .andDo(document("note-delete-nok",
                         openAPIResource(OpenAPIResourceSnippetParameters.builder()
-                                .operationId("deleteNote")
-                                .summary("Deletes a note")
-                                .description("Deletion failed no such Note with requested id")
-                                .pathParameters(parameterWithName("id").description("The id of the Note to delete"))
+                                .statusDescription("Deletion failed no such Note with requested id")
+                                .pathParameters(parameterWithName("noteId").description("The id of the Note to delete"))
                                 .build())));
     }
 }

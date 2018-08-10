@@ -155,7 +155,7 @@ public class OpenAPIDocumentation {
 
         if (openAPISnippets.isEmpty()) { // No OpenAPIResourceSnippet, so we configure our own based on the info of the other snippets
             OpenAPIResourceSnippetParameters openAPIParameters = OpenAPIResourceSnippetParameters.builder()
-                    .description(description)
+                    .statusDescription(description)
                     .privateResource(privateResource)
                     .requestFields(requestFieldsSnippets.stream().map(DescriptorExtractor::extract).flatMap(List::stream).toArray(FieldDescriptor[]::new))
                     .responseFields(responseFieldsSnippets.stream().map(DescriptorExtractor::extract).flatMap(List::stream).toArray(FieldDescriptor[]::new))

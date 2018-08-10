@@ -40,6 +40,8 @@ dependencies {
     implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
     implementation('org.springframework.hateoas:spring-hateoas:0.25.0.RELEASE')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.9.6')
+    implementation('javax.ws.rs:javax.ws.rs-api:2.1')
+    compileOnly('org.projectlombok:lombok:1.16.18')
 
 //    testImplementation('junit:junit:4.12')
     testImplementation('org.springframework.boot:spring-boot-test:2.0.4.RELEASE')
@@ -56,10 +58,11 @@ openAPIdoc {
     openAPIVersion = "3.0.1"
 
     infoVersion = "0.1.0"
-    infoTitle = "API documentation"
-    infoDescription = "API to manage sample objects"
+    infoTitle = "Dummy Note API"
+    infoDescription = "API to create or delete notes"
 
     infoContactName = "test"
+    infoContactUrl = "http://perdu.com"
 
     serverUrl = "http://localhost:8080"
     serverDescription = "Testing environment"

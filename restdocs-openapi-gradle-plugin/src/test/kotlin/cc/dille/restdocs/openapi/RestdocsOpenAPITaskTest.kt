@@ -27,6 +27,7 @@ class RestdocsOpenAPITaskTest {
     private var infoDescription: String? = null
     private var infoContactName: String? = null
     private var infoContactEmail: String? = null
+    private var infoContactUrl: String? = null
     private var serverUrl: String? = null
     private var serverDescription: String? = null
     private var outputFileNamePrefix = "api"
@@ -55,6 +56,7 @@ class RestdocsOpenAPITaskTest {
         infoDescription = "I hope the tests are OK"
         infoContactName = "John Smith"
         infoContactEmail = "abuse@example.org"
+        infoContactUrl = "http://example.org"
         serverUrl = "example.org"
         serverDescription = "Default server"
         outputFileNamePrefix = "index"
@@ -85,7 +87,6 @@ class RestdocsOpenAPITaskTest {
         thenOpenAPIFileExistsWithHeaders().also { apiFile ->
 
             apiFile.readLines().apply {
-                println(this)
                 any { it.startsWith("  /:") }.`should be true`()
                 any { it.startsWith("  /carts/{cartId}:") }.`should be true`()
                 any { it.startsWith("  /carts:") }.`should be true`()
@@ -103,6 +104,9 @@ class RestdocsOpenAPITaskTest {
                 contains("example: " + requestBodyJson()).`should be true`()
                 contains("- name: some in: query description: some required: false schema: type: integer").`should be true`()
                 contains("- name: other in: query description: other required: true schema: type: string example: test").`should be true`()
+                contains("deleteSelf: operationId: deleteCart description: deletes self parameters: cartId: ${'$'}response.body#/id").`should be true`()
+                contains("getSelf: operationId: getCart description: gets self parameters: cartId: ${'$'}response.body#/id").`should be true`()
+                contains("headers: Why-Not: description: how are you").`should be true`()
             }
         }
     }
@@ -116,6 +120,7 @@ class RestdocsOpenAPITaskTest {
             lines.any { it.contains("title: $infoTitle") }.`should be true`()
             infoContactName?.let { _ -> lines.any { it.contains("name: $infoContactName") }.`should be true`() }
             infoContactEmail?.let { _ -> lines.any { it.contains("email: $infoContactEmail") }.`should be true`() }
+            infoContactUrl?.let { _ -> lines.any { it.contains("url: $infoContactUrl") }.`should be true`() }
             infoDescription?.let { _ -> lines.any { it.contains("description: $infoDescription") }.`should be true`() }
             serverUrl?.let { _ -> lines.any { it.contains("url: $serverUrl") }.`should be true`() }
             serverDescription?.let { _ -> lines.any { it.contains("description: $serverDescription") }.`should be true`() }
@@ -137,6 +142,7 @@ openAPIdoc {
     infoDescription = "$infoDescription"
     infoContactName = "$infoContactName"
     infoContactEmail = "$infoContactEmail"
+    infoContactUrl = "$infoContactUrl"
     serverUrl = "$serverUrl"
     serverDescription = "$serverDescription"
     outputFileNamePrefix = "$outputFileNamePrefix"
@@ -162,11 +168,26 @@ openAPIdoc {
       content:
         application/hal+json:
           example: !include 'carts-create-request.json'
+    responses:
+      201:
+        description: Cart created
+        links:
+          getSelf:
+            operationId: getCart
+            description: gets self
+            parameters:
+              cartId: ${'$'}response.body#/id
+          deleteSelf:
+            operationId: deleteCart
+            description: deletes self
+            parameters:
+              cartId: ${'$'}response.body#/id
 """)
 
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-get"), "openapi-resource.yaml").writeText("""/carts/{cartId}:
   get:
     summary: cart get
+    operationId: getCart
     responses:
       200:
         description: "TODO - figure out how to set"
@@ -206,6 +227,9 @@ openAPIdoc {
     responses:
       200:
         description: "TODO - figure out how to set"
+        headers:
+          Why-Not:
+            description: how are you
 """)
     }
 
