@@ -24,6 +24,7 @@ dependencies {
 }
 
 group = 'cc.dille'
+version = '0.1.0-SNAPSHOT'
 description = 'Adds OpenAPI support for Spring REST Docs'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

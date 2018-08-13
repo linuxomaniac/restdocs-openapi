@@ -1,18 +1,18 @@
 group = 'cc.dille'
 version = '0.1.0-SNAPSHOT'
+description = 'Restdocs OpenAPI fragments agregation plugin for Maven'
 
 dependencies {
+    implementation(project(':restdocs-openapi-plugin-common'))
+    implementation("org.apache.maven:maven-plugin-api:3.5.4")
+    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:3.5.2")
     implementation("org.yaml:snakeyaml:1.21")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.6")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.amshove.kluent:kluent:1.40")
 
     testImplementation("org.amshove.kluent:kluent:1.40")
     testImplementation("com.jayway.jsonpath:json-path:2.4.0")
-}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
+    testImplementation("org.apache.maven.plugin-testing:maven-plugin-testing-harness:3.3.0")
 }
 
 // Write the plugin's classpath to a file to share with the tests

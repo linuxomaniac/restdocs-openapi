@@ -8,7 +8,8 @@ buildscript {
         // ADD THIS
         classpath "com.fasterxml.jackson.core:jackson-databind:2.9.6"
         classpath "org.yaml:snakeyaml:1.21"
-        classpath 'cc.dille:restdocs-openapi-gradle-plugin:0.1.0-SNAPSHOT'
+        classpath 'cc.dille:restdocs-openapi-plugin-common:0.1.0-SNAPSHOT'
+        classpath 'cc.dille:restdocs-openapi-plugin-gradle:0.1.0-SNAPSHOT'
     }
 }
 
@@ -28,12 +29,13 @@ repositories {
     flatDir { dirs 'libs' }
 }
 
+group = "cc.dille"
+version = "0.1.0-SNAPSHOT"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE")
-    implementation('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
     implementation('org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE')
     implementation('org.springframework:spring-web:5.0.8.RELEASE')
     implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
@@ -44,6 +46,7 @@ dependencies {
     compileOnly('org.projectlombok:lombok:1.16.18')
 
 //    testImplementation('junit:junit:4.12')
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
     testImplementation('org.springframework.boot:spring-boot-test:2.0.4.RELEASE')
 //    testImplementation('com.google.guava:guava:23.0-android')
     testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')

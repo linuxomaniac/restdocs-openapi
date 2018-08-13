@@ -1,0 +1,7 @@
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/Application.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/NoteResource.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/status/NoContentException.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/NoteController.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/Note.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/status/ResourceNotFoundException.java
+/home/a/wip/restdocs-openapi/restdocs-openapi-example-project/src/main/java/cc/dille/restdocs/openapi/example/IndexController.java

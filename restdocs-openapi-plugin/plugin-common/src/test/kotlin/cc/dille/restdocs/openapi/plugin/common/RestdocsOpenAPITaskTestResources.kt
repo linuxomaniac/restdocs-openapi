@@ -1,55 +1,44 @@
-package cc.dille.restdocs.gradle
+package cc.dille.restdocs.openapi.plugin.common
 
 import org.amshove.kluent.`should be true`
-import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should exist`
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
-class RestdocsOpenAPITaskTest {
+abstract class RestdocsOpenAPITaskTestResources {
     @Rule
     @JvmField
     val testProjectDir = TemporaryFolder()
 
     lateinit var buildFile: File
 
-    // These are the default values in RestdocsOpenAPIPluginExtension
-    private var openAPIVersion = "3.0.1"
-    private var infoVersion = "0.1.0"
-    private var infoTitle = "API documentation"
-    private var infoDescription: String? = null
-    private var infoContactName: String? = null
-    private var infoContactEmail: String? = null
-    private var infoContactUrl: String? = null
-    private var serverUrl: String? = null
-    private var serverDescription: String? = null
-    private var outputFileNamePrefix = "api"
+    // These are the default values in RestdocsOpenAPIGradlePluginExtension
+    protected var openAPIVersion = "3.0.1"
+    protected var infoVersion = "0.1.0"
+    protected var infoTitle = "API documentation"
+    protected var infoDescription: String? = null
+    protected var infoContactName: String? = null
+    protected var infoContactEmail: String? = null
+    protected var infoContactUrl: String? = null
+    protected var serverUrl: String? = null
+    protected var serverDescription: String? = null
+    protected var outputFileNamePrefix = "api"
 
-    private lateinit var pluginClasspath: List<File>
-    private lateinit var result: BuildResult
+    protected lateinit var pluginClasspath: List<File>
 
 
     @Before
     fun setUp() {
-        buildFile = testProjectDir.newFile("build.gradle")
-
-        testProjectDir.newFolder("build", "generated-snippets")
-
         pluginClasspath = javaClass.classLoader
                 .getResourceAsStream("plugin-classpath.txt")
                 ?.let { inputStream -> inputStream.reader().readLines().map { File(it) } }
                 ?: throw IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
     }
 
-    @Test
-    fun `should aggregate openAPI fragments`() {
+    fun givenVariablesDefinition() {
         openAPIVersion = "3.0.0"
         infoVersion = "0.1.0-test"
         infoTitle = "API documentation test"
@@ -60,30 +49,9 @@ class RestdocsOpenAPITaskTest {
         serverUrl = "example.org"
         serverDescription = "Default server"
         outputFileNamePrefix = "index"
-
-        givenBuildFileWithOpenAPIDocClosure()
-        givenSnippetFiles()
-        givenRequestBodyJsonFile()
-
-        whenPluginExecuted()
-
-        result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenGroupFileGenerated()
     }
 
-    @Test
-    fun `should aggregate openAPI fragments with missing openAPIdoc closure`() {
-        givenBuildFileWithoutOpenAPIDocClosure()
-        givenSnippetFiles()
-        givenRequestBodyJsonFile()
-
-        whenPluginExecuted()
-
-        result.task(":openAPIdoc")?.outcome `should equal` SUCCESS
-        thenGroupFileGenerated()
-    }
-
-    private fun thenGroupFileGenerated() {
+    protected fun thenGroupFileGenerated() {
         thenOpenAPIFileExistsWithHeaders().also { apiFile ->
 
             apiFile.readLines().apply {
@@ -111,7 +79,7 @@ class RestdocsOpenAPITaskTest {
         }
     }
 
-    private fun thenOpenAPIFileExistsWithHeaders(): File {
+    protected fun thenOpenAPIFileExistsWithHeaders(): File {
         val apiFile = File(testProjectDir.root, "build/openAPIdoc/${outputFileNamePrefix}.yaml")
         apiFile.`should exist`()
         apiFile.readLines().also { lines ->
@@ -129,37 +97,7 @@ class RestdocsOpenAPITaskTest {
         return apiFile
     }
 
-    private fun givenBuildFileWithoutOpenAPIDocClosure() {
-        buildFile.writeText(baseBuildFile())
-    }
-
-    private fun givenBuildFileWithOpenAPIDocClosure() {
-        buildFile.writeText(baseBuildFile() + """
-openAPIdoc {
-    openAPIVersion = "$openAPIVersion"
-    infoVersion = "$infoVersion"
-    infoTitle = "$infoTitle"
-    infoDescription = "$infoDescription"
-    infoContactName = "$infoContactName"
-    infoContactEmail = "$infoContactEmail"
-    infoContactUrl = "$infoContactUrl"
-    serverUrl = "$serverUrl"
-    serverDescription = "$serverDescription"
-    outputFileNamePrefix = "$outputFileNamePrefix"
-}
-""")
-    }
-
-    private fun whenPluginExecuted() {
-        result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments("--info", "--stacktrace", "openAPIdoc")
-                .withPluginClasspath(pluginClasspath)
-//                .forwardOutput()
-                .build()
-    }
-
-    private fun givenSnippetFiles() {
+    protected fun givenSnippetFiles() {
         File(testProjectDir.newFolder("build", "generated-snippets", "carts-create"), "openapi-resource.yaml").writeText("""/carts:
   post:
     summary: post cart
@@ -233,15 +171,52 @@ openAPIdoc {
 """)
     }
 
-    private fun requestBodyJson() = """{}"""
+    protected fun requestBodyJson() = """{}"""
 
-    private fun givenRequestBodyJsonFile() {
+    protected fun givenRequestBodyJsonFile() {
         testProjectDir.newFile("build/generated-snippets/carts-create/carts-create-request.json").writeText(requestBodyJson())
     }
 
-    private fun baseBuildFile() = """plugins {
-    id 'java'
-    id 'cc.dille.restdocs-openapi'
-}
-""".trimIndent()
+    protected fun givenBuildFileWithoutOpenAPIDocClosure() {
+        buildFile.writeText(baseBuildFile())
+    }
+
+    protected fun givenBuildFileWithOpenAPIDocClosure() {
+        buildFile.writeText(baseBuildFile() + additionsToBuildFile())
+    }
+
+    // Declaration of what test classes should implement
+
+    protected abstract fun thenTaskSucceeded(): Boolean
+
+    protected abstract fun whenPluginExecuted()
+
+    protected abstract fun baseBuildFile() : String
+
+    protected abstract fun additionsToBuildFile() : String
+
+    fun `should aggregate openAPI fragments`() {
+        givenVariablesDefinition()
+
+        givenBuildFileWithOpenAPIDocClosure()
+        givenSnippetFiles()
+        givenRequestBodyJsonFile()
+
+        whenPluginExecuted()
+
+        thenTaskSucceeded().`should be true`()
+        thenGroupFileGenerated()
+    }
+
+
+    fun `should aggregate openAPI fragments with missing openAPIdoc closure`() {
+        givenBuildFileWithoutOpenAPIDocClosure()
+        givenSnippetFiles()
+        givenRequestBodyJsonFile()
+
+        whenPluginExecuted()
+
+        thenTaskSucceeded().`should be true`()
+        thenGroupFileGenerated()
+    }
 }

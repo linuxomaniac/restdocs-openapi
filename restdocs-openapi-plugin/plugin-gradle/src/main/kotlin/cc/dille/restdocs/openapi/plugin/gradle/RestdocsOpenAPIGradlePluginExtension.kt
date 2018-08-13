@@ -2,7 +2,7 @@ package cc.dille.restdocs.openapi.plugin.gradle
 
 import org.gradle.api.Project
 
-open class RestdocsOpenAPIPluginExtension(project: Project) {
+open class RestdocsOpenAPIGradlePluginExtension(project: Project) {
     var openAPIVersion = "3.0.1"
 
     var infoVersion = "0.1.0"
@@ -15,8 +15,8 @@ open class RestdocsOpenAPIPluginExtension(project: Project) {
     var serverUrl: String? = null
     var serverDescription: String? = null
 
-    var outputDirectory = "build/openAPIdoc"
-    var snippetsDirectory = "build/generated-snippets"
+    var outputDirectory = "openAPIdoc"
+    var snippetsDirectory = "generated-snippets"
 
     var outputFileNamePrefix = "api"
 }

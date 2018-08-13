@@ -1,4 +1,6 @@
 group = 'cc.dille'
+version = '0.1.0-SNAPSHOT'
+description = 'Restdocs OpenAPI fragments agregation plugin for Gradle'
 
 dependencies {
     implementation(gradleApi())

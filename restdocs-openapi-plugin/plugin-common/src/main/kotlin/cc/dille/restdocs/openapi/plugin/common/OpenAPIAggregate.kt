@@ -1,65 +1,28 @@
-package cc.dille.restdocs.openapi.plugin.gradle
+package cc.dille.restdocs.openapi.plugin.common
 
-import cc.dille.restdocs.openapi.plugin.common.*
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import java.io.File
 
 
-open class RestdocsOpenAPITask : DefaultTask() {
+class OpenAPIAggregate(
+        private var openAPIVersion: String,
+        private var infoVersion: String,
+        private var infoTitle: String,
+        private var infoDescription: String?,
+        private var infoContactName: String?,
+        private var infoContactEmail: String?,
+        private var infoContactUrl: String?,
+        private var serverUrl: String?,
+        private var serverDescription: String?,
+        private var outputDirectory: String,
+        private var snippetsDirectory: String,
+        private var outputFileNamePrefix: String,
+        private var buildDir: File) {
 
-    @Input
-    lateinit var openAPIVersion: String
-
-    @Input
-    lateinit var infoVersion: String
-
-    @Input
-    lateinit var infoTitle: String
-
-    @Input
-    @Optional
-    var infoDescription: String? = null
-
-    @Input
-    @Optional
-    var infoContactName: String? = null
-
-    @Input
-    @Optional
-    var infoContactEmail: String? = null
-
-    @Input
-    @Optional
-    var infoContactUrl: String? = null
-
-    @Input
-    @Optional
-    var serverUrl: String? = null
-
-    @Input
-    @Optional
-    var serverDescription: String? = null
-
-    @Input
-    lateinit var outputDirectory: String
-
-    @Input
-    lateinit var snippetsDirectory: String
-
-    @Input
-    lateinit var outputFileNamePrefix: String
-
-    private val outputDirectoryFile
-        get() = project.file(outputDirectory)
-
-    private val snippetsDirectoryFile
-        get() = project.file(snippetsDirectory)
+    var outputDirectoryFile: File = File(buildDir, outputDirectory)
+    var snippetsDirectoryFile: File = File(this.buildDir, snippetsDirectory)
 
 
-    @TaskAction
-    fun aggregateOpenAPIFragments() {
+    fun aggregateFragments() {
         outputDirectoryFile.mkdirs()
 
 //        copyBodyJsonFilesToOutput()
@@ -95,7 +58,7 @@ open class RestdocsOpenAPITask : DefaultTask() {
                 }
 
         OpenAPIWriter.writeApi(
-                fileFactory = { filename -> project.file("$outputDirectory/$filename") },
+                fileFactory = { filename -> File(File(buildDir, outputDirectory), filename) },
                 api = openAPIApi,
                 apiFileName = "$outputFileNamePrefix$fileNameSuffix"
         )
