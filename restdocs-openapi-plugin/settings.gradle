@@ -1,0 +1,7 @@
+include ':restdocs-openapi-plugin-gradle'
+project(":restdocs-openapi-plugin-gradle").projectDir = file("plugin-gradle")
+
+include ':restdocs-openapi-plugin-common'
+project(":restdocs-openapi-plugin-common").projectDir = file("plugin-common")
+
+rootProject.name = 'restdocs-openapi-plugin'

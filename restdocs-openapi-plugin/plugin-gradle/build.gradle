@@ -1,0 +1,35 @@
+group = 'cc.dille'
+
+dependencies {
+    implementation(gradleApi())
+    implementation(project(':restdocs-openapi-plugin-common'))
+    implementation("org.yaml:snakeyaml:1.21")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.6")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
+    testImplementation(gradleTestKit())
+    testImplementation("org.amshove.kluent:kluent:1.40")
+    testImplementation("com.jayway.jsonpath:json-path:2.4.0")
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+// Write the plugin's classpath to a file to share with the tests
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
+// Add the classpath file to the test runtime classpath
+dependencies {
+    // it used to be testRuntime
+    testImplementation(files(createClasspathManifest))
+}
