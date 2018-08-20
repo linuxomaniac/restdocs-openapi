@@ -27,6 +27,21 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>cc.dille.restdocs</groupId>
+                <artifactId>restdocs-openapi-plugin-maven</artifactId>
+                <version>0.1.0</version>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>test</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>openAPIdoc</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                <!--</configuration>-->
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -90,11 +105,10 @@
             <version>1.16.18</version>
             <scope>compile</scope>
         </dependency>
-        <!-- <dependency>
-          <groupId>cc.dille</groupId>
-          <artifactId>restdocs-openapi</artifactId>
-          <version>0.1.0-SNAPSHOT</version>
-          <scope>test</scope>
-        </dependency> -->
+        <dependency>
+            <groupId>cc.dille.restdocs</groupId>
+            <artifactId>restdocs-openapi</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 </project>

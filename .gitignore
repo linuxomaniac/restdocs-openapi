@@ -4,6 +4,7 @@
 !.circleci
 .settings/
 build/
+target/
 out/
 bin/
 gradle.properties

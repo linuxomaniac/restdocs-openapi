@@ -8,6 +8,8 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 
+// Class that implementation tests for Gradle and Maven plugins should extend
+
 abstract class OpenAPITaskTestResources {
     @Rule
     @JvmField
@@ -182,7 +184,7 @@ abstract class OpenAPITaskTestResources {
     }
 
     protected fun givenBuildFileWithOpenAPIDocClosure() {
-        buildFile.writeText(baseBuildFile() + additionsToBuildFile())
+        buildFile.writeText(fullBuildFile())
     }
 
     // Declaration of what test classes should implement
@@ -193,7 +195,7 @@ abstract class OpenAPITaskTestResources {
 
     protected abstract fun baseBuildFile() : String
 
-    protected abstract fun additionsToBuildFile() : String
+    protected abstract fun fullBuildFile() : String
 
     fun `should aggregate openAPI fragments`() {
         givenVariablesDefinition()

@@ -1,6 +1,7 @@
 package cc.dille.restdocs.openapi.plugin.maven
 
 import cc.dille.restdocs.openapi.plugin.common.OpenAPIAggregate
+import cc.dille.restdocs.openapi.plugin.common.PluginDefaultValues
 import org.apache.maven.plugin.AbstractMojo
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
@@ -9,39 +10,41 @@ import java.io.File
 
 @Mojo(name = "openAPIdoc")
 class RestdocsOpenAPIMavenPlugin : AbstractMojo() {
-    @Parameter(property = "openAPIversion")
-    var openAPIVersion = "3.0.1"
+    private val o = PluginDefaultValues()
+
+    @Parameter(property = "openAPIversion", defaultValue = "a")
+    var openAPIVersion: String = o.openAPIVersion
 
     @Parameter(property = "infoVersion")
-    var infoVersion = "0.1.0"
+    var infoVersion : String = o.infoVersion
     @Parameter(property = "infoTitle")
-    var infoTitle = "API documentation"
+    var infoTitle: String = o.infoTitle
 
     @Parameter(property = "infoDescription")
-    var infoDescription: String? = null
+    var infoDescription: String? = o.infoDescription
 
     @Parameter(property = "infoContactName")
-    var infoContactName: String? = null
+    var infoContactName: String? = o.infoContactName
     @Parameter(property = "infoContactEmail")
-    var infoContactEmail: String? = null
+    var infoContactEmail: String? = o.infoContactEmail
     @Parameter(property = "infoContactUrl")
-    var infoContactUrl: String? = null
+    var infoContactUrl: String? = o.infoContactUrl
 
     @Parameter(property = "serverUrl")
-    var serverUrl: String? = null
+    var serverUrl: String? = o.serverUrl
     @Parameter(property = "serverDescription")
-    var serverDescription: String? = null
+    var serverDescription: String? = o.serverDescription
 
     @Parameter(property = "outputDirectory")
-    var outputDirectory = "target/openAPIdoc"
+    var outputDirectory: String = o.outputDirectory
     @Parameter(property = "snippetsDirectory")
-    var snippetsDirectory = "target/generated-snippets"
+    var snippetsDirectory: String = o.snippetsDirectory
 
     @Parameter(property = "outputFileNamePrefix")
-    var outputFileNamePrefix = "api"
+    var outputFileNamePrefix = o.outputFileNamePrefix
 
     @Parameter(readonly = true, defaultValue = "\${project.build.directory}")
-    var buildDir: String? = null
+    lateinit var buildDir: String
 
     override fun execute() {
         OpenAPIAggregate(openAPIVersion,
@@ -56,7 +59,7 @@ class RestdocsOpenAPIMavenPlugin : AbstractMojo() {
                 outputDirectory,
                 snippetsDirectory,
                 outputFileNamePrefix,
-                File(buildDir!!)
+                File(buildDir)
         )
                 .aggregateFragments()
     }

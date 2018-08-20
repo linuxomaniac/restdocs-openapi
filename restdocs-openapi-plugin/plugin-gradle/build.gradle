@@ -1,22 +1,5 @@
-group = 'cc.dille'
-version = '0.1.0-SNAPSHOT'
-description = 'Restdocs OpenAPI fragments agregation plugin for Gradle'
-
-dependencies {
-    implementation(gradleApi())
-    implementation(project(':restdocs-openapi-plugin-common'))
-    implementation("org.yaml:snakeyaml:1.21")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.6")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-
-    testImplementation(gradleTestKit())
-    testImplementation("org.amshove.kluent:kluent:1.40")
-    testImplementation("com.jayway.jsonpath:json-path:2.4.0")
-}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-}
+version = '0.1.0'
+description = 'Restdocs OpenAPI fragments aggregation plugin for Gradle'
 
 // Write the plugin's classpath to a file to share with the tests
 task createClasspathManifest {
@@ -30,8 +13,12 @@ task createClasspathManifest {
     }
 }
 
-// Add the classpath file to the test runtime classpath
 dependencies {
-    // it used to be testRuntime
+    implementation(gradleApi())
+    implementation('cc.dille.restdocs:restdocs-openapi-plugin-common:0.1.0')
+
+    testImplementation(gradleTestKit())
+    testImplementation("org.amshove.kluent:kluent:1.40")
     testImplementation(files(createClasspathManifest))
 }
+

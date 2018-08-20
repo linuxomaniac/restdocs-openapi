@@ -1,18 +1,33 @@
-group = 'cc.dille'
-version = '0.1.0-SNAPSHOT'
-description = 'Restdocs OpenAPI fragments agregation plugin for Maven'
+buildscript {
+    ext.mavenVersion = "3.5.4"
+    dependencies {
+        classpath group: "com.liferay", name: "com.liferay.gradle.plugins.maven.plugin.builder", version: "1.2.0"
+    }
 
-dependencies {
-    implementation(project(':restdocs-openapi-plugin-common'))
-    implementation("org.apache.maven:maven-plugin-api:3.5.4")
-    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:3.5.2")
-    implementation("org.yaml:snakeyaml:1.21")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.6")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    repositories {
+        mavenLocal()
+        maven {
+            url "https://repository-cdn.liferay.com/nexus/content/groups/public"
+        }
+    }
+}
 
-    testImplementation("org.amshove.kluent:kluent:1.40")
-    testImplementation("com.jayway.jsonpath:json-path:2.4.0")
-    testImplementation("org.apache.maven.plugin-testing:maven-plugin-testing-harness:3.3.0")
+plugins {
+    id "maven"
+}
+
+apply plugin: "com.liferay.maven.plugin.builder"
+
+configurations {
+    mavenEmbedder
+}
+
+version = '0.1.0'
+description = 'Restdocs OpenAPI fragments aggregation plugin for Maven'
+
+repositories {
+    mavenLocal()
+    jcenter()
 }
 
 // Write the plugin's classpath to a file to share with the tests
@@ -27,8 +42,33 @@ task createClasspathManifest {
     }
 }
 
-// Add the classpath file to the test runtime classpath
 dependencies {
-    // it used to be testRuntime
+    implementation("org.apache.maven:maven-plugin-api:$mavenVersion")
+
+    implementation('cc.dille.restdocs:restdocs-openapi-plugin-common:0.1.0')
+    implementation("org.apache.maven.plugin-tools:maven-plugin-annotations:3.5.2")
+
+    mavenEmbedder("org.apache.maven:maven-compat:$mavenVersion")
+    mavenEmbedder("org.apache.maven:maven-embedder:$mavenVersion")
+    mavenEmbedder('org.slf4j:slf4j-simple:1.7.25')
+    mavenEmbedder('org.eclipse.aether:aether-connector-basic:1.1.0')
+    mavenEmbedder('org.eclipse.aether:aether-transport-wagon:1.1.0')
+    mavenEmbedder('org.apache.maven.wagon:wagon-http:3.1.0:shaded')
+    mavenEmbedder('org.apache.maven.wagon:wagon-provider-api:3.1.0')
+
+    testImplementation("org.amshove.kluent:kluent:1.40")
+    testImplementation("org.apache.maven.shared:maven-verifier:1.6")
     testImplementation(files(createClasspathManifest))
 }
+
+buildPluginDescriptor {
+    classesDir = "$buildDir/classes/kotlin"
+    sourceDir = "src/main/kotlin"
+    goalPrefix = ""
+
+    pomArtifactId = project.name
+    pomVersion = project.version
+    pomGroupId = project.group
+}
+
+project.jar.dependsOn(buildPluginDescriptor)

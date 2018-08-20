@@ -1,32 +1,33 @@
-package cc.dille.restdocs.openapi.plugin.gradle
+package cc.dille.restdocs.openapi.plugin.maven
 
 import cc.dille.restdocs.openapi.plugin.common.OpenAPITaskTestResources
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.apache.maven.it.VerificationException
+import org.apache.maven.it.Verifier
 import org.junit.Before
 import org.junit.Test
 
-class OpenAPIGradleTaskTest : OpenAPITaskTestResources() {
-    private lateinit var result: BuildResult
+class OpenAPIMavenTaskTest : OpenAPITaskTestResources() {
+    private lateinit var verifier: Verifier
+    private var success = false
 
     @Before
     fun gradleSetUp() {
-        buildFile = testProjectDir.newFile("build.gradle")
+        buildFile = testProjectDir.newFile("pom.xml")
 
-        testProjectDir.newFolder("build", "generated-snippets")
+        testProjectDir.newFolder("target", "generated-snippets")
     }
 
     override fun thenTaskSucceeded() =
-            (result.task(":openAPIdoc")?.outcome == SUCCESS)
+            success
 
     override fun whenPluginExecuted() {
-        result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
-                .withArguments("--info", "--stacktrace", "openAPIdoc")
-                .withPluginClasspath(pluginClasspath)
-//                .forwardOutput()
-                .build()
+        verifier = Verifier(testProjectDir.root.absolutePath)
+        try {
+            verifier.executeGoal("openAPIdoc")
+            success = true
+        } catch (e: VerificationException) {
+            success = false
+        }
     }
 
     override fun baseBuildFile() = """plugins {
