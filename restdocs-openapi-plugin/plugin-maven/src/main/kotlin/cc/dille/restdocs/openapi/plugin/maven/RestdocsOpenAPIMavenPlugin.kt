@@ -12,7 +12,7 @@ import java.io.File
 class RestdocsOpenAPIMavenPlugin : AbstractMojo() {
     private val o = PluginDefaultValues()
 
-    @Parameter(property = "openAPIversion", defaultValue = "a")
+    @Parameter(property = "openAPIversion")
     var openAPIVersion: String = o.openAPIVersion
 
     @Parameter(property = "infoVersion")

@@ -4,27 +4,26 @@ buildscript {
         jcenter()
     }
     dependencies {
-        // ADD THIS
-        classpath "com.fasterxml.jackson.core:jackson-databind:2.9.6"
-        classpath "org.yaml:snakeyaml:1.21"
-        classpath 'cc.dille.restdocs:restdocs-openapi-plugin-common:0.1.0'
+        // Add the plugin to Gradle dependencies
         classpath 'cc.dille.restdocs:restdocs-openapi-plugin-gradle:0.1.0'
     }
 }
 
 plugins {
     id "java"
-    id 'org.springframework.boot' version '2.0.4.RELEASE'
     id "io.spring.dependency-management" version "1.0.6.RELEASE"
-//    id 'restdocs-openapi-plugin-gradle'
+    id 'org.springframework.boot' version '2.0.4.RELEASE'
 }
 
-apply plugin: "cc.dille.restdocs.restdocs-openapi"
+// Apply here the plugin
+apply plugin: "cc.dille.restdocs-openapi"
 
 repositories {
-    jcenter()
-    // ADD THIS
+    // The mavenLocal() repository is used to fetch all the libs published with the publishToMavenLocal goal.
+    // That helps to deal easily with dependencies between jars and not copying them everywhere.
     mavenLocal()
+    jcenter()
+    // Add this for some dependencies
     maven { url 'https://jitpack.io' }
 }
 
@@ -39,29 +38,38 @@ dependencies {
     implementation('org.springframework:spring-web:5.0.8.RELEASE')
     implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
     implementation('org.springframework.hateoas:spring-hateoas:0.25.0.RELEASE')
-    implementation('com.fasterxml.jackson.core:jackson-databind:2.9.6')
-    implementation('javax.ws.rs:javax.ws.rs-api:2.1')
     compileOnly('org.projectlombok:lombok:1.16.18')
 
     testImplementation('org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE')
     testImplementation('org.springframework.boot:spring-boot-test:2.0.4.RELEASE')
     testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
 
-    // ADD THIS!
-    implementation('com.github.everit-org.json-schema:org.everit.json.schema:1.9.1')
+    // Add the dependency to the lib only for the compilation of the tests classes
     testImplementation('cc.dille.restdocs:restdocs-openapi:0.1.0')
+    //implementation('com.github.everit-org.json-schema:org.everit.json.schema:1.9.1')
 }
 
+// This is the task for aggregating the fragments.
+// The values below will fill the OpenAPI YAML file; most of them are not mandatory.
 openAPIdoc {
     openAPIVersion = "3.0.1"
 
-    infoVersion = "0.1.0"
+    // Fill with the project version
+    infoVersion = version
     infoTitle = "Dummy Note API"
-    infoDescription = "API to create or delete notes"
+    infoDescription = "API to create or delete notes - Generated with Gradle"
 
     infoContactName = "test"
+    infoContactEmail = "test@example.org"
     infoContactUrl = "http://perdu.com"
 
     serverUrl = "http://localhost:8080"
     serverDescription = "Testing environment"
+
+    outputDirectory = "openAPIdoc"
+    snippetsDirectory = "generated-snippets"
+    outputFileNamePrefix ="api"
 }
+
+// Call the plugin after the test task is successful
+test.finalizedBy('openAPIdoc')

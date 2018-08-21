@@ -11,8 +11,7 @@ buildscript {
     }
 }
 
-
-allprojects {
+configure(allprojects - rootProject) {
     group = 'cc.dille.restdocs'
 
     apply plugin: "kotlin"

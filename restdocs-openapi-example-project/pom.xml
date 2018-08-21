@@ -5,18 +5,35 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cc.dille</groupId>
     <artifactId>restdocs-openapi-example-project</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <inceptionYear>2018</inceptionYear>
+    <!-- This repo is needed for the everit json-schema dependency -->
     <repositories>
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+
+    <!-- This is needed because otherwise the restdocs-openapi plugin can't find kluent -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <!--  -->
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.4.RELEASE</version>
+    </parent>
     <properties>
         <java.version>1.8</java.version>
     </properties>
     <build>
+        <directory>build/</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -27,20 +44,48 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- This is the block of the restdocs-openapi plugin -->
             <plugin>
                 <groupId>cc.dille.restdocs</groupId>
                 <artifactId>restdocs-openapi-plugin-maven</artifactId>
                 <version>0.1.0</version>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>openAPIdoc</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                <!--</configuration>-->
+                <!-- We define a goal here to run openAPIdoc at the end of the test goal -->
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>openAPIdoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- You can configure here some of the infos for the final file.
+                Most of them are facultatives.
+                You can check PluginDefaultValues.kt in plugin-common for all the availables values. -->
+                <configuration>
+                    <openAPIVersion>3.0.1</openAPIVersion>
+                    <infoVersion>${version}</infoVersion>
+                    <infoTitle>Dummy Note API</infoTitle>
+                    <infoDescription>API to create or delete notes - Generated with Maven</infoDescription>
+                    <infoContactName>test</infoContactName>
+                    <infoContactEmail>test@example.com</infoContactEmail>
+                    <infoContactUrl>http://perdu.com</infoContactUrl>
+                    <serverUrl>http://localhost:8080</serverUrl>
+                    <serverDescription>Testing environment</serverDescription>
+
+                    <!-- These two locations are under the build directory -->
+                    <outputDirectory>openAPIdoc</outputDirectory>
+                    <snippetsDirectory>generated-snippets</snippetsDirectory>
+
+                    <!-- The name of the generated api file (under <buildir>/<outputDirectory>/) -->
+                    <outputFileNamePrefix>api</outputFileNamePrefix>
+                </configuration>
+            </plugin>
+            <!--  -->
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -48,26 +93,22 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.0.4.RELEASE</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>2.0.4.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-core</artifactId>
             <version>1.2.0.RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.0.8.RELEASE</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
@@ -82,33 +123,27 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.9.6</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.everit-org.json-schema</groupId>
-            <artifactId>org.everit.json.schema</artifactId>
-            <version>1.9.1</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.18</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- This should be added for the compilation, this is the library that generated fragment files -->
         <dependency>
             <groupId>cc.dille.restdocs</groupId>
             <artifactId>restdocs-openapi</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <!--  -->
+
+        <!-- This one is needed for the test runtime when generating schemas for fragments -->
+        <!--<dependency>-->
+            <!--<groupId>com.github.everit-org.json-schema</groupId>-->
+            <!--<artifactId>org.everit.json.schema</artifactId>-->
+            <!--<version>1.9.1</version>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependency>-->
+        <!--  -->
     </dependencies>
 </project>

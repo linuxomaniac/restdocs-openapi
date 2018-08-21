@@ -14,4 +14,4 @@ yarn install
 
 Run `yarn start` to start a simple Swagger UI.
 
-The interesting files are in the `api` directory. What you are likely to modify is the `swagger-config.json` file which contains the different versions of the API.
+The interesting files are under the `api` directory. What you are likely to modify is the `swagger-config.json` file which contains the different versions of the API.

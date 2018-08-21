@@ -57,7 +57,7 @@ dependencies {
     mavenEmbedder('org.apache.maven.wagon:wagon-provider-api:3.1.0')
 
     testImplementation("org.amshove.kluent:kluent:1.40")
-    testImplementation("org.apache.maven.shared:maven-verifier:1.6")
+    testImplementation("org.apache.maven.shared:maven-invoker:3.0.1")
     testImplementation(files(createClasspathManifest))
 }
 
