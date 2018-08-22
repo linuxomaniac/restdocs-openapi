@@ -271,7 +271,7 @@ data class OpenAPIFragment(val id: String,
             val methodContent = map[map.keys.first()] as Map<*, *>
             return Method(
                     method = map.keys.first() as String,
-                    summary = methodContent["summary"] as String,
+                    summary = methodContent["summary"] as? String,
                     operationId = methodContent["operationId"] as String?,
                     requestContent = requestBody((methodContent["requestBody"] as? Map<*, *>).orEmpty()),
                     parameters = parameters((methodContent["parameters"] as? List<*>).orEmpty()),

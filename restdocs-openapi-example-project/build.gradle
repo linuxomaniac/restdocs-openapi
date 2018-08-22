@@ -36,7 +36,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE")
     implementation('org.springframework.plugin:spring-plugin-core:1.2.0.RELEASE')
     implementation('org.springframework:spring-web:5.0.8.RELEASE')
-    implementation('org.springframework.restdocs:spring-restdocs-mockmvc:2.0.2.RELEASE')
     implementation('org.springframework.hateoas:spring-hateoas:0.25.0.RELEASE')
     compileOnly('org.projectlombok:lombok:1.16.18')
 
@@ -68,7 +67,7 @@ openapidoc {
 
     outputDirectory = "openAPIDoc"
     snippetsDirectory = "generated-snippets"
-    outputFileNamePrefix ="api"
+    outputFileNamePrefix = "api"
 }
 
 // Call the plugin after the test task is successful

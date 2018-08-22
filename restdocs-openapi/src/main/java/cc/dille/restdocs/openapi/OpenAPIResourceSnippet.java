@@ -59,7 +59,7 @@ public class OpenAPIResourceSnippet extends TemplatedSnippet implements FileName
         model.put("resource", getUriPath(operation));
         model.put("method", operation.getRequest().getMethod().name().toLowerCase());
         model.put("statusDescription", parameters.getStatusDescription());
-        model.put("summary", parameters.getSummary() == null ? operation.getName() : parameters.getSummary());
+        model.put("summary", parameters.getSummary());
         model.put("operationId", parameters.getOperationId());
         model.put("status", operation.getResponse().getStatus().value());
 
