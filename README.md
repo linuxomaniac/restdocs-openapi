@@ -1,6 +1,7 @@
 # Restdocs-OpenAPI
 
 Highly inspired by https://github.com/ePages-de/restdocs-raml
+
 An attempt to generate OpenAPI documentation with Spring Restdocs.
 
 
@@ -15,5 +16,5 @@ This project consists of several subprojects, each one contains a `README.md` fi
 
 
 ## Useful links
-- OpenAPI 3.0.1 dpecification: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md
+- OpenAPI 3.0.1 specification: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md
 - Introduction to Spring Restdocs: https://docs.spring.io/spring-restdocs/docs/current/reference/html5/
