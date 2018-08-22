@@ -50,12 +50,12 @@
                 <groupId>cc.dille.restdocs</groupId>
                 <artifactId>restdocs-openapi-plugin-maven</artifactId>
                 <version>0.1.0</version>
-                <!-- We define a goal here to run openAPIdoc at the end of the test goal -->
+                <!-- We define a goal here to run openapidoc at the end of the test goal -->
                 <executions>
                     <execution>
                         <phase>test</phase>
                         <goals>
-                            <goal>openAPIdoc</goal>
+                            <goal>openapidoc</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -64,7 +64,7 @@
                 You can check PluginDefaultValues.kt in plugin-common for all the availables values. -->
                 <configuration>
                     <openAPIVersion>3.0.1</openAPIVersion>
-                    <infoVersion>${version}</infoVersion>
+                    <infoVersion>${project.version}</infoVersion>
                     <infoTitle>Dummy Note API</infoTitle>
                     <infoDescription>API to create or delete notes - Generated with Maven</infoDescription>
                     <infoContactName>test</infoContactName>
@@ -74,7 +74,7 @@
                     <serverDescription>Testing environment</serverDescription>
 
                     <!-- These two locations are under the build directory -->
-                    <outputDirectory>openAPIdoc</outputDirectory>
+                    <outputDirectory>openAPIDoc</outputDirectory>
                     <snippetsDirectory>generated-snippets</snippetsDirectory>
 
                     <!-- The name of the generated api file (under <buildir>/<outputDirectory>/) -->

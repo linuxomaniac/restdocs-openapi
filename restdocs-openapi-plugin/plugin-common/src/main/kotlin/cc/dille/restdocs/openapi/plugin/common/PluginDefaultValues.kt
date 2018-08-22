@@ -13,7 +13,7 @@ open class PluginDefaultValues {
     var serverUrl: String? = null
     var serverDescription: String? = null
 
-    var outputDirectory = "openAPIdoc"
+    var outputDirectory = "openAPIDoc"
     var snippetsDirectory = "generated-snippets"
 
     var outputFileNamePrefix = "api"

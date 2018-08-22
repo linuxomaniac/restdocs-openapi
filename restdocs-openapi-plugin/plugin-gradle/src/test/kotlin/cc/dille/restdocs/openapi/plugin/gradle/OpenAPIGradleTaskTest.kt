@@ -18,12 +18,12 @@ class OpenAPIGradleTaskTest : OpenAPITaskTestResources() {
     }
 
     override fun thenTaskSucceeded() =
-            (result.task(":openAPIdoc")?.outcome == SUCCESS)
+            (result.task(":openapidoc")?.outcome == SUCCESS)
 
     override fun whenPluginExecuted() {
         result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withArguments("--info", "--stacktrace", "openAPIdoc")
+                .withArguments("--info", "--stacktrace", "openapidoc")
                 .withPluginClasspath(pluginClasspath)
 //                .forwardOutput()
                 .build()
@@ -36,7 +36,7 @@ class OpenAPIGradleTaskTest : OpenAPITaskTestResources() {
 """.trimIndent()
 
     override fun fullBuildFile(): String = baseBuildFile() + """
-openAPIdoc {
+openapidoc {
     openAPIVersion = "$openAPIVersion"
     infoVersion = "$infoVersion"
     infoTitle = "$infoTitle"
@@ -52,10 +52,10 @@ openAPIdoc {
 
     // The actual tests
     @Test
-    fun `call should aggregate openAPI fragments`() =
-            `should aggregate openAPI fragments`()
+    fun `call should aggregate OpenAPI fragments`() =
+            `should aggregate OpenAPI fragments`()
 
     @Test
-    fun `call should aggregate openAPI fragments with missing openAPIdoc closure`() =
-            `should aggregate openAPI fragments with missing openAPIdoc closure`()
+    fun `call should aggregate OpenAPI fragments with missing openAPIDoc closure`() =
+            `should aggregate OpenAPI fragments with missing openAPIDoc closure`()
 }

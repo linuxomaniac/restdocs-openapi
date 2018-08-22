@@ -9,10 +9,10 @@ class RestdocsOpenAPIGradlePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         with(project) {
-            extensions.create("openAPIdoc", PluginDefaultValues::class.java)
+            extensions.create("openapidoc", PluginDefaultValues::class.java)
             afterEvaluate {
-                val openAPIdoc = extensions.findByName("openAPIdoc") as PluginDefaultValues
-                tasks.create("openAPIdoc", RestdocsOpenAPIGradleTask::class.java).apply {
+                val openAPIdoc = extensions.findByName("openapidoc") as PluginDefaultValues
+                tasks.create("openapidoc", RestdocsOpenAPIGradleTask::class.java).apply {
                     dependsOn("check")
                     description = "Aggregate fragments into an OpenAPI file"
 

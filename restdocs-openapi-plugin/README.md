@@ -72,6 +72,7 @@ the environment variable and run the tests you then will have to launch
 ## Using the plugin
 
 Once the plugin has been added to Gradle or Maven, a new task is available:
-`openAPIdoc` for Gradle and `restdocs-openapi:openAPIdoc` for Maven.
+`openapidoc` for Gradle and `restdocs-openapi:openapidoc` for Maven.
 You can automatically trigger these tasks when the tests are done, or you can
-manually run them; example with Gradle: `./gradlew clean test openAPIdoc`
+manually run them; example with Gradle: `./gradlew clean test openapidoc`.
+The generated YAML file will then be found under `build/openAPIDoc/api.yaml`.

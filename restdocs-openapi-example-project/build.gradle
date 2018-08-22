@@ -51,7 +51,7 @@ dependencies {
 
 // This is the task for aggregating the fragments.
 // The values below will fill the OpenAPI YAML file; most of them are not mandatory.
-openAPIdoc {
+openapidoc {
     openAPIVersion = "3.0.1"
 
     // Fill with the project version
@@ -66,10 +66,10 @@ openAPIdoc {
     serverUrl = "http://localhost:8080"
     serverDescription = "Testing environment"
 
-    outputDirectory = "openAPIdoc"
+    outputDirectory = "openAPIDoc"
     snippetsDirectory = "generated-snippets"
     outputFileNamePrefix ="api"
 }
 
 // Call the plugin after the test task is successful
-test.finalizedBy('openAPIdoc')
+test.finalizedBy('openapidoc')

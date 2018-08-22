@@ -197,7 +197,7 @@ abstract class OpenAPITaskTestResources {
 
     protected abstract fun fullBuildFile() : String
 
-    fun `should aggregate openAPI fragments`() {
+    fun `should aggregate OpenAPI fragments`() {
         givenVariablesDefinition()
 
         givenBuildFileWithOpenAPIDocClosure()
@@ -211,7 +211,7 @@ abstract class OpenAPITaskTestResources {
     }
 
 
-    fun `should aggregate openAPI fragments with missing openAPIdoc closure`() {
+    fun `should aggregate OpenAPI fragments with missing openAPIDoc closure`() {
         givenBuildFileWithoutOpenAPIDocClosure()
         givenSnippetFiles()
         givenRequestBodyJsonFile()

@@ -8,7 +8,7 @@ import org.apache.maven.plugins.annotations.Parameter
 import java.io.File
 
 
-@Mojo(name = "openAPIdoc")
+@Mojo(name = "openapidoc")
 class RestdocsOpenAPIMavenPlugin : AbstractMojo() {
     private val o = PluginDefaultValues()
 

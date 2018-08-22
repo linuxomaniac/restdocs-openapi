@@ -25,7 +25,7 @@ class OpenAPIMavenTaskTest : OpenAPITaskTestResources() {
         val request = DefaultInvocationRequest()
         request.baseDirectory = testProjectDir.root
         request.pomFile = buildFile
-        request.goals = Collections.singletonList("restdocs-openapi:openAPIdoc")
+        request.goals = Collections.singletonList("restdocs-openapi:openapidoc")
         val invoker = DefaultInvoker()
         result = invoker.execute(request)
     }
@@ -110,10 +110,10 @@ class OpenAPIMavenTaskTest : OpenAPITaskTestResources() {
 
     // The actual tests
     @Test
-    fun `call should aggregate openAPI fragments`() =
-            `should aggregate openAPI fragments`()
+    fun `call should aggregate OpenAPI fragments`() =
+            `should aggregate OpenAPI fragments`()
 
     @Test
-    fun `call should aggregate openAPI fragments with missing openAPIdoc closure`() =
-            `should aggregate openAPI fragments with missing openAPIdoc closure`()
+    fun `call should aggregate OpenAPI fragments with missing openAPIDoc closure`() =
+            `should aggregate OpenAPI fragments with missing openAPIDoc closure`()
 }
