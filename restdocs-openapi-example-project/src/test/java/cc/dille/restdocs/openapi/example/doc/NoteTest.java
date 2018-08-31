@@ -72,6 +72,9 @@ public class NoteTest extends RestDocTest {
                                 .summary("Gets a Note")
                                 .statusDescription("Returns the requested note")
                                 .pathParameters(parameterWithName("noteId").description("The id of the Note to get"))
+                                .responseFields(fieldWithPath("note").description("The note object").type(JsonFieldType.OBJECT),
+                                        fieldWithPath("note.id").description("The id").type(JsonFieldType.NUMBER),
+                                        fieldWithPath("note.content").description("the content").type(JsonFieldType.STRING))
                                 .build())));
     }
 
