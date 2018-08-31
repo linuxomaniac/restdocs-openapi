@@ -13,13 +13,22 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>dille.cc</id>
+            <url>https://maven.dille.cc</url>
+        </repository>
     </repositories>
+    <!--  -->
 
     <!-- This is needed because otherwise the restdocs-openapi plugin can't find kluent -->
     <pluginRepositories>
         <pluginRepository>
             <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
+            <url>https://jcenter.bintray.com</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>dille.cc</id>
+            <url>https://maven.dille.cc</url>
         </pluginRepository>
     </pluginRepositories>
     <!--  -->
@@ -135,15 +144,6 @@
             <artifactId>restdocs-openapi</artifactId>
             <version>0.1.0</version>
         </dependency>
-        <!--  -->
-
-        <!-- This one is needed for the test runtime when generating schemas for fragments -->
-        <!--<dependency>-->
-            <!--<groupId>com.github.everit-org.json-schema</groupId>-->
-            <!--<artifactId>org.everit.json.schema</artifactId>-->
-            <!--<version>1.9.1</version>-->
-            <!--<scope>runtime</scope>-->
-        <!--</dependency>-->
         <!--  -->
     </dependencies>
 </project>

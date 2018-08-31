@@ -2,6 +2,7 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
+        maven { url 'https://maven.dille.cc' }
     }
     dependencies {
         // Add the plugin to Gradle dependencies
@@ -25,6 +26,7 @@ repositories {
     jcenter()
     // Add this for some dependencies
     maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.dille.cc' }
 }
 
 group = "cc.dille"

@@ -40,14 +40,15 @@ public class JwtScopeHandler implements OperationHandler {
         String[] jwtParts = jwt.split("\\.");
         if (jwtParts.length >= 2) { // JWT = header, payload, signature; at least the first two should be there
             String jwtPayload = jwtParts[1];
-            String decodedPayload = new String(Base64.getDecoder().decode(jwtPayload));
             try {
+                String decodedPayload = new String(Base64.getDecoder().decode(jwtPayload));
                 Map<String, Object> jwtMap =  new ObjectMapper().readValue(decodedPayload, new TypeReference<Map<String, Object>>(){});
                 Object scope = jwtMap.get("scope");
                 if (scope instanceof List) {
                     return (List<String>) scope;
                 }
-            } catch (IOException e) {
+            // IllegalArgumentException appears when trying to decode Base64
+            } catch (IOException|IllegalArgumentException e) {
                 //probably not JWT
             }
         }

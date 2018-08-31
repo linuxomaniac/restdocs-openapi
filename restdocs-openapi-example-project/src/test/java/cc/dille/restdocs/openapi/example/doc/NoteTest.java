@@ -8,14 +8,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.JsonFieldType;
 
-import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.linkWithRel;
 import static cc.dille.restdocs.openapi.OpenAPIResourceDocumentation.openAPIResource;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

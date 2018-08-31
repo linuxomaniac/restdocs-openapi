@@ -9,11 +9,14 @@ An attempt to generate OpenAPI documentation with Spring Restdocs.
 
 This project consists of several subprojects, each one contains a `README.md` file:
 
-- `restdocs-openapi` is the lib to use with Sping Restodcs and that generates fragment files
-- `restdocs-openapi-plugin` is the plugin for Gradle and Maven to aggregate fragment files
-- `restdocs-openapi-example-project` is a dummy project that shows the usage of the lib and the plugins for both Gradle and Maven
-- `swagger-ui-test` is a nodeJS standalone web UI for visualising the generated OpenAPI files
+- `restdocs-openapi` is the lib to use with Sping Restodcs and that generates fragment files;
+- `restdocs-openapi-plugin` is the plugin for Gradle and Maven to aggregate fragment files;
+- `restdocs-openapi-example-project` is a dummy project that shows the usage of the lib and the plugins for both Gradle and Maven;
+- `swagger-ui-test` is a nodeJS standalone web UI for visualising the generated OpenAPI files.
 
+## Availability
+
+Currently the version 0.1.0 is built and available on the following repo: https://maven.dille.cc/.
 
 ## Useful links
 - OpenAPI 3.0.1 specification: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md
